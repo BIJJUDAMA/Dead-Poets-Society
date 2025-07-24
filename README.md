@@ -1,4 +1,3 @@
-
 # Dead Poets Society - Poetry Platform
 
 This is a modern web application built for a community of poets to share, discover, and appreciate poetry. It's built with a powerful and scalable stack, focusing on a great developer experience and a seamless user interface.
@@ -27,7 +26,8 @@ This is a modern web application built for a community of poets to share, discov
 
 ```bash
 git clone https://github.com/BIJJUDAMA/Dead-Poets-Society
-cd frontend
+cd Dead-Poets-Society
+
 ```
 
 ### 2. Install Dependencies
