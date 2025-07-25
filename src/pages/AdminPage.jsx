@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/supabase/config.js';
 import { useAuth } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
-import { FileText, Inbox, Users, Trash, Shield, ShieldOff, Edit, X, Eye, Check } from 'lucide-react';
+import { FileText, Inbox, Users, Trash, Shield, ShieldOff, Edit, X, Eye, Check, Loader2 } from 'lucide-react';
 import '@/css/Admin.css';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+
 
 const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description }) => (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,6 +47,7 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
     );
 };
 
+
 const AdminPage = () => {
     const { isMainAdmin, loading: authLoading } = useAuth();
     const [data, setData] = useState({ poems: [], users: [], poemSubmissions: [] });
@@ -53,9 +55,10 @@ const AdminPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingItem, setEditingItem] = useState(null);
     const [viewingItem, setViewingItem] = useState(null);
-    const [activeTab, setActiveTab] = useState('poems');
     const [selectedPoems, setSelectedPoems] = useState([]);
     const [deleteAction, setDeleteAction] = useState(null);
+    const [updatingUserId, setUpdatingUserId] = useState(null);
+    const [updateSuccessUserId, setUpdateSuccessUserId] = useState(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -80,6 +83,13 @@ const AdminPage = () => {
     }, []);
 
     useEffect(() => { if (!authLoading) fetchData(); }, [authLoading, fetchData]);
+
+    useEffect(() => {
+        if (updateSuccessUserId) {
+            const timer = setTimeout(() => setUpdateSuccessUserId(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [updateSuccessUserId]);
 
     const confirmDelete = async () => {
         if (!deleteAction) return;
@@ -123,21 +133,41 @@ const AdminPage = () => {
         fetchData();
     };
 
+
     const handleToggleSemiAdmin = async (userId, currentStatus) => {
+        setUpdatingUserId(userId);
+        setUpdateSuccessUserId(null);
+
         const newRole = currentStatus === 'semi-admin' ? 'user' : 'semi-admin';
+        const originalUsers = [...data.users];
+
+
+        setData(prevData => ({
+            ...prevData,
+            users: prevData.users.map(u => (u.id === userId ? { ...u, role: newRole } : u)),
+        }));
+
         try {
             const { error } = await supabase.from("profiles").update({ role: newRole }).eq('id', userId);
+
             if (error) {
 
+                throw error;
             }
 
-            setData(prevData => ({
-                ...prevData,
-                users: prevData.users.map(u => u.id === userId ? { ...u, role: newRole } : u)
-            }));
+
+            setUpdateSuccessUserId(userId);
+
+
         } catch (error) {
+            setData(prevData => ({ ...prevData, users: originalUsers }));
+
             console.error("Error toggling admin status:", error);
-            alert("Failed to update user role. Please ensure your database's Row Level Security policies allow admins to update user profiles.");
+
+
+            alert("Failed to update user role. This is likely due to a Row Level Security policy in your Supabase database. Please ensure the main admin's 'role' in the 'profiles' table is set to 'admin'.");
+        } finally {
+            setUpdatingUserId(null);
         }
     };
 
@@ -148,6 +178,8 @@ const AdminPage = () => {
     const handleSelectAllPoems = () => setSelectedPoems(selectedPoems.length === filteredPoems.length ? [] : filteredPoems.map(p => p.id));
 
     if (authLoading) return <div className="text-center py-20">Verifying Admin Status...</div>;
+
+    const pendingSubmissionsCount = data.poemSubmissions.filter(s => s.status === 'pending').length;
 
     return (
         <div className="max-w-6xl mx-auto py-12 px-4 text-white">
@@ -161,11 +193,14 @@ const AdminPage = () => {
             </Dialog>
             <ConfirmationDialog open={!!deleteAction} onOpenChange={() => setDeleteAction(null)} onConfirm={confirmDelete} title="Are you absolutely sure?" description="This action cannot be undone and will permanently delete the selected item(s)." />
 
-            <Tabs defaultValue="poems" onValueChange={setActiveTab} className="w-full">
+            <Tabs defaultValue="poems" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-                    <TabsTrigger value="poems" onClick={() => setSearchTerm('')}><FileText className="mr-2 h-4 w-4" />Poems</TabsTrigger>
-                    <TabsTrigger value="submissions" onClick={() => setSearchTerm('')}><Inbox className="mr-2 h-4 w-4" />Submissions</TabsTrigger>
-                    <TabsTrigger value="users" onClick={() => setSearchTerm('')}><Users className="mr-2 h-4 w-4" />Users</TabsTrigger>
+                    <TabsTrigger value="poems" onClick={() => setSearchTerm('')}><FileText className="mr-2 h-4 w-4" />Poems ({data.poems.length})</TabsTrigger>
+                    <TabsTrigger value="submissions" onClick={() => setSearchTerm('')}>
+                        <Inbox className="mr-2 h-4 w-4" />Submissions
+                        {pendingSubmissionsCount > 0 && <span className="ml-2 bg-yellow-500 text-black text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{pendingSubmissionsCount}</span>}
+                    </TabsTrigger>
+                    <TabsTrigger value="users" onClick={() => setSearchTerm('')}><Users className="mr-2 h-4 w-4" />Users ({data.users.length})</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="poems">
@@ -200,24 +235,34 @@ const AdminPage = () => {
                     <Card className="bg-gray-900 border-gray-700">
                         <CardHeader><CardTitle>Manage Users</CardTitle><Input placeholder="Search by name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-[#1f2937]" /></CardHeader>
                         <CardContent>
-                            {loading ? <p>Loading...</p> : filteredUsers.map(user => (
-                                <div key={user.id} className="flex justify-between items-center p-2 border-b border-gray-700">
-                                    {/* **FIX:** Wrap user info in a Link component to make it clickable */}
-                                    <Link to={`/profile/${user.id}`} className="flex items-center gap-2 flex-grow hover:bg-gray-800 p-2 rounded-md transition-colors">
-                                        <img src={user.photo_url || '/defaultPfp.png'} alt={user.display_name} className="w-8 h-8 rounded-full" />
-                                        <div>
-                                            <p>{user.display_name}</p>
-                                            <p className="text-xs text-gray-400">{user.email}</p>
-                                        </div>
-                                    </Link>
-                                    {isMainAdmin && user.email !== import.meta.env.VITE_ADMIN_EMAIL && (
-                                        <div className="flex items-center gap-2 flex-shrink-0">
-                                            <Button size="sm" onClick={() => handleToggleSemiAdmin(user.id, user.role)}>{user.role === 'semi-admin' ? <ShieldOff className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />}{user.role === 'semi-admin' ? 'Demote' : 'Promote'}</Button>
-                                            <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ tableName: 'profiles', ids: [user.id] })}><Trash className="h-4 w-4" /></Button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                            {loading ? <p>Loading...</p> : filteredUsers.map(user => {
+                                const isUpdating = updatingUserId === user.id;
+                                return (
+                                    <div key={user.id} className="flex justify-between items-center p-2 border-b border-gray-700">
+                                        <Link to={`/profile/${user.id}`} className="flex items-center gap-2 flex-grow hover:bg-gray-800 p-2 rounded-md transition-colors">
+                                            <img src={user.photo_url || '/defaultPfp.png'} alt={user.display_name} className="w-8 h-8 rounded-full" />
+                                            <div>
+                                                <p>{user.display_name}</p>
+                                                <p className="text-xs text-gray-400">{user.email}</p>
+                                            </div>
+                                        </Link>
+                                        {isMainAdmin && user.email !== import.meta.env.VITE_ADMIN_EMAIL && (
+                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                <Button size="sm" onClick={() => handleToggleSemiAdmin(user.id, user.role)} disabled={isUpdating}>
+                                                    {isUpdating ? (
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        user.role === 'semi-admin' ? <ShieldOff className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />
+                                                    )}
+                                                    {isUpdating ? 'Updating...' : (user.role === 'semi-admin' ? 'Demote' : 'Promote')}
+                                                </Button>
+                                                {updateSuccessUserId === user.id && <Check className="h-5 w-5 text-green-500" />}
+                                                <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ tableName: 'profiles', ids: [user.id] })}><Trash className="h-4 w-4" /></Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
                         </CardContent>
                     </Card>
                 </TabsContent>

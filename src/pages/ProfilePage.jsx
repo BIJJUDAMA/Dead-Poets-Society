@@ -93,6 +93,10 @@ const ProfilePage = () => {
     if (profileData?.deleted) return <div className="text-center py-20"><h1 className="text-4xl font-bold">A Poet Has Departed</h1><p className="text-gray-400 mt-4">This user's profile has been deleted.</p></div>;
     if (!profileData) return <div className="text-center py-20">User not found.</div>;
 
+
+    const followerCount = profileData?.followers?.length || 0;
+    const followingCount = profileData?.following?.length || 0;
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-5xl mx-auto py-12 px-4">
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
@@ -110,7 +114,7 @@ const ProfilePage = () => {
                 </DialogContent>
             </Dialog>
 
-            {followList.visible && <FollowListModal title={followList.title} userIds={followList.userIds} onClose={() => setFollowList({ visible: false, title: '', userIds: [] })} />}
+            {followList.visible && <FollowListModal title={followList.title} userIds={profileData[followList.title.toLowerCase()] || []} onClose={() => setFollowList({ visible: false, title: '', userIds: [] })} />}
 
             <div className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-700 pb-8">
                 <img src={profileData.photo_url || '/defaultPfp.png'} alt={profileData.display_name} className="w-32 h-32 rounded-full object-cover" />
@@ -123,10 +127,10 @@ const ProfilePage = () => {
                             <span>Poems</span>
                         </div>
                         <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Followers', userIds: profileData.followers || [] })}>
-                            <strong className="text-white mr-2">{profileData.followers?.length || 0}</strong> Followers
+                            <strong className="text-white mr-2">{followerCount}</strong> Followers
                         </Button>
                         <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Following', userIds: profileData.following || [] })}>
-                            <strong className="text-white mr-2">{profileData.following?.length || 0}</strong> Following
+                            <strong className="text-white mr-2">{followingCount}</strong> Following
                         </Button>
                     </div>
                     {isOwnProfile && (
@@ -148,7 +152,7 @@ const ProfilePage = () => {
                         </div>
                     )}
                     {!isOwnProfile && user && (
-                        <Button onClick={handleFollow} variant={isFollowing ? 'secondary' : 'default'}>
+                        <Button onClick={handleFollow} variant={isFollowing ? 'secondary' : 'default'} className="mt-6">
                             {isFollowing ? 'Following' : 'Follow'}
                         </Button>
                     )}

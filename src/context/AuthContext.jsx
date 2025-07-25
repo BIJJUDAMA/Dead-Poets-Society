@@ -14,27 +14,6 @@ export const AuthProvider = ({ children }) => {
     const [isMainAdmin, setIsMainAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const getSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                await handleUser(session.user);
-            }
-            setLoading(false);
-        };
-        getSession();
-
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-            const currentUser = session?.user;
-            await handleUser(currentUser);
-            setLoading(false);
-        });
-
-        return () => {
-            authListener?.subscription.unsubscribe();
-        };
-    }, []);
-
     const handleUser = async (currentUser) => {
         if (currentUser) {
             setUser(currentUser);
@@ -57,7 +36,7 @@ export const AuthProvider = ({ children }) => {
                 }
                 const mainAdmin = profile.email === import.meta.env.VITE_ADMIN_EMAIL;
                 setIsMainAdmin(mainAdmin);
-                setIsAdmin(mainAdmin || profile.role === 'semi-admin');
+                setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
             } else {
                 setUserProfile({ isNew: true });
                 const mainAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL;
@@ -70,20 +49,51 @@ export const AuthProvider = ({ children }) => {
             setIsAdmin(false);
             setIsMainAdmin(false);
         }
+        setLoading(false);
     };
+
+    useEffect(() => {
+        const getSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            handleUser(session?.user);
+        };
+        getSession();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            handleUser(session?.user);
+        });
+
+        return () => {
+            authListener?.subscription.unsubscribe();
+        };
+    }, []);
+
+    useEffect(() => {
+        let profileListener;
+        if (user?.id) {
+            profileListener = supabase
+                .channel(`public:profiles:id=eq.${user.id}`)
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+                    const newProfile = payload.new;
+                    setUserProfile(newProfile);
+                    const mainAdmin = newProfile.email === import.meta.env.VITE_ADMIN_EMAIL;
+                    setIsMainAdmin(mainAdmin);
+                    setIsAdmin(mainAdmin || newProfile.role === 'semi-admin' || newProfile.role === 'admin');
+                })
+                .subscribe();
+        }
+
+        return () => {
+            if (profileListener) {
+                supabase.removeChannel(profileListener);
+            }
+        };
+    }, [user?.id]);
+
 
     const refreshUserProfile = async () => {
         if (user) {
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-            if (error) {
-                console.error("Error refreshing profile:", error);
-            } else {
-                setUserProfile(profile);
-            }
+            await handleUser(user);
         }
     };
 
