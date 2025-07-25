@@ -29,7 +29,6 @@ const EditProfileModal = ({ onClose }) => {
             updated_at: new Date(),
         };
 
-
         if (photoUrl) {
             profileUpdate.photo_url = photoUrl;
         }

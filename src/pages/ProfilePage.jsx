@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/supabase/config.js';
 import { useAuth } from '@/context/AuthContext';
@@ -22,39 +22,40 @@ const ProfilePage = () => {
     const isFollowing = userProfile?.following?.includes(userId);
     const isOwnProfile = user?.id === userId;
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            setLoading(true);
-            try {
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
+    const fetchProfileData = useCallback(async () => {
+        if (!userId) return;
+        setLoading(true);
+        try {
+            const { data: profile, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+            if (profile) {
+                setProfileData(profile);
+                const { data: poems, error: poemsError } = await supabase
+                    .from('notes')
                     .select('*')
-                    .eq('id', userId)
-                    .single();
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
 
-                if (profileError && profileError.code !== 'PGRST116') throw profileError;
-
-                if (profile) {
-                    setProfileData(profile);
-                    const { data: poems, error: poemsError } = await supabase
-                        .from('notes')
-                        .select('*')
-                        .eq('user_id', userId);
-
-                    if (poemsError) throw poemsError;
-                    setUserContent({ poems: poems || [] });
-                } else {
-                    setProfileData({ deleted: true });
-                }
-            } catch (error) {
-                console.error("Error fetching profile:", error);
+                if (poemsError) throw poemsError;
+                setUserContent({ poems: poems || [] });
+            } else {
+                setProfileData({ deleted: true });
             }
-            finally { setLoading(false); }
-        };
-        if (userId) {
-            fetchProfile();
+        } catch (error) {
+            console.error("Error fetching profile:", error);
         }
-    }, [userId, refreshUserProfile]);
+        finally { setLoading(false); }
+    }, [userId]);
+
+    useEffect(() => {
+        fetchProfileData();
+    }, [fetchProfileData]);
 
     const handleFollow = async () => {
         if (!user || isOwnProfile) return;
@@ -66,14 +67,26 @@ const ProfilePage = () => {
             console.error("Follow error:", error);
         } else {
             await refreshUserProfile();
-            const { data: updatedProfile } = await supabase.from('profiles').select('*').eq('id', userId).single();
-            setProfileData(updatedProfile);
+            fetchProfileData();
         }
     };
 
+
     const handleDeleteAccount = async () => {
         if (!isOwnProfile) return;
-        alert("Account deletion is a sensitive operation and should be handled by a secure Edge Function. This UI button is a placeholder.");
+
+
+        const { error } = await supabase.functions.invoke('delete-user');
+
+        if (error) {
+            alert("Error deleting account: " + error.message);
+            console.error("Delete error:", error);
+        } else {
+
+            await supabase.auth.signOut();
+            alert("Your account has been successfully deleted.");
+            navigate('/');
+        }
     };
 
     if (loading) return <div className="text-center py-20 text-white">Loading Profile...</div>;
@@ -84,8 +97,16 @@ const ProfilePage = () => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-5xl mx-auto py-12 px-4">
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="bg-gray-900 border-gray-700">
-                    <DialogHeader><DialogTitle>Edit Your Profile</DialogTitle></DialogHeader>
-                    <EditProfileModal onClose={() => setIsEditing(false)} />
+                    <DialogHeader>
+                        <DialogTitle>Edit Your Profile</DialogTitle>
+                        <DialogDescription>
+                            Make changes to your profile here. Click save when you're done.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <EditProfileModal onClose={() => {
+                        setIsEditing(false);
+                        fetchProfileData();
+                    }} />
                 </DialogContent>
             </Dialog>
 
@@ -96,27 +117,28 @@ const ProfilePage = () => {
                 <div className="text-center md:text-left">
                     <h1 className="text-4xl font-bold font-cinzel">{profileData.display_name}</h1>
                     <p className="text-gray-400 mt-2 max-w-lg">{profileData.bio}</p>
-
-                    {/* **FIX:** Restyled this section to use button-like elements with better spacing and white text */}
                     <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
-                        <div className="bg-transparent text-white font-medium py-2 px-4 rounded-md">
-                            <strong className="text-white mr-1">{userContent.poems.length}</strong> Poems
+                        <div className="bg-gray-800 text-white font-medium py-2 px-4 rounded-md flex items-center">
+                            <strong className="text-white mr-2">{userContent.poems.length}</strong>
+                            <span>Poems</span>
                         </div>
-                        <button className="bg-transparent hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition-colors" onClick={() => setFollowList({ visible: true, title: 'Followers', userIds: profileData.followers || [] })}>
-                            <strong className="text-white mr-1">{profileData.followers?.length || 0}</strong> Followers
-                        </button>
-                        <button className="bg-transparent hover:bg-gray-800 text-white font-medium py-2 px-4 rounded-md transition-colors" onClick={() => setFollowList({ visible: true, title: 'Following', userIds: profileData.following || [] })}>
-                            <strong className="text-white mr-1">{profileData.following?.length || 0}</strong> Following
-                        </button>
+                        <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Followers', userIds: profileData.followers || [] })}>
+                            <strong className="text-white mr-2">{profileData.followers?.length || 0}</strong> Followers
+                        </Button>
+                        <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Following', userIds: profileData.following || [] })}>
+                            <strong className="text-white mr-2">{profileData.following?.length || 0}</strong> Following
+                        </Button>
                     </div>
-
                     {isOwnProfile && (
                         <div className="flex gap-4 mt-4 justify-center md:justify-start">
                             <Button onClick={() => setIsEditing(true)} className="bg-gray-700 hover:bg-gray-600">Edit Profile</Button>
                             <Dialog>
                                 <DialogTrigger asChild><Button variant="destructive">Delete Account</Button></DialogTrigger>
                                 <DialogContent className="bg-gray-900 border-gray-700">
-                                    <DialogHeader><DialogTitle>Are you absolutely sure?</DialogTitle><DialogDescription>This action cannot be undone. This will permanently delete your account and all associated poems.</DialogDescription></DialogHeader>
+                                    <DialogHeader>
+                                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                        <DialogDescription>This action cannot be undone. This will permanently delete your account and all associated poems.</DialogDescription>
+                                    </DialogHeader>
                                     <DialogFooter>
                                         <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
                                         <Button variant="destructive" onClick={handleDeleteAccount}>Yes, Delete Account</Button>

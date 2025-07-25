@@ -18,7 +18,7 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
         setPreview(URL.createObjectURL(file));
 
         try {
-            const options = { maxSizeMB: 0.5, maxWidthOrHeight: 800, useWebWorker: true };
+            const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
             const compressedFile = await imageCompression(file, options);
 
             const filePath = `${user.id}/${Date.now()}-${compressedFile.name}`;
