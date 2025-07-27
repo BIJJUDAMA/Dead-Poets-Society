@@ -57,14 +57,15 @@ const Navbar = () => {
 
                     {/* Mobile: Profile Icon + Hamburger Menu Icon */}
                     <div className="md:hidden flex items-center space-x-4">
-                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
-                        </button>
+
                         {user && (
                             <Link to={`/profile/${user.id}`} onClick={closeMenu}>
                                 <img src={photoSrc} alt="Profile" className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-yellow-400" />
                             </Link>
                         )}
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
+                        </button>
                     </div>
                 </div>
             </div>
