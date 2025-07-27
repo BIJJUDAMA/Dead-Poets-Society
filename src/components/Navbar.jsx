@@ -54,7 +54,18 @@ const Navbar = () => {
                             </Link>
                         )}
                     </div>
-                    <div className="md:hidden"><button onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={30} /> : <Menu size={30} />}</button></div>
+
+                    {/* Mobile: Profile Icon + Hamburger Menu Icon */}
+                    <div className="md:hidden flex items-center space-x-4">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
+                        </button>
+                        {user && (
+                            <Link to={`/profile/${user.id}`} onClick={closeMenu}>
+                                <img src={photoSrc} alt="Profile" className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-yellow-400" />
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -69,10 +80,9 @@ const Navbar = () => {
                     <div className="border-t border-gray-700 pt-6 w-full flex flex-col items-center space-y-6">
                         {user ? (
                             <>
-                                {isAdmin ? (
+                                <Link to="/submit" onClick={closeMenu} className="text-xl hover:text-yellow-300">Submit Poem</Link>
+                                {isAdmin && (
                                     <Link to="/admin" onClick={closeMenu} className="text-xl hover:text-yellow-300">Admin</Link>
-                                ) : (
-                                    <Link to="/submit" onClick={closeMenu} className="text-xl hover:text-yellow-300">Submit Poem</Link>
                                 )}
                                 <button onClick={handleLogout} className="flex items-center gap-2 bg-red-800 px-4 py-2 rounded-md">
                                     <LogOut size={16} /> Logout
