@@ -45,7 +45,7 @@ const NotePage = () => {
             } finally {
                 setLoading(false);
             }
-        }; a
+        };
         getNote();
     }, [id]);
 
