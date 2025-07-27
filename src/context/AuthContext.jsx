@@ -14,17 +14,53 @@ export const AuthProvider = ({ children }) => {
     const [isMainAdmin, setIsMainAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const handleUser = async (currentUser) => {
+        if (currentUser) {
+            setUser(currentUser);
+
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (error && error.code !== 'PGRST116') {
+                console.error("Error fetching profile:", error);
+            }
+
+            if (profile) {
+                if (!profile.display_name) {
+                    setUserProfile({ ...profile, isNew: true });
+                } else {
+                    setUserProfile(profile);
+                }
+                const mainAdmin = profile.email === import.meta.env.VITE_ADMIN_EMAIL;
+                setIsMainAdmin(mainAdmin);
+                setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
+            } else {
+                setUserProfile({ isNew: true });
+                const mainAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL;
+                setIsMainAdmin(mainAdmin);
+                setIsAdmin(mainAdmin);
+            }
+        } else {
+            setUser(null);
+            setUserProfile(null);
+            setIsAdmin(false);
+            setIsMainAdmin(false);
+        }
+        setLoading(false);
+    };
+
     useEffect(() => {
         const getSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-            setLoading(false);
+            handleUser(session?.user);
         };
         getSession();
 
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
+            handleUser(session?.user);
         });
 
         return () => {
@@ -34,62 +70,30 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         let profileListener;
-
-        const fetchUserProfile = async () => {
-            if (user) {
-                const { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    console.error("Error fetching profile:", error);
-                } else if (profile) {
-                    setUserProfile(profile);
-                    const mainAdmin = profile.email === import.meta.env.VITE_ADMIN_EMAIL;
+        if (user?.id) {
+            profileListener = supabase
+                .channel(`public:profiles:id=eq.${user.id}`)
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+                    const newProfile = payload.new;
+                    setUserProfile(newProfile);
+                    const mainAdmin = newProfile.email === import.meta.env.VITE_ADMIN_EMAIL;
                     setIsMainAdmin(mainAdmin);
-                    setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
-
-                    profileListener = supabase
-                        .channel(`public:profiles:id=eq.${user.id}`)
-                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
-                            const newProfile = payload.new;
-                            setUserProfile(newProfile);
-                            const newMainAdmin = newProfile.email === import.meta.env.VITE_ADMIN_EMAIL;
-                            setIsMainAdmin(newMainAdmin);
-                            setIsAdmin(newMainAdmin || newProfile.role === 'semi-admin' || newProfile.role === 'admin');
-                        })
-                        .subscribe();
-
-                } else {
-                    setUserProfile({ isNew: true });
-                }
-            } else {
-                setUserProfile(null);
-                setIsAdmin(false);
-                setIsMainAdmin(false);
-            }
-        };
-
-        fetchUserProfile();
+                    setIsAdmin(mainAdmin || newProfile.role === 'semi-admin' || newProfile.role === 'admin');
+                })
+                .subscribe();
+        }
 
         return () => {
             if (profileListener) {
                 supabase.removeChannel(profileListener);
             }
         };
-    }, [user]);
+    }, [user?.id]);
 
 
     const refreshUserProfile = async () => {
         if (user) {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-            setUserProfile(profile);
+            await handleUser(user);
         }
     };
 
@@ -97,7 +101,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 };
