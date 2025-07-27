@@ -71,7 +71,13 @@ const PoemSubmissionForm = () => {
             </div>
             <div>
                 <Label>Tags</Label>
-                <MultiSelectDropdown options={POEM_TAGS} selectedOptions={selectedTags} onSelectionChange={setSelectedTags} title="Select Tags" />
+                {/* The onSelectionChange prop now directly uses setSelectedTags */}
+                <MultiSelectDropdown
+                    options={POEM_TAGS}
+                    selectedOptions={selectedTags}
+                    onSelectionChange={setSelectedTags}
+                    title="Select Tags"
+                />
             </div>
             <Button type="submit" disabled={isLoading || !isTitleValid || !isDescriptionValid}>
                 <Send className="mr-2 h-4 w-4" /> {isLoading ? 'Submitting...' : 'Submit Poem'}
