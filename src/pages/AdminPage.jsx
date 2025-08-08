@@ -89,7 +89,8 @@ const AdminPage = () => {
             case 'users':
                 query = supabase.from('profiles').select('*', baseOptions);
                 if (search) query = query.or(`display_name.ilike.%${search}%,email.ilike.%${search}%`);
-                query = query.order('created_at', { ascending: false }).range(from, to);
+                // FIX: Removed ordering by 'created_at' as the column likely doesn't exist on the 'profiles' table.
+                query = query.range(from, to);
                 break;
             case 'submissions':
                 query = supabase.from('poem_submissions').select('*', baseOptions).eq('status', 'pending');
