@@ -5,13 +5,10 @@ const Footer = () => {
         <footer className="bg-black py-16 px-4 mt-auto flex items-center justify-center">
             <div className="max-w-7xl mx-auto text-center text-gray-400 flex flex-col items-center gap-8">
 
-                {/* Carpe Diem Quote*/}
                 <p className="text-lg italic font-serif">"Carpe Diem. Seize the day."</p>
 
-                {/* Social Links Container */}
-                <div className="flex flex-col sm:flex-row items-start justify-center gap-8 sm:gap-16">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 sm:gap-16">
 
-                    {/* Dead Poets Society Link*/}
                     <div className="flex flex-col items-center text-center gap-2">
                         <p className="font-semibold text-sm text-gray-300">Dead Poets Society</p>
                         <a
@@ -26,7 +23,6 @@ const Footer = () => {
                         <p className="text-xs text-gray-500 mt-1">@dead_poets_society_poetree</p>
                     </div>
 
-                    {/* Srishti Link */}
                     <div className="flex flex-col items-center text-center gap-2">
                         <p className="font-semibold text-sm text-gray-300">Srishti</p>
                         <a
