@@ -35,12 +35,34 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
     const [formData, setFormData] = useState(note);
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4"><Label htmlFor="title" className="text-left sm:text-right text-gray-400">Title</Label><Input id="title" name="title" value={formData.title} onChange={handleChange} className="col-span-1 sm:col-span-3 bg-gray-700" /></div>
-            <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-4"><Label htmlFor="poet_name" className="text-left sm:text-right text-gray-400">Poet Name</Label><Input id="poet_name" name="poet_name" value={formData.poet_name} onChange={handleChange} className="col-span-1 sm:col-span-3 bg-gray-700" /></div>
-            <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-4"><Label htmlFor="preview" className="text-left sm:text-right pt-2 text-gray-400">Preview</Label><Textarea id="preview" name="preview" value={formData.preview} onChange={handleChange} className="col-span-1 sm:col-span-3 bg-gray-700" /></div>
-            <div className="grid grid-cols-1 sm:grid-cols-4 items-start gap-4"><Label htmlFor="content" className="text-left sm:text-right pt-2 text-gray-400">Content</Label><Textarea id="content" name="content" value={formData.content} rows={8} className="col-span-1 sm:col-span-3 bg-gray-700" /></div>
-            <DialogFooter>
+        // Changed to a flex column layout for a clean, vertical form structure on all screen sizes.
+        <div className="flex flex-col space-y-4 py-4">
+            {/* Title Field */}
+            <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="title" className="text-gray-400">Title</Label>
+                <Input id="title" name="title" value={formData.title} onChange={handleChange} className="bg-gray-700 border-gray-600" />
+            </div>
+
+            {/* Poet Name Field */}
+            <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="poet_name" className="text-gray-400">Poet Name</Label>
+                <Input id="poet_name" name="poet_name" value={formData.poet_name} onChange={handleChange} className="bg-gray-700 border-gray-600" />
+            </div>
+
+            {/* Preview Field */}
+            <div className="grid w-full gap-1.5">
+                <Label htmlFor="preview" className="text-gray-400">Preview</Label>
+                <Textarea id="preview" name="preview" value={formData.preview} onChange={handleChange} className="bg-gray-700 border-gray-600" />
+            </div>
+
+            {/* Content Field */}
+            <div className="grid w-full gap-1.5">
+                <Label htmlFor="content" className="text-gray-400">Content</Label>
+                <Textarea id="content" name="content" value={formData.content} rows={8} className="bg-gray-700 border-gray-600" />
+            </div>
+
+            {/* Action Buttons */}
+            <DialogFooter className="!mt-6">
                 <Button variant="ghost" onClick={onCancel}>Cancel</Button>
                 <Button onClick={() => onSave(formData)}>Save Changes</Button>
             </DialogFooter>
@@ -89,7 +111,7 @@ const AdminPage = () => {
             case 'users':
                 query = supabase.from('profiles').select('*', baseOptions);
                 if (search) query = query.or(`display_name.ilike.%${search}%,email.ilike.%${search}%`);
-                // FIX: Removed ordering by 'created_at' as the column likely doesn't exist on the 'profiles' table.
+                // FIX: Removed ordering by 'created_at' as the column  doesn't exist on the 'profiles' table.
                 query = query.range(from, to);
                 break;
             case 'submissions':
