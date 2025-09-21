@@ -36,13 +36,8 @@ cd Dead-Poets-Society
 npm install
 ```
 
-### 3. Set Up Supabase
 
-- Create a new project on Supabase.
-- In the SQL Editor, run the complete setup script provided in the project to create your tables, functions, and storage policies.
-- Configure Google OAuth in the **Authentication > Providers** section of your Supabase dashboard.
-
-### 4. Configure Environment Variables
+### 3. Configure Environment Variables
 
 Create a `.env.local` file in the root of your project and add your Supabase credentials. You can find these in your Supabase project's **Settings > API** section.
 
@@ -54,17 +49,9 @@ VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 VITE_ADMIN_EMAIL="your-admin-email@example.com"
 ```
 
-### 5. Run the Development Server
+### 🛠️ Future Plans
+- [ ] Move the project from ReactJS to NextJS
+- [ ] Integrate with **B2 Backblaze** for media storage.  
+- [ ] Build an **Events Page** for showcasing club activities.  
+- [ ] Revamp **About Us Page** with dynamic team/year-wise structure.
 
-```bash
-npm run dev
-```
-
-The application should now be running on [http://localhost:5173](http://localhost:5173).
-
-## 📜 Available Scripts
-
-- `npm run dev`: Starts the development server.
-- `npm run build`: Builds the application for production.
-- `npm run lint`: Lints the code to find and fix issues.
-- `npm run preview`: Serves the production build locally for testing.
