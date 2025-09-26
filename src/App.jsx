@@ -15,6 +15,7 @@ import SubmitPage from './pages/SubmitPage';
 import SetupProfilePage from './pages/SetupProfilePage';
 import ProfilePage from './pages/ProfilePage';
 import UsersPage from './pages/UsersPage';
+import EventPage from './pages/EventPage';
 
 const AppContent = () => {
   const location = useLocation();
@@ -47,6 +48,7 @@ const AppContent = () => {
         <Route path="/note/:id" element={<NotePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/poets" element={<UsersPage />} />
+        <Route path="/event" element={<EventPage />} />
 
         {/* Protected Routes */}
         <Route path="/submit" element={<ProtectedRoute><SubmitPage /></ProtectedRoute>} />
