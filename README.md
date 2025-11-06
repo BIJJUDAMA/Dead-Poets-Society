@@ -50,7 +50,6 @@ VITE_ADMIN_EMAIL="your-admin-email@example.com"
 ```
 
 ### 🛠️ Future Plans
-- [ ] Move the project from ReactJS to NextJS
 - [ ] Integrate with **B2 Backblaze** for media storage.  
 - [ ] Build an **Events Page** for showcasing club activities.  
 - [ ] Revamp **About Us Page** with dynamic team/year-wise structure.
