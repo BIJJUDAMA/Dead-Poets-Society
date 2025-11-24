@@ -21,7 +21,7 @@ This is a modern web application built for a community of poets to share, discov
 - **Deployment**: Vercel
 
 ### 🛠️ Future Plans
-- [ ] Integrate with **B2 Backblaze** for media storage.  
+- [ ] Integrate with **Object Storage** for various medias.  
 - [ ] Build an **Events Page** for showcasing club activities.  
 - [ ] Revamp **About Us Page** with dynamic team/year-wise structure.
 
