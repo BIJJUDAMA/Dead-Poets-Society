@@ -1,6 +1,18 @@
 import { Instagram } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 const Footer = () => {
+    const location = useLocation();
+    const isEventPage = location.pathname === '/event';
+
+    if (isEventPage) {
+        return (
+            <footer className="bg-black py-4 px-4 mt-auto flex items-center justify-center border-t border-gray-900">
+                <p className="text-sm text-gray-500 italic font-serif">"Carpe Diem. Seize the day."</p>
+            </footer>
+        );
+    }
+
     return (
         <footer className="bg-black py-16 px-4 mt-auto flex items-center justify-center">
             <div className="max-w-7xl mx-auto text-center text-gray-400 flex flex-col items-center gap-8">

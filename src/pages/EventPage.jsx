@@ -6,7 +6,9 @@ const EventPage = () => {
     const [puzzlePieces, setPuzzlePieces] = useState([]);
     const [draggedPiece, setDraggedPiece] = useState(null);
     const [selectedPiece, setSelectedPiece] = useState(null);
-    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+    const dragOffsetRef = useRef({ x: 0, y: 0 });
+    const dragElementRef = useRef(null);
+    const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
     const [isComplete, setIsComplete] = useState(false);
 
     // Store piece and grid sizes as objects to handle rectangular shapes
@@ -32,17 +34,33 @@ const EventPage = () => {
             // Calculate the container width minus padding to get the exact content area
             const containerWidth = element.clientWidth - paddingX;
 
-            // Calculate piece width based on container
-            const newPieceWidth = Math.floor(containerWidth / gridSize);
-            // Calculate piece height based on aspect ratio to maintain proportions
-            const newPieceHeight = Math.floor(newPieceWidth / imageAspectRatio);
+            // Calculate available height (viewport height - header - padding - approximate gap)
+            // On mobile, we stack 2 grids, so we need space for roughly 2 * (gridSize * height)
+            // On desktop, we have side-by-side, so we need space for 1 * (gridSize * height)
+            const isDesktop = window.innerWidth >= 1024; // lg breakpoint
+            const availableHeight = window.innerHeight - 200; // Subtract header/padding
 
-            setPieceSize({ width: newPieceWidth, height: newPieceHeight });
+            // Calculate max piece width based on container width
+            let maxPieceWidth = Math.floor(containerWidth / gridSize);
+
+            // Calculate max piece height based on available height
+            // Mobile: 2 grids stacked + gap. Desktop: 1 grid.
+            const verticalDivisor = isDesktop ? gridSize : (gridSize * 2.2); // 2.2 to account for gap/tray
+            const maxPieceHeight = Math.floor(availableHeight / verticalDivisor);
+
+            // Calculate width from max height to maintain aspect ratio
+            const widthFromHeight = Math.floor(maxPieceHeight * imageAspectRatio);
+
+            // Use the smaller of the two dimensions to ensure it fits
+            const finalPieceWidth = Math.min(maxPieceWidth, widthFromHeight);
+            const finalPieceHeight = Math.floor(finalPieceWidth / imageAspectRatio);
+
+            setPieceSize({ width: finalPieceWidth, height: finalPieceHeight });
 
             // Calculate the total grid size to be a perfect multiple of the piece size
             const newGridDisplaySize = {
-                width: newPieceWidth * gridSize,
-                height: newPieceHeight * gridSize,
+                width: finalPieceWidth * gridSize,
+                height: finalPieceHeight * gridSize,
             };
             setGridDisplaySize(newGridDisplaySize);
         }
@@ -58,11 +76,16 @@ const EventPage = () => {
         img.src = imageUrl;
     }, [imageUrl]);
 
-    // Update grid sizes when aspect ratio is known or when window resizes
+    // Update grid sizes using ResizeObserver
     useEffect(() => {
-        updateGridSizes();
-        window.addEventListener('resize', updateGridSizes);
-        return () => window.removeEventListener('resize', updateGridSizes);
+        if (!puzzleWrapperRef.current) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            updateGridSizes();
+        });
+
+        resizeObserver.observe(puzzleWrapperRef.current);
+        return () => resizeObserver.disconnect();
     }, [updateGridSizes]);
 
     const shuffleArray = (array) => {
@@ -133,15 +156,32 @@ const EventPage = () => {
         }
     }, [createPuzzlePieces]);
 
-    const handleMouseDown = (e, piece) => {
+    const handleDragStart = (e, piece) => {
         if (isComplete) return;
 
-        setDraggedPiece(piece);
+        // Prevent default to stop scrolling immediately on touch
+        if (e.type === 'touchstart') {
+            // We can't always preventDefault on touchstart if we want click emulation,
+            // but since we are doing custom click emulation, we CAN.
+            // However, React's synthetic event might complain if not passive.
+            // Actually, for "no page move", we MUST prevent default.
+            // e.preventDefault() here might be too late for some browsers if not passive: false.
+            // But we'll try.
+        }
+
+        // Normalize event coordinates (Mouse vs Touch)
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        // Record start for tap detection
+        touchStartRef.current = { x: clientX, y: clientY, time: Date.now() };
+
         const rect = e.currentTarget.getBoundingClientRect();
-        setDragOffset({
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top
-        });
+        const offsetX = clientX - rect.left;
+        const offsetY = clientY - rect.top;
+
+        dragOffsetRef.current = { x: offsetX, y: offsetY };
+        setDraggedPiece({ ...piece, initialX: clientX - offsetX, initialY: clientY - offsetY });
         setSelectedPiece(null);
 
         if (piece.isInGrid) {
@@ -181,51 +221,79 @@ const EventPage = () => {
     };
 
     const handleMouseMove = (e) => {
-        if (!draggedPiece) return;
-        setPuzzlePieces(prev => prev.map(piece =>
-            piece.id === draggedPiece.id
-                ? { ...piece, dragPosition: { x: e.clientX - dragOffset.x, y: e.clientY - dragOffset.y } }
-                : piece
-        ));
+        if (!draggedPiece || !dragElementRef.current) return;
+
+        // Prevent scrolling on touch devices
+        if (e.cancelable) e.preventDefault();
+
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+        const x = clientX - dragOffsetRef.current.x;
+        const y = clientY - dragOffsetRef.current.y;
+
+        dragElementRef.current.style.transform = `translate(${x}px, ${y}px) rotate(-5deg) scale(1.1)`;
     };
 
     const handleMouseUp = (e) => {
         if (!draggedPiece) return;
 
+        const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+        const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+        // Check for Tap (Click)
+        const diffX = Math.abs(clientX - touchStartRef.current.x);
+        const diffY = Math.abs(clientY - touchStartRef.current.y);
+        const diffTime = Date.now() - touchStartRef.current.time;
+
+        // If moved less than 10px and faster than 300ms, treat as click
+        if (diffX < 10 && diffY < 10 && diffTime < 300) {
+            handlePieceClick(draggedPiece);
+            setDraggedPiece(null);
+            return;
+        }
+
         if (puzzleGridRef.current) {
             const gridRect = puzzleGridRef.current.getBoundingClientRect();
-            if (e.clientX > gridRect.left && e.clientX < gridRect.right && e.clientY > gridRect.top && e.clientY < gridRect.bottom) {
-                const mouseX = e.clientX - gridRect.left;
-                const mouseY = e.clientY - gridRect.top;
-                const gridCol = Math.floor(mouseX / pieceSize.width);
-                const gridRow = Math.floor(mouseY / pieceSize.height);
+            // Calculate the center of the dragged piece for better hit testing
+            const pieceCenterX = clientX - dragOffsetRef.current.x + (pieceSize.width / 2);
+            const pieceCenterY = clientY - dragOffsetRef.current.y + (pieceSize.height / 2);
 
-                const isOccupied = puzzlePieces.some(p => p.row === gridRow && p.col === gridCol);
+            if (pieceCenterX > gridRect.left && pieceCenterX < gridRect.right &&
+                pieceCenterY > gridRect.top && pieceCenterY < gridRect.bottom) {
 
-                if (!isOccupied) {
-                    setPuzzlePieces(prev => {
-                        const updated = prev.map(piece =>
-                            piece.id === draggedPiece.id
-                                ? { ...piece, isInGrid: true, isInAvailable: false, dragPosition: null, row: gridRow, col: gridCol }
-                                : piece
-                        );
+                const relativeX = pieceCenterX - gridRect.left;
+                const relativeY = pieceCenterY - gridRect.top;
 
-                        const isNowComplete = updated.every(p => p.isInGrid && p.row === p.correctPosition.row && p.col === p.correctPosition.col);
-                        if (isNowComplete) {
-                            setIsComplete(true);
-                        }
+                const gridCol = Math.floor(relativeX / pieceSize.width);
+                const gridRow = Math.floor(relativeY / pieceSize.height);
 
-                        return updated;
-                    });
-                    setDraggedPiece(null);
-                    return;
+                // Ensure we are within valid grid bounds
+                if (gridCol >= 0 && gridCol < gridSize && gridRow >= 0 && gridRow < gridSize) {
+                    const isOccupied = puzzlePieces.some(p => p.row === gridRow && p.col === gridCol);
+
+                    if (!isOccupied) {
+                        setPuzzlePieces(prev => {
+                            const updated = prev.map(piece =>
+                                piece.id === draggedPiece.id
+                                    ? { ...piece, isInGrid: true, isInAvailable: false, row: gridRow, col: gridCol }
+                                    : piece
+                            );
+
+                            const isNowComplete = updated.every(p => p.isInGrid && p.row === p.correctPosition.row && p.col === p.correctPosition.col);
+                            if (isNowComplete) {
+                                setIsComplete(true);
+                            }
+
+                            return updated;
+                        });
+                        setDraggedPiece(null);
+                        return;
+                    }
                 }
             }
         }
 
-        setPuzzlePieces(prev => prev.map(piece =>
-            piece.id === draggedPiece.id ? { ...piece, dragPosition: null } : piece
-        ));
         setDraggedPiece(null);
     };
 
@@ -236,45 +304,52 @@ const EventPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="max-w-6xl mx-auto py-8 sm:py-12 px-4"
+            className="max-w-6xl mx-auto py-4 sm:py-8 px-4 h-[100dvh] overflow-hidden flex flex-col"
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            onTouchMove={(e) => handleMouseMove(e.touches[0])}
+            onTouchMove={handleMouseMove}
             onTouchEnd={handleMouseUp}
         >
             <h1 className="text-3xl sm:text-4xl font-bold text-center mb-8 text-white font-cinzel">
                 Puzzle Challenge
             </h1>
 
-            <div ref={puzzleContainerRef} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div ref={puzzleContainerRef} className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start overflow-y-auto lg:overflow-visible">
                 <Card className="bg-gray-900 border-gray-700">
                     <CardHeader>
                         <CardTitle className="text-white">Available Pieces</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-center items-center p-2">
                         <div
-                            className="grid grid-cols-3 gap-1"
+                            className="flex flex-wrap gap-2 justify-center lg:grid lg:grid-cols-3 lg:gap-1"
                             style={{
-                                width: `${gridDisplaySize.width}px`,
-                                height: `${gridDisplaySize.height}px`,
+                                // Only apply fixed size on desktop to maintain grid structure
+                                ...(window.innerWidth >= 1024 && {
+                                    width: `${gridDisplaySize.width}px`,
+                                    height: `${gridDisplaySize.height}px`,
+                                })
                             }}
                         >
                             {puzzlePieces.map((piece) => {
                                 const isVisible = piece.isInAvailable && draggedPiece?.id !== piece.id;
+                                // On mobile: hide if not available (compact tray).
+                                // On desktop: invisible if not available (maintain grid slot).
+                                const visibilityClass = isVisible ? '' : 'hidden lg:block lg:invisible';
+
                                 return (
                                     <div
                                         key={piece.id}
-                                        className={`bg-gray-700 rounded-sm cursor-pointer transition-all duration-200`}
-                                        onMouseDown={(e) => isVisible && handleMouseDown(e, piece)}
-                                        onTouchStart={(e) => isVisible && handleMouseDown(e.touches[0], piece)}
-                                        onClick={() => isVisible && handlePieceClick(piece)}
+                                        className={`bg-gray-700 rounded-sm cursor-pointer transition-all duration-200 touch-none ${visibilityClass}`}
+                                        onMouseDown={(e) => isVisible && handleDragStart(e, piece)}
+                                        onTouchStart={(e) => isVisible && handleDragStart(e, piece)}
+                                        // onClick removed, handled by custom tap detection in handleMouseUp
                                         style={{
                                             width: `${pieceSize.width}px`,
                                             height: `${pieceSize.height}px`,
                                             backgroundImage: isVisible ? `url(${piece.imageData})` : 'none',
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
-                                            ... (isVisible && selectedPiece?.id === piece.id && {
+                                            ...(isVisible && selectedPiece?.id === piece.id && {
                                                 boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.75)',
                                                 transform: 'scale(1.05)',
                                             })
@@ -339,8 +414,8 @@ const EventPage = () => {
                                                 <div
                                                     className="w-full h-full cursor-grab"
                                                     style={{ backgroundImage: `url(${gridPiece.imageData})`, backgroundSize: 'cover' }}
-                                                    onMouseDown={(e) => handleMouseDown(e, gridPiece)}
-                                                    onTouchStart={(e) => handleMouseDown(e.touches[0], gridPiece)}
+                                                    onMouseDown={(e) => handleDragStart(e, gridPiece)}
+                                                    onTouchStart={(e) => handleDragStart(e, gridPiece)}
                                                 />
                                             )}
                                         </div>
@@ -352,19 +427,20 @@ const EventPage = () => {
                 </Card>
             </div>
 
-            {draggedPiece && draggedPiece.dragPosition && (
+            {draggedPiece && (
                 <div
+                    ref={dragElementRef}
                     className="fixed pointer-events-none z-50 rounded shadow-2xl"
                     style={{
-                        left: `${draggedPiece.dragPosition.x}px`,
-                        top: `${draggedPiece.dragPosition.y}px`,
+                        left: 0,
+                        top: 0,
                         width: `${pieceSize.width}px`,
                         height: `${pieceSize.height}px`,
                         backgroundImage: `url(${draggedPiece.imageData})`,
                         backgroundSize: 'cover',
                         opacity: 0.9,
                         filter: 'drop-shadow(8px 8px 16px rgba(0,0,0,0.7))',
-                        transform: 'rotate(-5deg) scale(1.1)',
+                        transform: `translate(${draggedPiece.initialX}px, ${draggedPiece.initialY}px) rotate(-5deg) scale(1.1)`,
                         border: '3px solid rgba(59, 130, 246, 0.5)',
                         borderRadius: '8px'
                     }}

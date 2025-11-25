@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabase/config.js';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, Menu, X, LogIn } from 'lucide-react';
@@ -18,6 +18,22 @@ const Navbar = () => {
     const closeMenu = () => setIsMenuOpen(false);
 
     const photoSrc = userProfile?.photo_url || user?.user_metadata?.avatar_url || '/defaultPfp.png';
+    const location = useLocation();
+    const isEventPage = location.pathname === '/event';
+
+    if (isEventPage) {
+        return (
+            <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-1">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-center h-12">
+                        <Link to="/" onClick={closeMenu}>
+                            <img src="/DPS.webp" alt="Logo" className="h-10 w-auto" />
+                        </Link>
+                    </div>
+                </div>
+            </nav>
+        );
+    }
 
     return (
         <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-2">
