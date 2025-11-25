@@ -138,29 +138,21 @@ const AdminPage = () => {
         };
     }, []);
 
-    const loadInitialData = useCallback(async () => {
-        setLoading({ initial: true, more: false });
-        const poemsRes = fetchPaginatedData('poems', 0);
-        const usersRes = fetchPaginatedData('users', 0);
-        const submissionsRes = fetchPaginatedData('submissions', 0);
+    const loadInitialCounts = useCallback(async () => {
+        const poemsCount = await supabase.from('notes').select('*', { count: 'exact', head: true });
+        const usersCount = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+        const submissionsCount = await supabase.from('poem_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending');
 
-        const [poemsResult, usersResult, submissionsResult] = await Promise.all([poemsRes, usersRes, submissionsRes]);
-
-        setPoems(poemsResult.data);
-        setHasMore(prev => ({ ...prev, poems: poemsResult.hasMore }));
-        setUsers(usersResult.data);
-        setHasMore(prev => ({ ...prev, users: usersResult.hasMore }));
-        setPoemSubmissions(submissionsResult.data);
-        setHasMore(prev => ({ ...prev, submissions: submissionsResult.hasMore }));
-        setCounts({ poems: poemsResult.count, users: usersResult.count, submissions: submissionsResult.count });
-
-        setPage({ poems: 1, users: 1, submissions: 1 });
-        setLoading({ initial: false, more: false });
-    }, [fetchPaginatedData]);
+        setCounts({
+            poems: poemsCount.count || 0,
+            users: usersCount.count || 0,
+            submissions: submissionsCount.count || 0
+        });
+    }, []);
 
     useEffect(() => {
-        if (!authLoading) loadInitialData();
-    }, [authLoading, loadInitialData]);
+        if (!authLoading) loadInitialCounts();
+    }, [authLoading, loadInitialCounts]);
 
 
     useEffect(() => {
