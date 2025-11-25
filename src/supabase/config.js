@@ -1,4 +1,3 @@
-// src/supabase/config.js
 import { createClient } from '@supabase/supabase-js';
 
 // IMPORTANT: Replace with your actual Supabase project URL and Anon Key
