@@ -15,12 +15,19 @@ const PAGE_SIZE = 8;
 const PoemsPage = () => {
     const [notes, setNotes] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState('created_at_desc');
     const [selectedTags, setSelectedTags] = useState([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const { ref, inView } = useInView({ threshold: 0.5 });
+
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
     const fetchNotes = useCallback(async (isInitial = false) => {
         if (!hasMore && !isInitial) return;
@@ -34,7 +41,17 @@ const PoemsPage = () => {
             const from = isInitial ? 0 : (page + 1) * PAGE_SIZE;
             const to = from + PAGE_SIZE - 1;
 
-            let query = supabase.from('notes').select('*').order(field, { ascending: order === 'asc' }).range(from, to);
+            let query = supabase.from('notes').select('*');
+
+            // Apply filters
+            if (debouncedSearch) {
+                query = query.or(`title.ilike.%${debouncedSearch}%,poet_name.ilike.%${debouncedSearch}%`);
+            }
+            if (selectedTags.length > 0) {
+                query = query.contains('tags', selectedTags);
+            }
+
+            query = query.order(field, { ascending: order === 'asc' }).range(from, to);
 
             const { data: newNotes, error } = await query;
 
@@ -48,13 +65,13 @@ const PoemsPage = () => {
         } finally {
             if (isInitial) setLoading(false);
         }
-    }, [sortBy, page, hasMore]);
+    }, [sortBy, page, hasMore, debouncedSearch, selectedTags]);
 
     useEffect(() => {
         setHasMore(true);
         setPage(0);
         fetchNotes(true);
-    }, [sortBy]);
+    }, [sortBy, debouncedSearch, selectedTags]);
 
     useEffect(() => {
         if (inView && !loading && hasMore) {
@@ -62,19 +79,7 @@ const PoemsPage = () => {
         }
     }, [inView, loading, hasMore, fetchNotes]);
 
-    const filteredNotes = useMemo(() => {
-        return notes
-            .filter(note => {
-                if (selectedTags.length > 0) {
-                    return selectedTags.every(tag => note.tags?.includes(tag));
-                }
-                return true;
-            })
-            .filter(note => {
-                const term = searchTerm.toLowerCase();
-                return note.title.toLowerCase().includes(term) || (note.poet_name && note.poet_name.toLowerCase().includes(term));
-            });
-    }, [notes, selectedTags, searchTerm]);
+    // Client-side filtering removed in favor of server-side filtering
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-12 pb-20 bg-black text-white min-h-screen">
@@ -116,7 +121,7 @@ const PoemsPage = () => {
                         {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
                     </div>
                 ) : (
-                    <NotesGrid notes={filteredNotes} />
+                    <NotesGrid notes={notes} />
                 )}
 
                 <div ref={ref} className="h-10" />
