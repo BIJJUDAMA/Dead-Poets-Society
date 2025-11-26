@@ -37,7 +37,7 @@ const Navbar = () => {
 
     return (
         <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-2">
-            <div className="w-full mx-auto px-4 sm:px-6 lg:px-64">
+            <div className="w-full mx-auto px-4 sm:px-6 lg:px-32 xl:px-64">
                 <div className="relative flex items-center justify-between h-20 md:h-24">
                     <Link to="/" onClick={closeMenu} className="md:ml-16 ml-4">
                         <img src="/DPS.webp" alt="Logo" className="h-14 md:h-20 w-auto" />
@@ -55,7 +55,7 @@ const Navbar = () => {
                     {/* User/Admin Links on Desktop */}
                     <div className="hidden md:flex items-center">
                         {user ? (
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-3">
                                 {isAdmin && <Link to="/admin" className="text-sm hover:text-yellow-300 transition-colors">Admin</Link>}
                                 <Link to={`/profile/${user.id}`}>
                                     <img src={photoSrc} alt="Profile" className="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-yellow-400" />
@@ -70,7 +70,7 @@ const Navbar = () => {
                             </Link>
                         )}
                         {/* Social Links */}
-                        <div className="flex items-center gap-6 ml-4 border-l border-gray-700 pl-6">
+                        <div className="flex items-center gap-4 ml-3 border-l border-gray-700 pl-3">
                             <a
                                 href="https://www.instagram.com/dead_poets_society_poetree/"
                                 target="_blank"
