@@ -1,6 +1,6 @@
 # Dead Poets Society - Poetry Platform
 
-This is a modern web application built for a community of poets to share, discover, and appreciate poetry. It's built with a powerful and scalable stack, focusing on a great developer experience and a seamless user interface.
+This is a web application built for a community of poets to share, discover, and appreciate poetry. It's built with a powerful and scalable stack, focusing on a great developer experience and a seamless user interface.
 
 ## Features
 
@@ -20,7 +20,7 @@ This is a modern web application built for a community of poets to share, discov
 - **Animations**: Framer Motion for smooth page transitions and interactive elements.
 - **Deployment**: Vercel
 
-### 🛠️ Future Plans
+###  Future Plans
 - [ ] Integrate with **Object Storage** for various medias.  
 - [ ] Build an **Events Page** for showcasing club activities.  
 - [ ] Revamp **About Us Page** with dynamic team/year-wise structure.
