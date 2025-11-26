@@ -1,4 +1,4 @@
-import { Instagram } from 'lucide-react';
+import { Instagram, Github } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const Footer = () => {
@@ -21,32 +21,48 @@ const Footer = () => {
 
                 <div className="flex flex-col sm:flex-row items-center sm:items-start justify-center gap-8 sm:gap-16">
 
-                    <div className="flex flex-col items-center text-center gap-2">
-                        <p className="font-semibold text-sm text-gray-300">Dead Poets Society</p>
-                        <a
-                            href="https://www.instagram.com/dead_poets_society_poetree/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-white hover:text-pink-500 transition-colors duration-300"
-                            aria-label="Dead Poets Society on Instagram"
-                        >
-                            <Instagram size={28} />
-                        </a>
-                        <p className="text-xs text-gray-500 mt-1">@dead_poets_society_poetree</p>
+                    <div className="flex flex-row items-start justify-center gap-8 sm:gap-16">
+                        <div className="flex flex-col items-center text-center gap-2">
+                            <p className="font-semibold text-sm text-gray-300">Dead Poets Society</p>
+                            <a
+                                href="https://www.instagram.com/dead_poets_society_poetree/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-pink-500 transition-colors duration-300"
+                                aria-label="Dead Poets Society on Instagram"
+                            >
+                                <Instagram size={28} />
+                            </a>
+                            <p className="text-xs text-gray-500 mt-1">@dead_poets_society_poetree</p>
+                        </div>
+
+                        <div className="flex flex-col items-center text-center gap-2">
+                            <p className="font-semibold text-sm text-gray-300">Srishti</p>
+                            <a
+                                href="https://www.instagram.com/srishti_amrita/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-white hover:text-pink-500 transition-colors duration-300"
+                                aria-label="Srishti on Instagram"
+                            >
+                                <Instagram size={28} />
+                            </a>
+                            <p className="text-xs text-gray-500 mt-1">@srishti_amrita</p>
+                        </div>
                     </div>
 
                     <div className="flex flex-col items-center text-center gap-2">
-                        <p className="font-semibold text-sm text-gray-300">Srishti</p>
+                        <p className="font-semibold text-sm text-gray-300">Contribute</p>
                         <a
-                            href="https://www.instagram.com/srishti_amrita/"
+                            href="https://github.com/BIJJUDAMA/Dead-Poets-Society"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-white hover:text-pink-500 transition-colors duration-300"
-                            aria-label="Srishti on Instagram"
+                            aria-label="GitHub Repository"
                         >
-                            <Instagram size={28} />
+                            <Github size={28} />
                         </a>
-                        <p className="text-xs text-gray-500 mt-1">@srishti_amrita</p>
+                        <p className="text-xs text-gray-500 mt-1">Interested? Join us!</p>
                     </div>
 
                 </div>

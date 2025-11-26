@@ -11,7 +11,6 @@ const EventPage = () => {
     const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
     const [isComplete, setIsComplete] = useState(false);
 
-    // Store piece and grid sizes as objects to handle rectangular shapes
     const [pieceSize, setPieceSize] = useState({ width: 100, height: 100 });
     const [gridDisplaySize, setGridDisplaySize] = useState({ width: 300, height: 300 });
     const [imageAspectRatio, setImageAspectRatio] = useState(1);
@@ -20,38 +19,30 @@ const EventPage = () => {
     const canvasRef = useRef(null);
     const puzzleGridRef = useRef(null);
     const puzzleContainerRef = useRef(null);
-    const puzzleWrapperRef = useRef(null); // Ref for measuring the container
+    const puzzleWrapperRef = useRef(null)
 
     const imageUrl = '/Event.png';
 
-    // Recalculates grid and piece sizes based on container width and image aspect ratio
     const updateGridSizes = useCallback(() => {
         if (puzzleWrapperRef.current && imageAspectRatio > 0) {
             const element = puzzleWrapperRef.current;
             const style = window.getComputedStyle(element);
             const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
 
-            // Calculate the container width minus padding to get the exact content area
             const containerWidth = element.clientWidth - paddingX;
 
-            // Calculate available height (viewport height - header - padding - approximate gap)
             // On mobile, we stack 2 grids, so we need space for roughly 2 * (gridSize * height)
             // On desktop, we have side-by-side, so we need space for 1 * (gridSize * height)
             const isDesktop = window.innerWidth >= 1024; // lg breakpoint
             const availableHeight = window.innerHeight - 200; // Subtract header/padding
 
-            // Calculate max piece width based on container width
             let maxPieceWidth = Math.floor(containerWidth / gridSize);
 
-            // Calculate max piece height based on available height
             // Mobile: 2 grids stacked + gap. Desktop: 1 grid.
             const verticalDivisor = isDesktop ? gridSize : (gridSize * 2.2); // 2.2 to account for gap/tray
             const maxPieceHeight = Math.floor(availableHeight / verticalDivisor);
 
-            // Calculate width from max height to maintain aspect ratio
             const widthFromHeight = Math.floor(maxPieceHeight * imageAspectRatio);
-
-            // Use the smaller of the two dimensions to ensure it fits
             const finalPieceWidth = Math.min(maxPieceWidth, widthFromHeight);
             const finalPieceHeight = Math.floor(finalPieceWidth / imageAspectRatio);
 
@@ -161,12 +152,7 @@ const EventPage = () => {
 
         // Prevent default to stop scrolling immediately on touch
         if (e.type === 'touchstart') {
-            // We can't always preventDefault on touchstart if we want click emulation,
-            // but since we are doing custom click emulation, we CAN.
-            // However, React's synthetic event might complain if not passive.
-            // Actually, for "no page move", we MUST prevent default.
-            // e.preventDefault() here might be too late for some browsers if not passive: false.
-            // But we'll try.
+
         }
 
         // Normalize event coordinates (Mouse vs Touch)
