@@ -1,6 +1,8 @@
 import { supabase } from '@/supabase/config';
 import NotePage from '@/views/NotePage';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page({ params }) {
     const { id } = await params;
 
