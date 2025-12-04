@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/supabase/config.js';
 import NotesGrid from '@/components/NotesGrid';
@@ -12,13 +13,13 @@ import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE = 8;
 
-const PoemsPage = () => {
-    const [notes, setNotes] = useState([]);
+const PoemsPage = ({ initialNotes }) => {
+    const [notes, setNotes] = useState(initialNotes || []);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [sortBy, setSortBy] = useState('created_at_desc');
     const [selectedTags, setSelectedTags] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialNotes);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const { ref, inView } = useInView({ threshold: 0.5 });
@@ -68,6 +69,10 @@ const PoemsPage = () => {
     }, [sortBy, page, hasMore, debouncedSearch, selectedTags]);
 
     useEffect(() => {
+        // Skip initial fetch if we have initialNotes and haven't changed filters
+        if (initialNotes && notes.length > 0 && sortBy === 'created_at_desc' && !debouncedSearch && selectedTags.length === 0 && page === 0) {
+            return;
+        }
         setHasMore(true);
         setPage(0);
         fetchNotes(true);

@@ -1,3 +1,4 @@
+"use client";
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ const EventPage = () => {
     const [pieceSize, setPieceSize] = useState({ width: 100, height: 100 });
     const [gridDisplaySize, setGridDisplaySize] = useState({ width: 300, height: 300 });
     const [imageAspectRatio, setImageAspectRatio] = useState(1);
+    const [isDesktop, setIsDesktop] = useState(false);
     const gridSize = 3;
 
     const canvasRef = useRef(null);
@@ -33,13 +35,13 @@ const EventPage = () => {
 
             // On mobile, we stack 2 grids, so we need space for roughly 2 * (gridSize * height)
             // On desktop, we have side-by-side, so we need space for 1 * (gridSize * height)
-            const isDesktop = window.innerWidth >= 1024; // lg breakpoint
+            const currentIsDesktop = window.innerWidth >= 1024; // lg breakpoint
             const availableHeight = window.innerHeight - 200; // Subtract header/padding
 
             let maxPieceWidth = Math.floor(containerWidth / gridSize);
 
             // Mobile: 2 grids stacked + gap. Desktop: 1 grid.
-            const verticalDivisor = isDesktop ? gridSize : (gridSize * 2.2); // 2.2 to account for gap/tray
+            const verticalDivisor = currentIsDesktop ? gridSize : (gridSize * 2.2); // 2.2 to account for gap/tray
             const maxPieceHeight = Math.floor(availableHeight / verticalDivisor);
 
             const widthFromHeight = Math.floor(maxPieceHeight * imageAspectRatio);
@@ -78,6 +80,13 @@ const EventPage = () => {
         resizeObserver.observe(puzzleWrapperRef.current);
         return () => resizeObserver.disconnect();
     }, [updateGridSizes]);
+
+    useEffect(() => {
+        setIsDesktop(window.innerWidth >= 1024);
+        const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const shuffleArray = (array) => {
         const shuffled = [...array];
@@ -310,7 +319,7 @@ const EventPage = () => {
                             className="flex flex-wrap gap-2 justify-center lg:grid lg:grid-cols-3 lg:gap-1"
                             style={{
                                 // Only apply fixed size on desktop to maintain grid structure
-                                ...(window.innerWidth >= 1024 && {
+                                ...(isDesktop && {
                                     width: `${gridDisplaySize.width}px`,
                                     height: `${gridDisplaySize.height}px`,
                                 })

@@ -1,6 +1,8 @@
+"use client";
 import { useState, useEffect } from 'react';
 import { supabase } from '@/supabase/config.js';
-import { Link } from 'react-router-dom';
+import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Search, UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -80,9 +82,15 @@ const UsersPage = () => {
                             const isOwnProfile = user?.id === poet.id;
                             return (
                                 <div key={poet.id} className="flex items-center justify-between gap-4 p-4 bg-gray-900 rounded-lg">
-                                    <Link to={`/profile/${poet.id}`} className="flex items-center gap-4 flex-grow min-w-0">
-                                        {/* **FIX:** Use snake_case for image and alt text */}
-                                        <img src={poet.photo_url || '/defaultPfp.png'} alt={poet.display_name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+                                    <Link href={`/profile/${poet.id}`} className="flex items-center gap-4 flex-grow min-w-0">
+                                        <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border border-gray-700">
+                                            <Image
+                                                src={poet.photo_url || '/defaultPfp.png'}
+                                                alt={poet.display_name}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
                                         <div className="min-w-0">
                                             <h2 className="text-xl font-bold text-white truncate">{poet.display_name}</h2>
                                             <p className="text-sm text-gray-400 truncate">{poet.bio}</p>

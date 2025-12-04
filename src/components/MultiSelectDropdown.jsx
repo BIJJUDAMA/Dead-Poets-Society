@@ -1,3 +1,4 @@
+"use client";
 import * as React from 'react';
 import { X, Check } from 'lucide-react';
 
@@ -103,8 +104,8 @@ const MultiSelectDropdown = ({
                         >
                             <div
                                 className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border-2 ${selectedOptions.includes(option)
-                                        ? 'border-yellow-500 bg-yellow-500'
-                                        : 'border-gray-500'
+                                    ? 'border-yellow-500 bg-yellow-500'
+                                    : 'border-gray-500'
                                     }`}
                             >
                                 {selectedOptions.includes(option) && <Check className="h-3 w-3 text-black" />}

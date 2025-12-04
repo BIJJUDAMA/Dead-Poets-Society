@@ -1,7 +1,9 @@
+"use client";
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/supabase/config.js';
 import { useAuth } from '@/context/AuthContext';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+import Image from 'next/image';
 import { FileText, Inbox, Users, Trash, Shield, ShieldOff, Edit, X, Eye, Check, Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import '@/css/Admin.css';
@@ -374,11 +376,13 @@ const AdminPage = () => {
                         <CardContent>
                             {loading.initial ? renderLoader() : users.map(user => (
                                 <div key={user.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-2 border-b border-gray-700 gap-2 sm:gap-0">
-                                    <Link to={`/profile/${user.id}`} className="flex items-center gap-2 w-full hover:bg-gray-800 p-2 rounded-md transition-colors">
-                                        <img src={user.photo_url || '/defaultPfp.png'} alt={user.display_name} className="w-8 h-8 rounded-full" />
+                                    <Link href={`/profile/${user.id}`} className="flex items-center gap-2 w-full hover:bg-gray-800 p-2 rounded-md transition-colors">
+                                        <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                                            <Image src={user.photo_url || '/defaultPfp.png'} alt={user.display_name} fill className="object-cover" />
+                                        </div>
                                         <div><p>{user.display_name}</p><p className="text-xs text-gray-400">{user.email}</p></div>
                                     </Link>
-                                    {isMainAdmin && user.email !== import.meta.env.VITE_ADMIN_EMAIL && (
+                                    {isMainAdmin && user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
                                         <div className="flex items-center gap-2 self-end sm:self-center">
                                             <Button size="sm" onClick={() => handleToggleSemiAdmin(user.id, user.role)} disabled={updatingUserId === user.id}>{updatingUserId === user.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (user.role === 'semi-admin' ? <ShieldOff className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />)}{updatingUserId === user.id ? 'Updating...' : (user.role === 'semi-admin' ? 'Demote' : 'Promote')}</Button>
                                             {updateSuccessUserId === user.id && <Check className="h-5 w-5 text-green-500" />}

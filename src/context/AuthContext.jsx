@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '../supabase/config';
 
@@ -34,12 +35,12 @@ export const AuthProvider = ({ children }) => {
                 } else {
                     setUserProfile(profile);
                 }
-                const mainAdmin = profile.email === import.meta.env.VITE_ADMIN_EMAIL;
+                const mainAdmin = profile.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
                 setIsMainAdmin(mainAdmin);
                 setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
             } else {
                 setUserProfile({ isNew: true });
-                const mainAdmin = currentUser.email === import.meta.env.VITE_ADMIN_EMAIL;
+                const mainAdmin = currentUser.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
                 setIsMainAdmin(mainAdmin);
                 setIsAdmin(mainAdmin);
             }
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }) => {
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
                     const newProfile = payload.new;
                     setUserProfile(newProfile);
-                    const mainAdmin = newProfile.email === import.meta.env.VITE_ADMIN_EMAIL;
+                    const mainAdmin = newProfile.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
                     setIsMainAdmin(mainAdmin);
                     setIsAdmin(mainAdmin || newProfile.role === 'semi-admin' || newProfile.role === 'admin');
                 })

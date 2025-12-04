@@ -1,9 +1,10 @@
+"use client";
 import { Instagram, Github } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { usePathname } from 'next/navigation';
 
 const Footer = () => {
-    const location = useLocation();
-    const isEventPage = location.pathname === '/event';
+    const pathname = usePathname();
+    const isEventPage = pathname === '/event';
 
     if (isEventPage) {
         return (

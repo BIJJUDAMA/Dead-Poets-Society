@@ -1,19 +1,22 @@
+"use client";
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const AboutUsPage = () => {
     return (
         <div className="max-w-5xl mx-auto py-20 px-4 text-center text-white flex flex-col items-center">
             {/* About Us Image */}
             <motion.div
-                className="w-full md:w-2/3 mb-12 rounded-lg shadow-lg overflow-hidden"
+                className="w-full md:w-2/3 mb-12 rounded-lg shadow-lg overflow-hidden h-80 relative"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
             >
-                <img
+                <Image
                     src="/aboutUs.jpg"
                     alt="About Us"
-                    className="w-full h-80 object-cover"
+                    fill
+                    className="object-cover"
                 />
             </motion.div>
 

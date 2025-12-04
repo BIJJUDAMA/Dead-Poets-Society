@@ -1,5 +1,6 @@
+"use client";
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../supabase/config.js';
 import { useAuth } from '../context/AuthContext';
 import ImageUpload from '../components/ImageUpload';
@@ -14,7 +15,7 @@ const countWords = (str) => str ? str.trim().split(/\s+/).filter(Boolean).length
 
 const SetupProfilePage = () => {
     const { user, userProfile, refreshUserProfile } = useAuth();
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
@@ -26,9 +27,9 @@ const SetupProfilePage = () => {
 
     useEffect(() => {
         if (userProfile && userProfile.display_name) {
-            navigate('/');
+            router.push('/');
         }
-    }, [userProfile, navigate]);
+    }, [userProfile, router]);
 
     const handleProfileSetup = async (e) => {
         e.preventDefault();
@@ -52,7 +53,7 @@ const SetupProfilePage = () => {
             alert(`Error: ${error.message}`);
         } else {
             await refreshUserProfile();
-            navigate('/');
+            router.push('/');
         }
         setIsLoading(false);
     };

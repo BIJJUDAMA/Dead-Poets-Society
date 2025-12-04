@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import '../css/Candle.css';
 
 const CandleAnimation = () => (
@@ -34,7 +35,7 @@ const HeroSection = () => (
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1 }}
             >
-                <img src="/DPS1.webp" alt="Logo" className="h-48 w-auto" />
+                <Image src="/DPS1.webp" alt="Logo" width={0} height={0} sizes="100vw" style={{ width: 'auto', height: '192px' }} />
             </motion.div>
         </div>
 

@@ -1,5 +1,7 @@
+"use client";
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/supabase/config.js';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -16,38 +18,20 @@ const formatDate = (timestamp) => {
     return date.toLocaleDateString('en-GB');
 };
 
-const NotePage = () => {
+const NotePage = ({ initialNote }) => {
     const { id } = useParams();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { user } = useAuth();
-    const [note, setNote] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [note, setNote] = useState(initialNote);
     const [isEditing, setIsEditing] = useState(false);
 
     const isOwnPoem = user?.id === note?.user_id;
 
     useEffect(() => {
-        const getNote = async () => {
-            if (!id) return;
-            setLoading(true);
-            try {
-                const { data, error } = await supabase
-                    .from('notes')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (error) throw error;
-                setNote(data);
-            } catch (error) {
-                console.error("Error fetching note:", error);
-                setNote(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-        getNote();
-    }, [id]);
+        if (initialNote) {
+            setNote(initialNote);
+        }
+    }, [initialNote]);
 
     const handleDeletePoem = async () => {
         if (!isOwnPoem) return;
@@ -56,11 +40,10 @@ const NotePage = () => {
             alert("Failed to delete poem.");
             console.error("Delete error:", error);
         } else {
-            navigate(`/profile/${user.id}`);
+            router.push(`/profile/${user.id}`);
         }
     };
 
-    if (loading) return <div className="text-center py-20 text-white">Loading verse...</div>;
     if (!note) return <div className="text-center py-20 text-white">Poem not found.</div>;
 
     const pageUrl = window.location.href;
@@ -88,7 +71,7 @@ const NotePage = () => {
                         <div>
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 text-white">{note.title}</h1>
                             <div className="text-base sm:text-lg text-gray-300 mb-4">
-                                by <Link to={`/profile/${note.user_id}`} className="hover:underline font-semibold">{note.poet_name || 'Anonymous'}</Link>
+                                by <Link href={`/profile/${note.user_id}`} className="hover:underline font-semibold">{note.poet_name || 'Anonymous'}</Link>
                                 {formattedDate && <span>, {formattedDate}</span>}
                             </div>
                         </div>

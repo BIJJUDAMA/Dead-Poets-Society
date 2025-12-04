@@ -1,5 +1,6 @@
+"use client";
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { supabase } from '../supabase/config.js';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const LoginPage = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const { user } = useAuth();
 
     const handleGoogleLogin = async () => {
@@ -21,9 +22,9 @@ const LoginPage = () => {
 
     useEffect(() => {
         if (user) {
-            navigate('/');
+            router.push('/');
         }
-    }, [user, navigate]);
+    }, [user, router]);
 
     return (
         <motion.div

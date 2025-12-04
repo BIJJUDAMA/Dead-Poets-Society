@@ -1,4 +1,6 @@
+"use client";
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
 import { Camera } from 'lucide-react';
 import { supabase } from '../supabase/config';
@@ -57,10 +59,12 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
                 className="relative w-32 h-32 rounded-full cursor-pointer group"
                 onClick={() => fileInputRef.current.click()}
             >
-                <img
+                <Image
                     src={preview}
                     alt="Profile Preview"
-                    className="w-full h-full rounded-full object-cover border-4 border-gray-600"
+                    width={128}
+                    height={128}
+                    className="rounded-full object-cover border-4 border-gray-600"
                     onError={(e) => { e.target.onerror = null; e.target.src = '/defaultPfp.png'; }}
                 />
                 <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

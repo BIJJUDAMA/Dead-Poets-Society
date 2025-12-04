@@ -1,6 +1,8 @@
+"use client";
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/supabase/config.js';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import NotesGrid from '@/components/NotesGrid';
@@ -11,7 +13,7 @@ import FollowListModal from '@/components/FollowListModal';
 
 const ProfilePage = () => {
     const { userId } = useParams();
-    const navigate = useNavigate();
+    const router = useRouter();
     const { user, userProfile, refreshUserProfile } = useAuth();
     const [profileData, setProfileData] = useState(null);
     const [userContent, setUserContent] = useState({ poems: [] });
@@ -85,7 +87,7 @@ const ProfilePage = () => {
 
             await supabase.auth.signOut();
             alert("Your account has been successfully deleted.");
-            navigate('/');
+            router.push('/');
         }
     };
 
@@ -117,7 +119,9 @@ const ProfilePage = () => {
             {followList.visible && <FollowListModal title={followList.title} userIds={profileData[followList.title.toLowerCase()] || []} onClose={() => setFollowList({ visible: false, title: '', userIds: [] })} />}
 
             <div className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-700 pb-8">
-                <img src={profileData.photo_url || '/defaultPfp.png'} alt={profileData.display_name} className="w-32 h-32 rounded-full object-cover" />
+                <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-800">
+                    <Image src={profileData.photo_url || '/defaultPfp.png'} alt={profileData.display_name} fill className="object-cover" />
+                </div>
                 <div className="text-center md:text-left">
                     <h1 className="text-4xl font-bold font-cinzel">{profileData.display_name}</h1>
                     <p className="text-gray-400 mt-2 max-w-lg">{profileData.bio}</p>
