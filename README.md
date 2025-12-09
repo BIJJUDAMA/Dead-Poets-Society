@@ -14,7 +14,7 @@ This is a web application built for a community of poets to share, discover, and
 
 ## Tech Stack
 
-- **Frontend**: React with Vite for a fast development experience.
+- **Frontend**: Made it Next.js ~~React with Vite~~ (Legacy code) for a modern development experience.
 - **Backend & Database**: Supabase (PostgreSQL) for authentication, database, and storage.
 - **Styling**: Tailwind CSS with shadcn/ui for a beautiful and consistent component library.
 - **Animations**: Framer Motion for smooth page transitions and interactive elements.
