@@ -21,6 +21,10 @@ const SetupProfilePage = () => {
     const [bio, setBio] = useState('');
     const [photoUrl, setPhotoUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
+
+    const displayNameMax = 50;
+    const displayNameValid = displayName.trim().length > 0 && displayName.length <= displayNameMax;
 
     const bioWordCount = useMemo(() => countWords(bio), [bio]);
     const isBioValid = bioWordCount <= 50;
@@ -33,7 +37,18 @@ const SetupProfilePage = () => {
 
     const handleProfileSetup = async (e) => {
         e.preventDefault();
-        if (!displayName.trim() || !isBioValid) return;
+        setErrorMessage(null);
+
+        if (!displayNameValid) {
+            setErrorMessage("Please enter a valid display name.");
+            return;
+        }
+
+        if (!isBioValid) {
+            setErrorMessage("Bio exceeds word limit.");
+            return;
+        }
+
         setIsLoading(true);
 
         const profileUpdate = {
@@ -50,7 +65,7 @@ const SetupProfilePage = () => {
 
         if (error) {
             console.error("Error updating profile:", error);
-            alert(`Error: ${error.message}`);
+            setErrorMessage(error.message);
         } else {
             await refreshUserProfile();
             router.push('/');
@@ -76,18 +91,48 @@ const SetupProfilePage = () => {
                             onImageUploaded={(url) => setPhotoUrl(url)}
                             initialImage={user?.user_metadata?.avatar_url || '/defaultPfp.png'}
                         />
+
+                        {errorMessage && (
+                            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded text-sm">
+                                {errorMessage}
+                            </div>
+                        )}
+
                         <div>
-                            <Label htmlFor="displayName">Your Poet Name</Label>
-                            <Input id="displayName" type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className="w-full bg-gray-800 p-2 rounded mt-1" />
+                            <Label htmlFor="displayName" className="flex justify-between">
+                                <span>Your Poet Name <span className="text-red-400">*</span></span>
+                                <span className={displayName.length > displayNameMax ? 'text-red-500' : 'text-gray-400'}>
+                                    {displayName.length}/{displayNameMax}
+                                </span>
+                            </Label>
+                            <Input
+                                id="displayName"
+                                type="text"
+                                value={displayName}
+                                onChange={(e) => {
+                                    setDisplayName(e.target.value);
+                                    if (errorMessage) setErrorMessage(null);
+                                }}
+                                required
+                                className="w-full bg-gray-800 p-2 rounded mt-1"
+                            />
                         </div>
+
                         <div>
                             <Label htmlFor="bio" className="flex justify-between">
                                 <span>Bio</span>
                                 <span className={isBioValid ? 'text-gray-400' : 'text-red-500'}>{bioWordCount}/50 words</span>
                             </Label>
-                            <Textarea id="bio" value={bio} onChange={(e) => setBio(e.target.value)} rows="3" className="w-full bg-gray-800 p-2 rounded mt-1"></Textarea>
+                            <Textarea
+                                id="bio"
+                                value={bio}
+                                onChange={(e) => setBio(e.target.value)}
+                                rows="3"
+                                className="w-full bg-gray-800 p-2 rounded mt-1"
+                            ></Textarea>
                         </div>
-                        <Button type="submit" disabled={isLoading || !isBioValid || !displayName.trim()} className="w-full">
+
+                        <Button type="submit" disabled={isLoading || !isBioValid || !displayNameValid} className="w-full">
                             {isLoading ? 'Saving...' : 'Save and Enter Society'}
                         </Button>
                     </form>
