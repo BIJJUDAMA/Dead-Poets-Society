@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 
 const Footer = () => {
     const pathname = usePathname();
-    const isEventPage = pathname === '/event';
+    const isPrPage = pathname === '/pr';
 
-    if (isEventPage) {
+    if (isPrPage) {
         return (
             <footer className="bg-black py-4 px-4 mt-auto flex items-center justify-center border-t border-gray-900">
                 <p className="text-sm text-gray-500 italic font-serif">"Carpe Diem. Seize the day."</p>
