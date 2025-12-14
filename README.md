@@ -23,6 +23,6 @@ This is a web application built for a community of poets to share, discover, and
 ###  Future Plans
 - [x] Switch to Next JS 
 - [ ] Integrate with **Object Storage** for various medias.  
-- [ ] Build an **Events Page** for showcasing club activities.  
+- [x] Build an **Events Page** for showcasing club activities.  
 - [ ] Revamp **About Us Page** with dynamic team/year-wise structure.
 
