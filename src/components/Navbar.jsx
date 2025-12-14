@@ -22,9 +22,9 @@ const Navbar = () => {
 
     const photoSrc = userProfile?.photo_url || user?.user_metadata?.avatar_url || '/defaultPfp.png';
     const pathname = usePathname();
-    const isEventPage = pathname === '/event';
+    const isPrPage = pathname === '/pr';
 
-    if (isEventPage) {
+    if (isPrPage) {
         return (
             <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-1">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-32">
@@ -51,6 +51,7 @@ const Navbar = () => {
                         <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
                         <Link href="/poems" className="hover:text-yellow-300 transition-colors">Poems</Link>
                         <Link href="/poets" className="hover:text-yellow-300 transition-colors">Poets</Link>
+                        <Link href="/event" className="hover:text-yellow-300 transition-colors">Events</Link>
                         <Link href="/about" className="hover:text-yellow-300 transition-colors">About Us</Link>
                         {user && <Link href="/submit" className="hover:text-yellow-300 transition-colors">Submit</Link>}
                     </div>
@@ -131,6 +132,7 @@ const Navbar = () => {
                     <Link href="/" onClick={closeMenu} className="text-xl hover:text-yellow-300">Home</Link>
                     <Link href="/poems" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poems</Link>
                     <Link href="/poets" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poets</Link>
+                    <Link href="/event" onClick={closeMenu} className="text-xl hover:text-yellow-300">Events</Link>
                     <Link href="/about" onClick={closeMenu} className="text-xl hover:text-yellow-300">About Us</Link>
 
                     <div className="border-t border-gray-700 pt-6 w-full flex flex-col items-center space-y-6">
