@@ -1,3 +1,21 @@
+/**
+ * AdminPage View
+ * 
+ * A comprehensive dashboard for administrators to manage the application
+ * 
+ * Purpose:
+ * - Manage Poems: Edit details, delete poems
+ * - Review Submissions: Approve or Reject pending poems
+ * - Manage Users: View users, toggle 'semi-admin'(admin's who can't promote other users to admin) roles, delete users
+ * 
+ * Authorization:
+ * - Protected Route checking for `isMainAdmin` or `isAdmin` from src/context/AuthContext
+ * - Specific actions (like promoting users) are restricted to the Main Admin (The email id mentioned in enviroment variables)
+ * 
+ * Architecture:
+ * - Uses Shadcn UI `Tabs` to separate concerns (Poems, Submissions, Users)
+ * - Implements complex state management for pagination, search, and optimistic updates across multiple tabs
+ */
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/supabase/config.js';
@@ -37,33 +55,33 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
     const [formData, setFormData] = useState(note);
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     return (
-        // Changed to a flex column layout for a clean, vertical form structure on all screen sizes.
+
         <div className="flex flex-col space-y-4 py-4">
-            {/* Title Field */}
+
             <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="title" className="text-gray-400">Title</Label>
                 <Input id="title" name="title" value={formData.title} onChange={handleChange} className="bg-gray-700 border-gray-600" />
             </div>
 
-            {/* Poet Name Field */}
+
             <div className="grid w-full items-center gap-1.5">
                 <Label htmlFor="poet_name" className="text-gray-400">Poet Name</Label>
                 <Input id="poet_name" name="poet_name" value={formData.poet_name} onChange={handleChange} className="bg-gray-700 border-gray-600" />
             </div>
 
-            {/* Preview Field */}
+
             <div className="grid w-full gap-1.5">
                 <Label htmlFor="preview" className="text-gray-400">Preview</Label>
                 <Textarea id="preview" name="preview" value={formData.preview} onChange={handleChange} className="bg-gray-700 border-gray-600" />
             </div>
 
-            {/* Content Field */}
+
             <div className="grid w-full gap-1.5">
                 <Label htmlFor="content" className="text-gray-400">Content</Label>
                 <Textarea id="content" name="content" value={formData.content} rows={8} className="bg-gray-700 border-gray-600" />
             </div>
 
-            {/* Action Buttons */}
+
             <DialogFooter className="!mt-6">
                 <Button variant="ghost" onClick={onCancel}>Cancel</Button>
                 <Button onClick={() => onSave(formData)}>Save Changes</Button>
@@ -71,6 +89,7 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
         </div>
     );
 };
+
 
 
 const AdminPage = () => {
@@ -96,6 +115,14 @@ const AdminPage = () => {
     const [updateSuccessUserId, setUpdateSuccessUserId] = useState(null);
     const [counts, setCounts] = useState({ poems: 0, users: 0, submissions: 0 });
 
+    /**
+     * Retreives data based on the active tab (poems, users, or submissions).
+     * Doesn't fetch data for all tab's at once
+     * @param {string} tab - The current active tab.
+     * @param {number} currentPage - Pagination page index.
+     * @param {string} search - Search term filter.
+     */
+    // Fetches items for the active tab (poems, users, or submissions) with pagination and search
     const fetchPaginatedData = useCallback(async (tab, currentPage, search = '') => {
         const from = currentPage * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
@@ -113,7 +140,7 @@ const AdminPage = () => {
             case 'users':
                 query = supabase.from('profiles').select('*', baseOptions);
                 if (search) query = query.or(`display_name.ilike.%${search}%,email.ilike.%${search}%`);
-                // FIX: Removed ordering by 'created_at' as the column  doesn't exist on the 'profiles' table.
+
                 query = query.range(from, to);
                 break;
             case 'submissions':
@@ -140,6 +167,7 @@ const AdminPage = () => {
         };
     }, []);
 
+    // Initial load of total counts for the tabs
     const loadInitialCounts = useCallback(async () => {
         const poemsCount = await supabase.from('notes').select('*', { count: 'exact', head: true });
         const usersCount = await supabase.from('profiles').select('*', { count: 'exact', head: true });
@@ -158,6 +186,7 @@ const AdminPage = () => {
 
 
     useEffect(() => {
+        // Handles active search with debounce
         const handleSearch = async () => {
             if (authLoading) return;
             setLoading(prev => ({ ...prev, initial: true }));
@@ -179,6 +208,7 @@ const AdminPage = () => {
     }, [searchTerm, activeTab, authLoading, fetchPaginatedData]);
 
 
+    // Loads more data when the user scrolls to the bottom
     const loadMoreData = useCallback(async () => {
         if (loading.more || !hasMore[activeTab]) return;
         setLoading(prev => ({ ...prev, more: true }));
@@ -227,6 +257,7 @@ const AdminPage = () => {
         setLoading(prev => ({ ...prev, initial: false }));
     };
 
+    // Executes deletion after confirmation
     const confirmDelete = async () => {
         if (!deleteAction) return;
         const { tableName, ids } = deleteAction;
@@ -247,6 +278,13 @@ const AdminPage = () => {
         refreshDataForTab('poems');
     };
 
+    /**
+     * Submission Approval Logic:
+     * 1. Inserts the submission into the main 'notes' table.
+     * 2. If successful, deletes the entry from 'poem_submissions'.
+     * Legacy poems still exist in poem_submissions table before delete feature was implemented (Keep or delete them from Supabase, won't effect storage space much)
+     */
+    // Approves a poem submission: moves it to 'notes' and deletes from 'poem_submissions'
     const handleApprove = async (submission) => {
         const { error: insertError } = await supabase.from('notes').insert([{
             title: submission.title, content: submission.content,
@@ -266,6 +304,7 @@ const AdminPage = () => {
         refreshDataForTab('submissions');
     };
 
+    // Toggles the semi-admin role for a user (Semi-admin's can only be made by the user whose email is given in the env file)
     const handleToggleSemiAdmin = async (userId, currentStatus) => {
         setUpdatingUserId(userId);
         const newRole = currentStatus === 'semi-admin' ? 'user' : 'semi-admin';

@@ -1,3 +1,17 @@
+/**
+ * An interactive puzzle mini-game feature. Made for PR purposes (QR code stickers around campus)
+ * 
+ * Purpose:
+ * - Slices an image into a 3x3 grid using the HTML5 Canvas API
+ * - Implements a full Drag-and-Drop system enabling pieces to be moved from an "Available" pool to a "Grid"
+ * 
+ * Key Logic:
+ * - **Canvas Slicing:** Dynamically cuts a source image (`/Event.png`) into 9 unique data URLs (Previously called Event's page therefore the use of Event.png)
+ * - **State Management:** Tracks position (row/col), current status (in grid vs. available), and completion status
+ * - **Interactivity:** Supports both Mouse and Touch events for cross-device compatibility
+ * - **Responsive Design:** Recalculates piece sizes based on viewport dimensions
+ */
+
 "use client";
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
@@ -25,6 +39,12 @@ const PrPage = () => {
 
     const imageUrl = '/Event.png';
 
+    /**
+     * Responsive Layout Logic:
+     * Calculates the optimal size for puzzle pieces based on the user's screen space
+     * Ensures the puzzle fits efficiently on both Desktop and Mobile screens
+     */
+    // Recalculates grid and piece dimensions based on window size and image aspect ratio
     const updateGridSizes = useCallback(() => {
         if (puzzleWrapperRef.current && imageAspectRatio > 0) {
             const element = puzzleWrapperRef.current;
@@ -92,6 +112,14 @@ const PrPage = () => {
         return shuffled;
     };
 
+    /**
+     * Puzzle Generation:
+     * 1. Loads the source image onto a hidden canvas
+     * 2. Iterates through a 3x3 loop to `drawImage` specific regions
+     * 3. Converts each region into a base64 Data URL
+     * 4. Initializes the `puzzlePieces` state with these fragments
+     */
+    // Generates the puzzle pieces by slicing the source image
     const createPuzzlePieces = useCallback(() => {
         if (!canvasRef.current || pieceSize.width <= 0 || pieceSize.height <= 0) return;
 
@@ -150,6 +178,12 @@ const PrPage = () => {
         }
     }, [createPuzzlePieces]);
 
+    /**
+     * Drag & Drop Handler (Start):
+     * Initiates the drag operation, calculating offset to ensure smooth movement
+     * Supports both `mousedown` and `touchstart`
+     */
+    // Handles the start of a drag operation
     const handleDragStart = (e, piece) => {
         if (isComplete) return;
 
@@ -184,6 +218,12 @@ const PrPage = () => {
         setSelectedPiece(prev => (prev && prev.id === piece.id ? null : piece));
     };
 
+    /**
+     * Grid Placement Logic:
+     * Checks if a target grid cell is empty and places the selected/dropped piece there
+     * Triggers a win condition check (`isComplete`) after every move
+     */
+    // Handles placing a selected piece into a grid slot
     const handleGridClick = (row, col) => {
         if (!selectedPiece) return;
 

@@ -1,10 +1,23 @@
+/**
+ * The main navigation bar 
+ * 
+ * Purpose:
+ * - Provides global navigation links
+ * - Manages authentication state display (Login vs. User Profile)
+ * - Implements a responsive mobile menu
+ * - Handles special "PrPage" rendering logic (simplified view)
+ * 
+ * Used In:
+ * - `app/layout.js` (Globally included)
+ */
+
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { supabase } from '../supabase/config.js';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../../supabase/config.js';
+import { useAuth } from '../../context/AuthContext';
 import { LogOut, Menu, X, LogIn, Instagram, Github } from 'lucide-react';
 
 const Navbar = () => {
@@ -12,6 +25,7 @@ const Navbar = () => {
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    // Handles user logout via Supabase
     const handleLogout = async () => {
         await supabase.auth.signOut();
         router.push('/');
@@ -21,6 +35,7 @@ const Navbar = () => {
     const closeMenu = () => setIsMenuOpen(false);
 
     const photoSrc = userProfile?.photo_url || user?.user_metadata?.avatar_url || '/defaultPfp.png';
+    // Conditional rendering for the dedicated Puzzle (PR) page navbar
     const pathname = usePathname();
     const isPrPage = pathname === '/pr';
 
@@ -38,6 +53,11 @@ const Navbar = () => {
         );
     }
 
+    /**
+     * Standard Navbar Render:
+     * Includes Logo, Desktop Links, Auth Controls, and Mobile Toggle
+     */
+
     return (
         <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-2">
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-32 xl:px-64">
@@ -46,7 +66,9 @@ const Navbar = () => {
                         <Image src="/DPS.webp" alt="Logo" width={80} height={80} className="h-14 md:h-20 w-auto" />
                     </Link>
 
-                    {/* Desktop Menu */}
+
+                    {/* Desktop Navigation Links */}
+                    {/* Doesn't include the insteagram and github links due to cramping*/}
                     <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center space-x-10 text-xl font-medium">
                         <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
                         <Link href="/poems" className="hover:text-yellow-300 transition-colors">Poems</Link>
@@ -56,7 +78,7 @@ const Navbar = () => {
                         {user && <Link href="/submit" className="hover:text-yellow-300 transition-colors">Submit</Link>}
                     </div>
 
-                    {/* User/Admin Links on Desktop */}
+
                     <div className="hidden md:flex items-center">
                         {user ? (
                             <div className="flex items-center space-x-3">
@@ -75,41 +97,11 @@ const Navbar = () => {
                                 <LogIn size={16} /> Login
                             </Link>
                         )}
-                        {/* Social Links commented out because of breaking the layout */}
-                        {/* <div className="flex items-center gap-4 ml-3 border-l border-gray-700 pl-3">
-                            <a
-                                href="https://www.instagram.com/dead_poets_society_poetree/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 hover:text-pink-500 transition-colors"
-                                title="Dead Poets Society Instagram"
-                            >
-                                <Instagram size={20} />
-                                <span className="text-sm font-medium">DPS</span>
-                            </a>
-                            <a
-                                href="https://www.instagram.com/srishti_amrita/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 hover:text-pink-500 transition-colors"
-                                title="Srishti Instagram"
-                            >
-                                <Instagram size={20} />
-                                <span className="text-sm font-medium">Srishti</span>
-                            </a>
-                            <a
-                                href="https://github.com/BIJJUDAMA/Dead-Poets-Society"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-pink-500 transition-colors"
-                                title="GitHub Repository"
-                            >
-                                <Github size={22} />
-                            </a>
-                        </div> */}
+
                     </div>
 
-                    {/* Mobile: Profile Icon + Hamburger Menu Icon */}
+
+                    {/* Mobile Menu Button & Profile Icon */}
                     <div className="md:hidden flex items-center space-x-4">
 
                         {user && (
@@ -126,7 +118,8 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Hamburger Menu */}
+            {/* Mobile Navbar */}
+            {/* Includes and instagram and github links */}
             {isMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-black/95 flex flex-col items-center space-y-6 py-8">
                     <Link href="/" onClick={closeMenu} className="text-xl hover:text-yellow-300">Home</Link>

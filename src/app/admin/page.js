@@ -1,5 +1,5 @@
 import AdminPage from '@/views/AdminPage';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function Page() {
     return (

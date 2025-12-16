@@ -1,10 +1,24 @@
+/**
+ * A reusable component for uploading and compressing images (0.2MB limit)
+ * 
+ * Purpose:
+ * - Handles file selection from the device
+ * - Compresses images client-side using `browser-image-compression` to optimize storage
+ * - Uploads the processed image to Supabase Storage bucket ('pfp')
+ * - Returns the public URL of the uploaded image to the parent
+ * 
+ * Used In:
+ * - `src/views/SetupProfilePage.jsx`
+ * - `src/components/EditProfileModal.jsx`
+ */
+
 "use client";
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
 import { Camera } from 'lucide-react';
-import { supabase } from '../supabase/config';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../../supabase/config';
+import { useAuth } from '../../context/AuthContext';
 
 const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
     const { user } = useAuth();
@@ -12,6 +26,7 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
     const [isUploading, setIsUploading] = useState(false);
     const fileInputRef = useRef(null);
 
+    // Handles image selection, compression, and upload to Supabase Storage
     const handleImageChange = async (event) => {
         const file = event.target.files[0];
         if (!file || !user) return;
@@ -20,7 +35,7 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
         setPreview(URL.createObjectURL(file));
 
         try {
-            const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
+            const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true }; //Resizing here
             const compressedFile = await imageCompression(file, options);
 
             const filePath = `${user.id}/${Date.now()}-${compressedFile.name}`;

@@ -8,18 +8,14 @@
 
     /* Set the background color for the empty checkbox */
     background-color: #5a6faa;
-    /* As requested */
 
     /* General styling */
     border: 1px solid #4B5563;
-    /* gray-600 */
     border-radius: 4px;
     display: inline-block;
     position: relative;
     height: 1.25rem;
-    /* h-5 */
     width: 1.25rem;
-    /* w-5 */
     cursor: pointer;
     vertical-align: middle;
 }
@@ -27,17 +23,15 @@
 .custom-checkbox:checked {
     /* Style for the checked state */
     background-color: #FBBF24;
-    /* yellow-400 */
     border-color: #FBBF24;
 }
 
-/* Custom checkmark */
+
 .custom-checkbox:checked::after {
     content: '✔';
     font-size: 1rem;
     font-weight: bold;
     color: #111827;
-    /* gray-900 for a dark checkmark */
     position: absolute;
     left: 50%;
     top: 50%;

@@ -1,11 +1,24 @@
+/**
+ * EventPage View
+ * 
+ * Displays the gallery of events conducted by the club
+ * 
+ * Purpose:
+ * - Lists events from the static `eventDb` (src/data/eventDb.js) <----- File to be moved to src/data/eventDb.js (Right now it's a single source of truth for events. If size gets too big and a lot of images need to be stored, we can think of moving to a CMS or database)
+ * - Provides entry points to detailed event reports (`EventDetailPage`)
+ * - Uses responsive grid layout for event cards
+ */
+
 "use client";
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { eventDb } from '../data';
+import { eventDb } from '@/data/eventDb';
+
 
 const EventPage = () => {
+    // Convert eventDb object to an array for mapping
     const eventsList = Object.entries(eventDb).map(([slug, event]) => ({
         slug,
         ...event

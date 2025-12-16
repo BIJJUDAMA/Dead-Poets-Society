@@ -1,3 +1,20 @@
+/**
+ * Dynamic route component for displaying a single poem (Note)
+ * 
+ * Purpose:
+ * - Renders the full content of a poem
+ * - Provides owner-specific actions: Edit and Delete
+ * - Enables social interaction: Applause/Like and Share
+ * 
+ * Key Features:
+ * - Dynamic data fetching based on URL parameter `id` (handled via parent/layout or initialNote prop).
+ * - "Edit" functionality opening a modal (`EditPoemModal`)
+ * - "Delete" functionality with a confirmation dialog
+ * - Whitespace-preserved rendering for poetic formatting
+ * 
+ * @param {Object} initialNote - Prop passed containing poem data.
+ */
+
 "use client";
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -5,9 +22,9 @@ import Link from 'next/link';
 import { supabase } from '@/supabase/config.js';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import ApplauseButton from '@/components/ApplauseButton';
-import SocialShareButtons from '@/components/SocialShareButtons';
-import EditPoemModal from '@/components/EditPoemModal';
+import ApplauseButton from '@/components/common/ApplauseButton';
+import SocialShareButtons from '@/components/layout/SocialShareButtons';
+import EditPoemModal from '@/components/modals/EditPoemModal';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { Edit, Trash } from 'lucide-react';
@@ -18,13 +35,22 @@ const formatDate = (timestamp) => {
     return date.toLocaleDateString('en-GB');
 };
 
+
 const NotePage = ({ initialNote }) => {
     const { id } = useParams();
     const router = useRouter();
     const { user } = useAuth();
+
+
     const [note, setNote] = useState(initialNote);
     const [isEditing, setIsEditing] = useState(false);
 
+    /**
+     * Ownership Check:
+     * Compares logged-in user's ID with the poem's author ID.
+     * Unlocks Edit/Delete buttons if they match.
+     */
+    // Check if the current logged-in user is the author of the poem
     const isOwnPoem = user?.id === note?.user_id;
 
     useEffect(() => {
@@ -33,6 +59,12 @@ const NotePage = ({ initialNote }) => {
         }
     }, [initialNote]);
 
+    /**
+     * Deletion Handler:
+     * Permanently removes the poem from Supabase 'notes' table.
+     * Redirects the user to their profile page upon success.
+     */
+    // Allows the author to delete their own poem
     const handleDeletePoem = async () => {
         if (!isOwnPoem) return;
         const { error } = await supabase.from('notes').delete().eq('id', note.id);
@@ -56,6 +88,7 @@ const NotePage = ({ initialNote }) => {
             exit={{ opacity: 0 }}
             className="max-w-4xl mx-auto py-8 sm:py-12 px-4"
         >
+            {/* Modal for editing the poem */}
             {isEditing && (
                 <EditPoemModal
                     note={note}
@@ -65,6 +98,7 @@ const NotePage = ({ initialNote }) => {
                 />
             )}
 
+            {/* Main poem display area with background */}
             <div className="bg-cover bg-center rounded-lg" style={{ backgroundImage: "url('/poemBackground.png')" }}>
                 <div className="bg-black/70 backdrop-blur-md p-4 sm:p-8 rounded-md">
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -111,7 +145,8 @@ const NotePage = ({ initialNote }) => {
 
                     <p className="text-base sm:text-lg text-gray-300 italic mb-8">{note.preview}</p>
 
-                    {/* Responsive prose classes for better mobile reading */}
+
+                    {/* Renders the poem content with whitespace preservation */}
                     <div
                         className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap"
                     >{note.content}</div>

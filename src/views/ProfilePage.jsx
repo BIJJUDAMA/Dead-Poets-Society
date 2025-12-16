@@ -1,3 +1,18 @@
+/**
+ * Displays a user's public profile and their published work
+ * 
+ * Purpose:
+ * - Shows user details (Bio, Photo, Stats)
+ * - Lists all poems authored by the user
+ * - Provides "Follow/Unfollow" functionality
+ * - If the viewer is the owner, provides "Edit Profile" and "Delete Account" options
+ * 
+ * Key Features:
+ * - Dynamic fetching based on `userId` param
+ * - Real-time follow status updates
+ * - "Delete Account" implementation via Supabase Edge Function (`delete-user`)
+ */
+
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -5,11 +20,12 @@ import { supabase } from '@/supabase/config.js';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
-import NotesGrid from '@/components/NotesGrid';
+import NotesGrid from '@/components/poems/NotesGrid';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import EditProfileModal from '@/components/EditProfileModal';
-import FollowListModal from '@/components/FollowListModal';
+import EditProfileModal from '@/components/modals/EditProfileModal';
+import FollowListModal from '@/components/modals/FollowListModal';
+
 
 const ProfilePage = () => {
     const { userId } = useParams();
@@ -24,6 +40,12 @@ const ProfilePage = () => {
     const isFollowing = userProfile?.following?.includes(userId);
     const isOwnProfile = user?.id === userId;
 
+    /**
+     * Data Fetching:
+     * Retrieves the profile metadata and the list of poems (notes) 
+     * for the specific user ID.
+     */
+    // Fetches profile information and their poems
     const fetchProfileData = useCallback(async () => {
         if (!userId) return;
         setLoading(true);
@@ -59,6 +81,12 @@ const ProfilePage = () => {
         fetchProfileData();
     }, [fetchProfileData]);
 
+    /**
+     * Follow Logic:
+     * Calls a database RPC function `handle_follow` to toggle the relationship
+     * securely on the server side, ensuring data consistency.
+     */
+    // Handles follow/unfollow functionality using a Supabase RPC
     const handleFollow = async () => {
         if (!user || isOwnProfile) return;
         const { error } = await supabase.rpc('handle_follow', {
@@ -74,6 +102,7 @@ const ProfilePage = () => {
     };
 
 
+    // Permanently deletes the user account via Edge Function
     const handleDeleteAccount = async () => {
         if (!isOwnProfile) return;
 

@@ -1,15 +1,26 @@
+/**
+ * A form for users to update their profile information
+ * 
+ * Purpose:
+ * - Allows updating Display Name, Bio, and Profile Picture
+ * - Integrates `ImageUpload` for avatar management
+ * - Validates input limits (Bio word count)
+ * 
+ * Used In:
+ * - `src/views/ProfilePage.jsx`
+ */
+
 "use client";
 import { useState, useMemo } from 'react';
-import { supabase } from '../supabase/config.js';
-import { useAuth } from '../context/AuthContext';
-import ImageUpload from './ImageUpload';
+import { supabase } from '../../supabase/config.js';
+import { useAuth } from '../../context/AuthContext';
+import ImageUpload from '../common/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 const countWords = (str) => str ? str.trim().split(/\s+/).filter(Boolean).length : 0;
-
 const EditProfileModal = ({ onClose }) => {
     const { user, userProfile, refreshUserProfile } = useAuth();
     const [displayName, setDisplayName] = useState(userProfile.display_name || '');
@@ -20,6 +31,7 @@ const EditProfileModal = ({ onClose }) => {
     const bioWordCount = useMemo(() => countWords(bio), [bio]);
     const isBioValid = bioWordCount <= 50;
 
+    // Updates user profile information
     const handleSaveChanges = async () => {
         if (!displayName.trim() || !isBioValid) return;
         setIsLoading(true);

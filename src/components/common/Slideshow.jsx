@@ -1,8 +1,21 @@
+/**
+ * A background image slider with overlaying quotes
+ * 
+ * Purpose:
+ * - Cycles through a predefined set of images and Dead Poets Society quotes
+ * - Handles responsiveness by switching between Desktop and Mobile image variants
+ * - Uses Framer Motion for smooth cross-fades between slides
+ * 
+ * Used In:
+ * - `src/views/HomePage.jsx`
+ */
+
 "use client";
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-
+//Not using seperate JS file since won't be increasing number of slides
+//Seperate images for mobile and desktop due to cropping issues
 const slides = [
     {
         desktopImage: "/slideshow1.jpg",
@@ -37,6 +50,7 @@ const slides = [
 ];
 
 
+// Hook to track window dimensions
 const useWindowSize = () => {
     const [size, setSize] = useState([0, 0]);
     useLayoutEffect(() => {
@@ -57,6 +71,7 @@ const Slideshow = () => {
 
     const isMobile = width < 768;
 
+    // Auto-advance slide every 5 seconds
     useEffect(() => {
         const timer = setTimeout(() => {
             setIndex(prev => (prev + 1) % slides.length);

@@ -1,7 +1,22 @@
+/**
+ * A versatile UI component for selecting multiple tags/options
+ * 
+ * Purpose:
+ * - Provides a searchable dropdown interface
+ * - Supports adding/removing tags via checkbox or direct click
+ * - Adapts to Mobile/Desktop views (Inline dropdown vs. Bottom sheet)
+ * - Closes automatically when clicking outside
+ * 
+ * Used In:
+ * - `src/views/PoemsPage.jsx` (Filtering poems)
+ * - `src/views/SubmitPage.jsx` (Tagging new submissions)
+ */
+
 "use client";
 import * as React from 'react';
 import { X, Check } from 'lucide-react';
 
+// Custom hook for responsive media queries
 const useMediaQuery = (query) => {
     const [matches, setMatches] = React.useState(false);
 
@@ -29,6 +44,7 @@ const MultiSelectDropdown = ({
     const [searchTerm, setSearchTerm] = React.useState('');
     const dropdownRef = React.useRef(null);
 
+    // Close dropdown when clicking outside
     React.useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -41,6 +57,7 @@ const MultiSelectDropdown = ({
         };
     }, []);
 
+    // Toggle selection of an option
     const handleSelect = (option) => {
         const newSelection = selectedOptions.includes(option)
             ? selectedOptions.filter((item) => item !== option)

@@ -1,13 +1,30 @@
+/**
+ * EventDetailPage View
+ * 
+ * Renders the full details of a specific event
+ * 
+ * Purpose:
+ * - Shows comprehensive information: Report, Date, Venue, Category
+ * - Displays multimedia: Hero image, Gallery collage, and Poster
+ * - Handles invalid IDs with a "Not Found" state
+ * 
+ * Architecture:
+ * - Dynamic routing based on `id` prop (passed from Next.js page wrapper)
+ * - Component composition with `GalleryCollage` <---- Dyanmic collage making component (Supports MAX 10 IMAGES)
+ */
+
 "use client";
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { eventDb } from '../data';
+import { eventDb } from '@/data/eventDb';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin, Tag } from 'lucide-react';
-import GalleryCollage from '@/components/GalleryCollage';
+import GalleryCollage from '@/components/common/GalleryCollage';
+
 
 const EventDetailPage = ({ id }) => {
+    // Retrieve specific event details using the ID from the URL
     const event = eventDb[id];
 
     if (!event) {
@@ -23,6 +40,7 @@ const EventDetailPage = ({ id }) => {
 
     return (
         <div className="min-h-screen bg-black text-white font-sans">
+            {/* Hero Image Section */}
             <div className="relative h-[50vh] w-full">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black z-10" />
                 <img
@@ -61,6 +79,7 @@ const EventDetailPage = ({ id }) => {
                     </Button>
                 </Link>
 
+                {/* Main Content Areas: Report/Gallery and Details/Poster */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-2">
                         <motion.div

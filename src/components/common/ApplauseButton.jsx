@@ -1,7 +1,19 @@
+/*
+ * A like button of sorts
+ * 
+ * Purpose:
+ * - Tracks user appreciation for a poem
+ * - Syncs state with Supabase `applauses` table via RPC `toggle_applause`
+ * - Animates on click for feedback
+ * 
+ * Used In:
+ * - `src/views/NotePage.jsx`
+ */
+
 "use client";
 import { useState, useEffect } from 'react';
-import { supabase } from '../supabase/config.js';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../../supabase/config.js';
+import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
 const ApplauseButton = ({ note }) => {
@@ -11,6 +23,7 @@ const ApplauseButton = ({ note }) => {
     const [isAnimating, setIsAnimating] = useState(false);
 
     useEffect(() => {
+        // Check if the current user has already applauded this note
         const checkApplause = async () => {
             if (user) {
                 const { data, error } = await supabase
@@ -30,6 +43,7 @@ const ApplauseButton = ({ note }) => {
         checkApplause();
     }, [user, note.id]);
 
+    // Toggles applause status via RPCC
     const handleApplause = async () => {
         if (!user) {
             alert("Please log in to applaud a poem.");

@@ -1,9 +1,9 @@
 import { Cinzel, Homemade_Apple } from 'next/font/google';
 import "./globals.css";
 import { AuthProvider } from '@/context/AuthContext';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import ProfileGuard from '@/components/ProfileGuard';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import ProfileGuard from '@/components/auth/ProfileGuard';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: ['400', '500', '600', '700', '800', '900'] });

@@ -1,11 +1,15 @@
 "use client";
 import { Instagram, Github } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-
+/*
+* This is the global footer what else do you wanna know?
+* See a comment below for the minimal footer for PR page
+*/
 const Footer = () => {
     const pathname = usePathname();
     const isPrPage = pathname === '/pr';
 
+    // Simplified footer for the PR Puzzle Page (Done so that it fits better on mobile)
     if (isPrPage) {
         return (
             <footer className="bg-black py-4 px-4 mt-auto flex items-center justify-center border-t border-gray-900">

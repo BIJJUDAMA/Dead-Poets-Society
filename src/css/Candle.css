@@ -1,8 +1,7 @@
-/* src/css/Candle.css */
+/*Source: https://codepen.io/Takuma_BMe/pen/BaVdNLK*/
 
 .candle-holder {
     margin: 3rem auto 1rem;
-    /* Adjusted margin */
     width: 150px;
     height: 400px;
     position: relative;

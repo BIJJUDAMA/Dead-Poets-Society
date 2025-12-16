@@ -1,17 +1,37 @@
+/**
+ * The primary browsing interface, displaying a library of poems
+ * 
+ * Purpose:
+ * - Lists all poems with advanced filtering and sorting
+ * - Supports Infinite Scrolling for seamless navigation
+ * - Provides Search (by title/author) and Filtering (by tags)
+ * 
+ * Data Strategy:
+ * - Uses Supabase `range()` for pagination
+ * - Implements debounced search to minimize database queries
+ * - Syncs URL state (implied by typical patterns, though currently component state)
+ * 
+ * Component Architecture:
+ * - Parent: `PoemsPage` (manages state & fetching)
+ * - Children: `NotesGrid` (display), `MultiSelectDropdown` (filtering), `SkeletonCard` (loading)
+ * 
+ */
+
 "use client";
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/supabase/config.js';
-import NotesGrid from '@/components/NotesGrid';
-import SkeletonCard from '@/components/SkeletonCard.jsx';
+import NotesGrid from '@/components/poems/NotesGrid';
+import SkeletonCard from '@/components/common/SkeletonCard.jsx';
 import { useInView } from 'react-intersection-observer';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { POEM_TAGS } from '@/constants.js';
-import MultiSelectDropdown from '@/components/MultiSelectDropdown';
+import { POEM_TAGS } from '@/lib/constants.js';
+import MultiSelectDropdown from '@/components/common/MultiSelectDropdown';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE = 8;
+
 
 const PoemsPage = ({ initialNotes }) => {
     const [notes, setNotes] = useState(initialNotes || []);
@@ -22,17 +42,26 @@ const PoemsPage = ({ initialNotes }) => {
     const [loading, setLoading] = useState(!initialNotes);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
+    // Infinite Scroll Ref
     const { ref, inView } = useInView({ threshold: 0.5 });
 
-    // Debounce search term
+
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
+    /**
+     * Core Fetching Logic:
+     * Retrieves filtered and sorted notes from Supabase.
+     * 
+     * @param {boolean} isInitial - Reset list if true (new filter applied), append if false (pagination).
+     */
+    // Fetches notes with pagination, sorting, search, and tag filtering
     const fetchNotes = useCallback(async (isInitial = false) => {
         if (!hasMore && !isInitial) return;
-        if (isInitial) setLoading(true);
+
+        setLoading(true);
 
         try {
             const lastUnderscoreIndex = sortBy.lastIndexOf('_');
@@ -44,47 +73,59 @@ const PoemsPage = ({ initialNotes }) => {
 
             let query = supabase.from('notes').select('*');
 
-            // Apply filters
+
+            // Apply search filter (title or poet name)
             if (debouncedSearch) {
                 query = query.or(`title.ilike.%${debouncedSearch}%,poet_name.ilike.%${debouncedSearch}%`);
             }
+            // Apply tag filter (array contains check)
             if (selectedTags.length > 0) {
                 query = query.contains('tags', selectedTags);
             }
 
+            // Apply sorting dynamic construction
             query = query.order(field, { ascending: order === 'asc' }).range(from, to);
 
             const { data: newNotes, error } = await query;
 
             if (error) throw error;
 
-            setNotes(prev => isInitial ? newNotes : [...prev, ...newNotes]);
+            setNotes(prev => {
+                if (isInitial) return newNotes;
+                // Deduplicate to prevent key errors
+                const existingIds = new Set(prev.map(n => n.id));
+                const uniqueNewNotes = newNotes.filter(n => !existingIds.has(n.id));
+                return [...prev, ...uniqueNewNotes];
+            });
+
             if (isInitial) setPage(0); else setPage(prev => prev + 1);
             setHasMore(newNotes.length === PAGE_SIZE);
         } catch (error) {
             console.error("Error fetching poems: ", error);
         } finally {
-            if (isInitial) setLoading(false);
+            setLoading(false);
         }
     }, [sortBy, page, hasMore, debouncedSearch, selectedTags]);
 
     useEffect(() => {
-        // Skip initial fetch if we have initialNotes and haven't changed filters
+
         if (initialNotes && notes.length > 0 && sortBy === 'created_at_desc' && !debouncedSearch && selectedTags.length === 0 && page === 0) {
             return;
         }
+        // Reset state when filters change
         setHasMore(true);
         setPage(0);
         fetchNotes(true);
     }, [sortBy, debouncedSearch, selectedTags]);
 
     useEffect(() => {
+        // Infinite scroll trigger
         if (inView && !loading && hasMore) {
             fetchNotes();
         }
     }, [inView, loading, hasMore, fetchNotes]);
 
-    // Client-side filtering removed in favor of server-side filtering
+
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-12 pb-20 bg-black text-white min-h-screen">
@@ -121,6 +162,7 @@ const PoemsPage = ({ initialNotes }) => {
                     </div>
                 </div>
 
+                {/* Loading State Skeletons */}
                 {loading && notes.length === 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                         {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
@@ -129,8 +171,9 @@ const PoemsPage = ({ initialNotes }) => {
                     <NotesGrid notes={notes} />
                 )}
 
+                {/* Intersection Observer target for infinite scrolling */}
                 <div ref={ref} className="h-10" />
-                {!loading && hasMore && <p className="text-center text-gray-500 mt-8">Scrolling to load more...</p>}
+                {loading && notes.length > 0 && <p className="text-center text-gray-500 mt-8">Loading more...</p>}
                 {!hasMore && !loading && notes.length > 0 && <p className="text-center text-gray-500 mt-8">You have reached the end of the verses.</p>}
             </div>
         </motion.div>

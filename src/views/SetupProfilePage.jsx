@@ -1,9 +1,22 @@
+/**
+ * Onboarding screen for new users to configure their identity
+ * 
+ * Purpose:
+ * - Collecting Display Name (Required)
+ * - Collecting Bio (Optional, max 50 words)
+ * - Profile Picture upload via `ImageUpload` component (If not uploaded the users google account image will be used)
+ * 
+ * Logic:
+ * - Redirects if profile is already complete
+ * - Updates the `profiles` table in Supabase
+ */
+
 "use client";
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../supabase/config.js';
 import { useAuth } from '../context/AuthContext';
-import ImageUpload from '../components/ImageUpload';
+import ImageUpload from '@/components/common/ImageUpload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +48,12 @@ const SetupProfilePage = () => {
         }
     }, [userProfile, router]);
 
+    /**
+     * Form Submission:
+     * Validates inputs locally before sending an UPDATE request to Supabase
+     * Upon success, refreshes the global auth state and redirects to Home
+     */
+    // Saves the profile data to Supabase
     const handleProfileSetup = async (e) => {
         e.preventDefault();
         setErrorMessage(null);

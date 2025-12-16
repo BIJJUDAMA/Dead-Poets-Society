@@ -1,5 +1,5 @@
 import SubmitPage from '@/views/SubmitPage';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function Page() {
     return (

@@ -1,3 +1,16 @@
+/** 
+ * Handles user authentication via Google OAuth
+ * 
+ * Purpose:
+ * - Provides a secure entry point for new and returning users
+ * - Uses Supabase Auth for backend authentication
+ * - Redirects already logged-in users to the homepage to prevent redundant login flows
+ * 
+ * Key Features:
+ * - Google Sign-In integration
+ * - Auto-redirect loop if session exists
+ */
+
 "use client";
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,10 +20,17 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
+
 const LoginPage = () => {
+
     const router = useRouter();
     const { user } = useAuth();
 
+    /**
+     * Handles the Google OAuth sign-in process.
+     * Triggers a redirect to the Google login page. (Was a pain to set up and I have forgotten most about it so don't ask me about this. It WORKS and don't fix what already works)
+     */
+    // Initiate Google OAuth login via Supabase
     const handleGoogleLogin = async () => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
@@ -20,6 +40,11 @@ const LoginPage = () => {
         }
     };
 
+    /**
+     * Effect Hook: Auth State Check
+     * Monitors the `user` object from AuthContext. If a user is present immediately redirects them to the homepage
+     */
+    // Redirect to home if user is already authenticated
     useEffect(() => {
         if (user) {
             router.push('/');

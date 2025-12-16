@@ -1,3 +1,14 @@
+/**
+ * The central authentication state manager for the application (Allowing access to admin/semi-admin features)
+ * 
+ * Purpose:
+ * - Wraps the entire application to provide user session data
+ * - Manages global state: `user`, `userProfile`, `isAdmin`, `isMainAdmin`
+ * - Validates user roles against the `profiles` table in Supabase
+ * - Sets up realtime subscriptions to keep profile data (applause count) in sync
+ * - Handles "New User" detection for redirection logic in `ProfileGuard`
+ */
+
 "use client";
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from '../supabase/config';
@@ -9,6 +20,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    // State for auth and profile data
     const [user, setUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
@@ -19,6 +31,7 @@ export const AuthProvider = ({ children }) => {
         if (currentUser) {
             setUser(currentUser);
 
+            // Fetch public profile if user exists
             const { data: profile, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -35,6 +48,7 @@ export const AuthProvider = ({ children }) => {
                 } else {
                     setUserProfile(profile);
                 }
+                // Determine admin roles based on email or DB role
                 const mainAdmin = profile.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
                 setIsMainAdmin(mainAdmin);
                 setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
@@ -60,6 +74,7 @@ export const AuthProvider = ({ children }) => {
         };
         getSession();
 
+        // Listen for auth state changes
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
             handleUser(session?.user);
         });
@@ -72,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         let profileListener;
         if (user?.id) {
+            // Realtime subscription to profile changes
             profileListener = supabase
                 .channel(`public:profiles:id=eq.${user.id}`)
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {

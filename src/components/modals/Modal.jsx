@@ -1,7 +1,20 @@
+/**
+ * A reusable, animated modal wrapper.
+ * 
+ * Purpose:
+ * - Provides a standard backdrop and container for modal content.
+ * - Handles entrance and exit animations using Framer Motion.
+ * - Centralizes "Close" behavior and styling.
+ * 
+ * Used In:
+ * - `src/components/FollowListModal.jsx`
+ */
+
 "use client";
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
+// Reusable Modal component with Framer Motion animations
 const Modal = ({ children, onClose }) => (
     <motion.div
         initial={{ opacity: 0 }}

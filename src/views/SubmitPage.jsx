@@ -1,11 +1,20 @@
+/**
+ * A form for users to submit new poems to the platform
+ * 
+ * Features:
+ * - Real-time character count validation for Title and Description
+ * - Multi-select dropdown for Tags (src/lib/constants/constants.js)
+ * - Submission handling to Supabase 'poem_submissions' table (pending approval from admin/semi-admins)
+ */
+
 "use client";
 import { useState } from 'react';
 import { supabase } from '@/supabase/config.js';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle } from 'lucide-react';
-import { POEM_TAGS } from '@/constants.js';
-import MultiSelectDropdown from '@/components/MultiSelectDropdown';
+import { POEM_TAGS } from '@/lib/constants.js';
+import MultiSelectDropdown from '@/components/common/MultiSelectDropdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,12 +32,19 @@ const PoemSubmissionForm = () => {
     const isTitleValid = title.length <= 50;
     const isDescriptionValid = description.length <= 150;
 
+    /**
+     * Handles the form submission process.
+     * Prevents default browser behavior, validates inputs again,
+     * and sends data to Supabase.
+     */
+    // Handles form submission to Supabase
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isTitleValid || !isDescriptionValid || !content) return;
         setIsLoading(true);
         setMessage('');
         try {
+            // Insert new poem with 'pending' status
             const { error } = await supabase.from('poem_submissions').insert([{
                 title,
                 content,
@@ -72,7 +88,7 @@ const PoemSubmissionForm = () => {
             </div>
             <div>
                 <Label>Tags</Label>
-                {/* The onSelectionChange prop now directly uses setSelectedTags */}
+
                 <MultiSelectDropdown
                     options={POEM_TAGS}
                     selectedOptions={selectedTags}

@@ -1,3 +1,15 @@
+/**
+ * A directory of all poets (users) on the platform
+ * 
+ * Purpose:
+ * - Allows users to discover other poets
+ * - Provides search functionality by name
+ * - Enables quick "Follow" actions directly from the list
+ * 
+ * Data:
+ * - Fetches all profiles with a non-null display_name (Null display names were allowed before frontend checking was enforced)
+ */
+
 "use client";
 import { useState, useEffect } from 'react';
 import { supabase } from '@/supabase/config.js';
@@ -17,6 +29,11 @@ const UsersPage = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        /**
+         * Fetch Logic:
+         * Loads all valid user profiles to populate the directory
+         */
+        // Fetches all users who have a display name
         const fetchUsers = async () => {
             setLoading(true);
             setError(null);
@@ -38,6 +55,7 @@ const UsersPage = () => {
         fetchUsers();
     }, []);
 
+    // Toggles follow status for a target user
     const handleFollow = async (targetUserId, isCurrentlyFollowing) => {
         if (!user) return;
 

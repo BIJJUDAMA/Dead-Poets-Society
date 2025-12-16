@@ -1,3 +1,14 @@
+/**
+ * A set of buttons for sharing content. currently only supports "Copy Link"
+ * 
+ * Purpose:
+ * - Allows users to easily copy the URL of a poem to their clipboard
+ * - Provides visual feedback ("Copied!" vs "Failed!") upon action
+ * 
+ * Used In:
+ * - `src/views/NotePage.jsx`
+ */
+
 "use client";
 import { useState } from 'react';
 import { Link as LinkIcon } from 'lucide-react';
@@ -5,6 +16,7 @@ import { Link as LinkIcon } from 'lucide-react';
 const SocialShareButtons = ({ url }) => {
     const [copySuccess, setCopySuccess] = useState('');
 
+    // Copies the standard URL to clipboard
     const handleCopy = () => {
 
         navigator.clipboard.writeText(url).then(() => {

@@ -1,3 +1,15 @@
+/*
+ * A dialog form for editing an existing poem
+ * 
+ * Purpose:
+ * - Allows authors to modify Title, Content, Preview, and Tags
+ * - Syncs local state with props (`note`)
+ * - Handles the update operation via Supabase
+ * 
+ * Used In:
+ * - `src/views/NotePage.jsx`
+ */
+
 "use client";
 import { useState, useEffect } from 'react';
 import { supabase } from '@/supabase/config.js';
@@ -19,6 +31,7 @@ const EditPoemModal = ({ note, isOpen, onClose, onPoemUpdated }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Updates the poem data to Supabase
     const handleSaveChanges = async () => {
         setIsLoading(true);
         const { id, ...dataToUpdate } = formData;

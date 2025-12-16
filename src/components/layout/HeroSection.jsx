@@ -1,7 +1,19 @@
+/**
+ * The visual centerpiece of the Homepage.
+ * 
+ * Purpose:
+ * - Creates an atmospheric entry with a CSS-only candle animation
+ * - Displays the society logo with fade-in effects
+ * 
+ * Used In:
+ * - `src/views/HomePage.jsx`
+ */
+
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import '../css/Candle.css';
+import '../../css/Candle.css';
 
+// Pure CSS candle animation component (Source: https://codepen.io/Takuma_BMe/pen/BaVdNLK)
 const CandleAnimation = () => (
     <div className="candle-holder">
         <div className="candle">
@@ -16,9 +28,9 @@ const CandleAnimation = () => (
 const HeroSection = () => (
     <section className="relative bg-black flex flex-col items-center justify-center pt-10 pb-20 px-4 min-h-screen">
 
-        {/* This container is now responsive. It stacks vertically by default and becomes a row on medium screens and up. */}
+
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-            {/* The candle animation */}
+
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -27,7 +39,7 @@ const HeroSection = () => (
                 <CandleAnimation />
             </motion.div>
 
-            {/* The logo image */}
+
             <motion.div
 
                 className="mt-[-100px] md:mt-0 z-10"

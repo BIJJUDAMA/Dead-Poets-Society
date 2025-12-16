@@ -19,7 +19,8 @@ const AboutUsPage = () => {
                 </h2>
             </motion.div>
 
-            {/* About Us Image */}
+
+            {/* Animated Image Section */}
             <motion.div
                 className="w-full max-w-4xl mb-16 rounded-xl shadow-2xl overflow-hidden h-64 md:h-96 relative border border-white/10"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -34,7 +35,8 @@ const AboutUsPage = () => {
                 />
             </motion.div>
 
-            {/* About Us Text */}
+
+            {/* Text Content Section */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -52,7 +54,7 @@ const AboutUsPage = () => {
                     Our society is built on the voices of the unheard, the verses scribbled in margins, and the belief that beauty lies in vulnerability.
                 </p>
 
-                {/* Center-aligned poetic section */}
+
                 <div className="space-y-3 text-gray-200 text-center font-serif text-xl border-y border-white/10 py-8 my-8">
                     <p className="font-medium text-white">This is not just a website.</p>
                     <p>This is a place to remember those who came before us,</p>

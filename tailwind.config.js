@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+
 import { fontFamily } from "tailwindcss/defaultTheme"
 import tailwindcssAnimate from "tailwindcss-animate"
 

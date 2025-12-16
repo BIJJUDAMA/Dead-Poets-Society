@@ -1,16 +1,33 @@
+/**
+ * The landing page of the Dead Poets Society AVV
+ * 
+ * Purpose:
+ * - Showcases "Most Applauded" poems to highlight popular content (Depending on number of applauds)
+ * - Displays "Recent Additions"
+ * 
+ * Key Logic:
+ * - Fetches the top 4 most applauded poems server-side (via Supabase client)
+ * - Uses `NotesGrid` component to render lists of poems
+ * - Implements a loading state with `SkeletonCard` for better UX
+*/
 "use client";
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '../supabase/config.js';
-import HeroSection from '../components/HeroSection';
-import Slideshow from '../components/Slideshow';
-import NotesGrid from '../components/NotesGrid';
-import SkeletonCard from '../components/SkeletonCard.jsx';
+import HeroSection from '@/components/layout/HeroSection';
+import Slideshow from '@/components/common/Slideshow';
+import NotesGrid from '@/components/poems/NotesGrid';
+import SkeletonCard from '@/components/common/SkeletonCard.jsx';
+
 
 const HomePage = () => {
+
+    // State to store the list of most applauded poems
     const [mostApplauded, setMostApplauded] = useState([]);
+    // Loading state for the async fetch operation
     const [loading, setLoading] = useState(true);
 
+    // Fetch the 4 most applauded poems for the Hero/Highlights section
     useEffect(() => {
         const fetchMostApplauded = async () => {
             setLoading(true);
@@ -36,8 +53,6 @@ const HomePage = () => {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <HeroSection />
             <Slideshow />
-
-            {/* Most Applauded Section */}
             <section className="py-16 px-4 bg-black">
                 <h2 className="text-4xl font-bold text-center mb-12 text-white font-cinzel">Most Applauded</h2>
                 {loading ? (
@@ -45,18 +60,20 @@ const HomePage = () => {
                         {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
                     </div>
                 ) : (
+                    // Displays the most applauded notes in a grid
                     <NotesGrid notes={mostApplauded} />
                 )}
             </section>
 
-            {/* Recent Additions Section */}
+
             <section className="py-16 px-4 bg-black-900">
                 <h2 className="text-4xl font-bold text-center mb-12 text-white font-cinzel">Recent Additions</h2>
-                {/* This NotesGrid will fetch the 8 most recent poems on its own */}
+
+                {/* Displays the latest 8 notes via internal fetching in NotesGrid */}
                 <NotesGrid count={8} />
             </section>
 
-        </motion.div>
+        </motion.div >
     );
 };
 
