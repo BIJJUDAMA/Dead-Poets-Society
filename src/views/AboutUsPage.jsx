@@ -28,7 +28,7 @@ const AboutUsPage = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
             >
                 <Image
-                    src="/aboutUs.jpg"
+                    src="/aboutUs.JPG"
                     alt="About Us"
                     fill
                     className="object-cover transition-transform duration-700"
