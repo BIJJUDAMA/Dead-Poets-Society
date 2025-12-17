@@ -27,13 +27,13 @@ import EditProfileModal from '@/components/modals/EditProfileModal';
 import FollowListModal from '@/components/modals/FollowListModal';
 
 
-const ProfilePage = () => {
+const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
     const { userId } = useParams();
     const router = useRouter();
     const { user, userProfile, refreshUserProfile } = useAuth();
-    const [profileData, setProfileData] = useState(null);
-    const [userContent, setUserContent] = useState({ poems: [] });
-    const [loading, setLoading] = useState(true);
+    const [profileData, setProfileData] = useState(initialProfile);
+    const [userContent, setUserContent] = useState({ poems: initialPoems });
+    const [loading, setLoading] = useState(!initialProfile);
     const [isEditing, setIsEditing] = useState(false);
     const [followList, setFollowList] = useState({ visible: false, title: '', userIds: [] });
 
@@ -48,6 +48,7 @@ const ProfilePage = () => {
     // Fetches profile information and their poems
     const fetchProfileData = useCallback(async () => {
         if (!userId) return;
+        // If we already have initial data and it matches the ID (implicit via SSR), we might skip loading state visual
         setLoading(true);
         try {
             const { data: profile, error: profileError } = await supabase
@@ -78,8 +79,11 @@ const ProfilePage = () => {
     }, [userId]);
 
     useEffect(() => {
-        fetchProfileData();
-    }, [fetchProfileData]);
+        // Only fetch if we don't have initial data (navigation from client) or we need to refresh
+        if (!initialProfile) {
+            fetchProfileData();
+        }
+    }, [fetchProfileData, initialProfile]);
 
     /**
      * Follow Logic:
