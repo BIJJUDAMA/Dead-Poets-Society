@@ -23,9 +23,8 @@ import { ArrowLeft, Calendar, MapPin, Tag } from 'lucide-react';
 import GalleryCollage from '@/components/common/GalleryCollage';
 
 
-const EventDetailPage = ({ id }) => {
-    // Retrieve specific event details using the ID from the URL
-    const event = eventDb[id];
+const EventDetailPage = ({ event }) => {
+    // Event data is now passed from the Server Component via SSG
 
     if (!event) {
         return (

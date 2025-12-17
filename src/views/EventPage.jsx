@@ -17,12 +17,9 @@ import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/c
 import { eventDb } from '@/data/eventDb';
 
 
-const EventPage = () => {
-    // Convert eventDb object to an array for mapping
-    const eventsList = Object.entries(eventDb).map(([slug, event]) => ({
-        slug,
-        ...event
-    }));
+const EventPage = ({ eventsList }) => {
+    // eventsList is passed from the Server Component
+
 
     return (
         <div className="min-h-screen bg-black text-white p-8">
