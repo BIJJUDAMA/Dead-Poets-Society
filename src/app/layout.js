@@ -6,8 +6,8 @@ import Footer from '@/components/layout/Footer';
 import ProfileGuard from '@/components/auth/ProfileGuard';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: ['400', '500', '600', '700', '800', '900'] });
-const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'], variable: '--font-homemade-apple' });
+const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: ['400', '500', '600', '700', '800', '900'], display: 'swap' });
+const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'], variable: '--font-homemade-apple', display: 'swap' });
 
 export const metadata = {
     title: "Dead Poet's Society",
