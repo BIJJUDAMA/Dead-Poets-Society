@@ -7,12 +7,12 @@
  * - Enables social interaction: Applause/Like and Share
  * 
  * Key Features:
- * - Dynamic data fetching based on URL parameter `id` (handled via parent/layout or initialNote prop).
+ * - Server-Side Rendering (SSR) via `initialNote` prop
  * - "Edit" functionality opening a modal (`EditPoemModal`)
  * - "Delete" functionality with a confirmation dialog
  * - Whitespace-preserved rendering for poetic formatting
  * 
- * @param {Object} initialNote - Prop passed containing poem data.
+ * @param {Object} initialNote - Prop passed containing poem data from SSR.
  */
 
 "use client";
