@@ -13,6 +13,7 @@
 "use client";
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 //Not using seperate JS file since won't be increasing number of slides
 //Seperate images for mobile and desktop due to cropping issues
@@ -86,13 +87,22 @@ const Slideshow = () => {
             <AnimatePresence>
                 <motion.div
                     key={index}
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${currentImage})` }}
+                    className="absolute inset-0"
                     initial={{ opacity: 0, scale: 1.05 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 1.5, ease: "easeInOut" }}
-                />
+                >
+                    <div className="relative w-full h-full">
+                        <Image
+                            src={currentImage}
+                            alt="Background"
+                            fill
+                            className="object-cover"
+                            priority={true}
+                        />
+                    </div>
+                </motion.div>
             </AnimatePresence>
             <div className="absolute inset-0 bg-black/50" />
             <motion.p
