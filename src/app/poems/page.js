@@ -3,6 +3,11 @@ import PoemsPage from '@/views/PoemsPage';
 
 export const revalidate = 0; // Disable static optimization for real-time data
 
+export const metadata = {
+    title: 'The Collection | Dead Poets Society',
+    description: 'Explore the collection of poems and verses from the Dead Poets Society.',
+};
+
 export default async function Page() {
     let initialNotes = [];
     try {

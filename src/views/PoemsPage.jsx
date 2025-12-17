@@ -18,7 +18,7 @@
  */
 
 "use client";
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/supabase/config.js';
 import NotesGrid from '@/components/poems/NotesGrid';
 import SkeletonCard from '@/components/common/SkeletonCard.jsx';
