@@ -7,7 +7,7 @@
  * - Enables quick "Follow" actions directly from the list
  * 
  * Data:
- * - Fetches all profiles with a non-null display_name (Null display names were allowed before frontend checking was enforced)
+ * - Fetches all profiles with a non-null display_name (Null display names were allowed before frontend checking was enforced) <---- Moved to server component
  */
 
 "use client";
@@ -21,39 +21,9 @@ import { useAuth } from '@/context/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-const UsersPage = () => {
+const UsersPage = ({ initialUsers = [] }) => {
     const { user, userProfile, refreshUserProfile } = useAuth();
-    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        /**
-         * Fetch Logic:
-         * Loads all valid user profiles to populate the directory
-         */
-        // Fetches all users who have a display name
-        const fetchUsers = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const { data: userList, error: fetchError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .not('display_name', 'is', null);
-
-                if (fetchError) throw fetchError;
-                setUsers(userList || []);
-            } catch (err) {
-                console.error("Error fetching users:", err);
-                setError(`Failed to load poets. Reason: ${err.message}`);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
 
     // Toggles follow status for a target user
     const handleFollow = async (targetUserId, isCurrentlyFollowing) => {
@@ -71,7 +41,7 @@ const UsersPage = () => {
         }
     };
 
-    const filteredUsers = users.filter(u =>
+    const filteredUsers = initialUsers.filter(u =>
         u && u.display_name && u.display_name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -89,50 +59,45 @@ const UsersPage = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
 
-            {loading && <p className="text-center text-gray-400">Loading poets...</p>}
-            {error && <p className="text-center text-red-500 font-mono bg-gray-900 p-4 rounded-md">{error}</p>}
-
-            {!loading && !error && (
-                <div className="space-y-4">
-                    {filteredUsers.length > 0 ? (
-                        filteredUsers.map(poet => {
-                            const isFollowing = userProfile?.following?.includes(poet.id);
-                            const isOwnProfile = user?.id === poet.id;
-                            return (
-                                <div key={poet.id} className="flex items-center justify-between gap-4 p-4 bg-gray-900 rounded-lg">
-                                    <Link href={`/profile/${poet.id}`} className="flex items-center gap-4 flex-grow min-w-0">
-                                        <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border border-gray-700">
-                                            <Image
-                                                src={poet.photo_url || '/defaultPfp.png'}
-                                                alt={poet.display_name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h2 className="text-xl font-bold text-white truncate">{poet.display_name}</h2>
-                                            <p className="text-sm text-gray-400 truncate">{poet.bio}</p>
-                                        </div>
-                                    </Link>
-                                    {user && !isOwnProfile && (
-                                        <Button
-                                            onClick={() => handleFollow(poet.id, isFollowing)}
-                                            variant={isFollowing ? "secondary" : "default"}
-                                            size="sm"
-                                            className="flex-shrink-0"
-                                        >
-                                            <UserPlus className="mr-2 h-4 w-4" />
-                                            {isFollowing ? 'Following' : 'Follow'}
-                                        </Button>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <p className="text-center text-gray-500">No poets found in the society yet.</p>
-                    )}
-                </div>
-            )}
+            <div className="space-y-4">
+                {filteredUsers.length > 0 ? (
+                    filteredUsers.map(poet => {
+                        const isFollowing = userProfile?.following?.includes(poet.id);
+                        const isOwnProfile = user?.id === poet.id;
+                        return (
+                            <div key={poet.id} className="flex items-center justify-between gap-4 p-4 bg-gray-900 rounded-lg">
+                                <Link href={`/profile/${poet.id}`} className="flex items-center gap-4 flex-grow min-w-0">
+                                    <div className="relative w-12 h-12 flex-shrink-0 rounded-full overflow-hidden border border-gray-700">
+                                        <Image
+                                            src={poet.photo_url || '/defaultPfp.png'}
+                                            alt={poet.display_name}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h2 className="text-xl font-bold text-white truncate">{poet.display_name}</h2>
+                                        <p className="text-sm text-gray-400 truncate">{poet.bio}</p>
+                                    </div>
+                                </Link>
+                                {user && !isOwnProfile && (
+                                    <Button
+                                        onClick={() => handleFollow(poet.id, isFollowing)}
+                                        variant={isFollowing ? "secondary" : "default"}
+                                        size="sm"
+                                        className="flex-shrink-0"
+                                    >
+                                        <UserPlus className="mr-2 h-4 w-4" />
+                                        {isFollowing ? 'Following' : 'Follow'}
+                                    </Button>
+                                )}
+                            </div>
+                        );
+                    })
+                ) : (
+                    <p className="text-center text-gray-500">No poets found in the society yet.</p>
+                )}
+            </div>
         </motion.div>
     );
 };
