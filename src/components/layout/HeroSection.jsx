@@ -47,7 +47,7 @@ const HeroSection = () => (
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1 }}
             >
-                <Image src="/DPS1.webp" alt="Logo" width={0} height={0} sizes="100vw" style={{ width: 'auto', height: '192px' }} />
+                <Image src="/DPS1.webp" alt="Logo" width={0} height={0} sizes="100vw" style={{ width: 'auto', height: '192px' }} priority />
             </motion.div>
         </div>
 
