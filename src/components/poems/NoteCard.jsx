@@ -26,10 +26,10 @@ const NoteCard = React.memo(({ note }) => {
 
     return (
         <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
-            <Link href={`/note/${note.id}`} className="block relative group">
+            <Link href={`/note/${note.id}`} className="block relative group h-72">
                 {/* Floating Bookmark Button */}
                 <div
-                    className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     onClick={(e) => {
                         // Prevent the click from bubbling up to the Link component
                         e.preventDefault();
@@ -38,15 +38,32 @@ const NoteCard = React.memo(({ note }) => {
                     <BookmarkButton noteId={note.id} compact={true} />
                 </div>
 
-                <Card className="w-full h-72 border-none bg-transparent bg-no-repeat bg-center bg-contain flex flex-col justify-center transition-transform hover:scale-105" style={{ backgroundImage: "url('/postIt.png')" }}>
-                    <CardContent className="text-center text-black font-handwriting p-6 pt-10">
-                        <h3 className="text-2xl font-bold mb-2 truncate px-2">{note.title || "Poem"}</h3>
+                <Card className="relative w-full h-full border-none bg-transparent flex flex-col justify-center overflow-hidden">
+                    {/* Parallax Background Layer */}
+                    <div
+                        className="absolute inset-0 bg-no-repeat bg-center bg-contain transition-transform duration-700 ease-out group-hover:scale-110 group-hover:rotate-1"
+                        style={{ backgroundImage: "url('/postIt.png')" }}
+                    />
 
-                        {/* Truncated author name */}
-                        <p className="text-lg font-semibold mb-2 truncate">by {note.poet_name}</p>
-                        <p className="text-lg overflow-hidden text-ellipsis" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
-                            {note.preview}
-                        </p>
+                    <CardContent className="relative z-10 text-center text-black font-handwriting h-full w-full flex items-center justify-center p-8">
+
+                        {/*Default View: Title & Author (Fades out and up on hover) */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:-translate-y-8 px-6 pt-4">
+                            <h3 className="text-3xl font-bold mb-3 w-full px-2 leading-tight" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                {note.title || "Untitled Poem"}
+                            </h3>
+                            <p className="text-xl font-medium text-stone-800 truncate w-full px-4">
+                                by {note.poet_name}
+                            </p>
+                        </div>
+
+                        {/* Hover View: Poem Text (Fades in and up from below on hover) */}
+                        <div className="absolute inset-0 flex flex-col justify-center items-center transition-all duration-500 ease-in-out opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 px-8 pt-4 pointer-events-none">
+                            <p className="text-xl leading-relaxed text-stone-900 overflow-hidden text-ellipsis italic" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical' }}>
+                                "{note.preview}"
+                            </p>
+                        </div>
+
                     </CardContent>
                 </Card>
             </Link>
