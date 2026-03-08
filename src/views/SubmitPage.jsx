@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 const PoemSubmissionForm = () => {
     const { user, userProfile } = useAuth();
@@ -84,7 +85,11 @@ const PoemSubmissionForm = () => {
             </div>
             <div>
                 <Label>Full Poem Content</Label>
-                <Textarea value={content} onChange={e => setContent(e.target.value)} required rows="10" />
+                <RichTextEditor
+                    content={content}
+                    onChange={setContent}
+                    placeholder="Start typing your poem..."
+                />
             </div>
             <div>
                 <Label>Tags</Label>

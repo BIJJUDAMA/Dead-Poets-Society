@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 const EditPoemModal = ({ note, isOpen, onClose, onPoemUpdated }) => {
     const [formData, setFormData] = useState(note);
@@ -77,7 +78,12 @@ const EditPoemModal = ({ note, isOpen, onClose, onPoemUpdated }) => {
                     </div>
                     <div className="grid grid-cols-4 items-start gap-4">
                         <Label htmlFor="content" className="text-right pt-2 text-gray-400">Content</Label>
-                        <Textarea id="content" name="content" value={formData.content} onChange={handleChange} rows={8} className="col-span-3 bg-gray-700" />
+                        <div className="col-span-3">
+                            <RichTextEditor
+                                content={formData.content}
+                                onChange={(html) => setFormData({ ...formData, content: html })}
+                            />
+                        </div>
                     </div>
                 </div>
                 <DialogFooter>
