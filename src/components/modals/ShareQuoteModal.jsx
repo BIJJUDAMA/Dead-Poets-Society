@@ -4,15 +4,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Download, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
 
 const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
     const graphicRef = useRef(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [canWebShare, setCanWebShare] = useState(false);
+    const [pageUrl, setPageUrl] = useState('');
 
     // Check if the browser supports the Web Share API with files
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setPageUrl(window.location.hostname);
+        }
         if (typeof navigator !== 'undefined' && navigator.canShare) {
             // A pseudo-check to see if file sharing is supported
             setCanWebShare(true);
@@ -62,7 +67,8 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 try {
                     await navigator.share({
                         title: `Snippet from ${title}`,
-                        text: `A beautiful verse by ${author}`,
+                        text: `"${excerpt}" — ${author}\n\nRead the full poem here:`,
+                        url: window.location.href, // Link injection for Option 1
                         files: [file],
                     });
                 } catch (error) {
@@ -82,55 +88,48 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 </DialogHeader>
 
                 <div className="flex flex-col items-center justify-center p-2 mb-4">
-                    {/* The Graphic Element (1080x1080 ratio, responsive scaling) */}
+                    {/* The Graphic Element */}
                     <div
-                        className="relative w-full aspect-square max-w-[400px] shadow-2xl overflow-hidden rounded-md transition-all select-none"
+                        ref={graphicRef}
+                        className="relative w-full aspect-square max-w-[400px] shadow-2xl rounded-md overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-neutral-900 via-stone-900 to-black border border-gray-700 select-none"
                     >
-                        {/* Hidden Graphic that html2canvas will target */}
-                        <div
-                            ref={graphicRef}
-                            className="absolute top-0 left-0 w-[1080px] h-[1080px] bg-gradient-to-br from-neutral-900 via-stone-900 to-black p-24 flex flex-col justify-center items-center text-center font-serif text-white opacity-100"
-                            style={{
-                                transform: 'scale(0.3)', // Scale down for preview
-                                transformOrigin: 'top left',
-                                // Make the preview container roughly 320x320
-                                width: '1080px',
-                                height: '1080px',
-                            }}
-                        >
-                            {/* Decorative Grain Overlay */}
-                            <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+                        {/* Decorative Grain Overlay */}
+                        <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
 
-                            {/* Gold Quote Marks */}
-                            <div className="text-[150px] leading-none text-yellow-600/50 absolute top-20 left-20 font-serif">"</div>
+                        {/* Gold Quote Marks */}
+                        <div className="text-4xl text-yellow-600/50 absolute top-6 left-6 font-serif">"</div>
 
-                            <div className="z-10 w-full max-w-[800px] flex flex-col items-center gap-12">
-                                <p className="text-[52px] leading-relaxed italic text-stone-200" dangerouslySetInnerHTML={{ __html: excerpt?.replace(/\n/g, '<br/>') }} />
+                        {/* Quote Content */}
+                        <p className="z-10 text-lg sm:text-xl font-serif italic text-stone-200 text-center relative overflow-hidden line-clamp-[6] w-full px-4">
+                            {excerpt}
+                        </p>
 
-                                <div className="mt-8 flex flex-col items-center border-t border-stone-700 pt-10 w-1/2">
-                                    <h3 className="text-[36px] font-bold tracking-widest uppercase text-stone-400 mb-2">{title}</h3>
-                                    <p className="text-[28px] text-stone-500 italic">— {author}</p>
-                                </div>
-                            </div>
-
-                            {/* Watermark */}
-                            <div className="absolute bottom-16 w-full text-center text-stone-600 text-[24px] uppercase tracking-[0.3em] font-sans">
-                                Dead Poets Society
-                            </div>
+                        {/* Author Info */}
+                        <div className="z-10 mt-8 pt-4 w-3/4 border-t border-stone-700 flex flex-col items-center text-center">
+                            <span className="text-sm font-bold tracking-widest uppercase text-stone-400 mb-1">{title}</span>
+                            <span className="text-xs text-stone-500 italic">— {author}</span>
                         </div>
 
-                        {/* Visible Preview Container */}
-                        <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-stone-900 to-black overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 rounded-md border border-gray-700 relative">
-                            {/* Decorative Grain Overlay */}
-                            <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+                        {/* Footer: QR Code, Watermark, and Link */}
+                        <div className="absolute bottom-4 w-full px-6 flex items-center justify-between">
+                            {/* Option 2: QR Code inside the graphic */}
+                            <div className="bg-white p-1 rounded-sm shadow-md">
+                                <QRCodeSVG
+                                    value={typeof window !== 'undefined' ? window.location.href : 'https://dead-poets-society.com'}
+                                    size={36}
+                                    bgColor={"#ffffff"}
+                                    fgColor={"#000000"}
+                                    level={"L"}
+                                />
+                            </div>
 
-                            <div className="text-4xl text-yellow-600/50 absolute top-4 left-4 font-serif">"</div>
-                            <p className="z-10 text-lg sm:text-xl font-serif italic text-stone-200 text-center relative overflow-hidden line-clamp-[8]">
-                                {excerpt}
-                            </p>
-                            <div className="z-10 mt-6 pt-4 border-t border-stone-700 flex flex-col items-center text-center">
-                                <span className="text-sm font-bold tracking-widest uppercase text-stone-400">{title}</span>
-                                <span className="text-xs text-stone-500 italic mt-1">— {author}</span>
+                            <div className="flex flex-col items-end text-right">
+                                <div className="text-stone-600 text-[10px] sm:text-xs uppercase tracking-[0.3em] font-sans">
+                                    Dead Poets Society
+                                </div>
+                                <div className="text-stone-700 text-[8px] sm:text-[10px] tracking-widest font-sans mt-0.5 opacity-60">
+                                    {pageUrl}
+                                </div>
                             </div>
                         </div>
                     </div>

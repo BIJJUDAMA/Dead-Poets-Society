@@ -49,7 +49,8 @@ const NotePage = ({ initialNote }) => {
     const [isEditing, setIsEditing] = useState(false);
 
     // State for Shareable Quotes functionality
-    const [selectedText, setSelectedText] = useState('');
+    const [activeSelectionText, setActiveSelectionText] = useState(''); // Live text being highlighted
+    const [selectedText, setSelectedText] = useState(''); // Text locked in for the modal
     const [selectionPosition, setSelectionPosition] = useState(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -66,6 +67,39 @@ const NotePage = ({ initialNote }) => {
             setNote(initialNote);
         }
     }, [initialNote]);
+
+    // Handle text selection for the Share Quote feature
+    useEffect(() => {
+        const handleSelection = () => {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+
+            if (text.length > 5) {
+                // Get bounding rectangle of the selection to position the FAB
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+
+                setSelectionPosition({
+                    top: rect.top + window.scrollY - 40, // Trigger above the text
+                    left: rect.left + window.scrollX + (rect.width / 2)
+                });
+                setActiveSelectionText(text);
+            } else if (!isShareModalOpen) {
+                // Only clear state if selection is too short OR we aren't already looking at the modal
+                setSelectionPosition(null);
+                setActiveSelectionText('');
+            }
+        };
+
+        document.addEventListener('mouseup', handleSelection);
+        // Also handle touch events for mobile
+        document.addEventListener('touchend', handleSelection);
+
+        return () => {
+            document.removeEventListener('mouseup', handleSelection);
+            document.removeEventListener('touchend', handleSelection);
+        };
+    }, [isShareModalOpen]);
 
     /**
      * Deletion Handler:
@@ -160,6 +194,11 @@ const NotePage = ({ initialNote }) => {
                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
                     />
 
+                    {/* Hint for Shareable Quote */}
+                    <div className="mt-8 text-center text-stone-500 text-sm  opacity-80 select-none">
+                        💡 Highlight any part of this poem to create a shareable quote graphic.
+                    </div>
+
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 mt-10 border-t border-gray-700 pt-6">
                         <div className="flex items-center gap-6">
                             <ApplauseButton note={note} />
@@ -171,14 +210,22 @@ const NotePage = ({ initialNote }) => {
             </div>
 
             {/* Floating Action Button for Text Selection */}
-            {selectionPosition && selectedText && (
+            {selectionPosition && activeSelectionText && (
                 <div
                     className="absolute z-50 transform -translate-x-1/2"
                     style={{ top: selectionPosition.top, left: selectionPosition.left }}
                 >
                     <Button
                         size="sm"
-                        onClick={() => setIsShareModalOpen(true)}
+                        onMouseDown={(e) => {
+                            // Prevent the button click from clearing the text selection
+                            e.preventDefault();
+
+
+                            setSelectedText(activeSelectionText);
+
+                            setIsShareModalOpen(true);
+                        }}
                         className="bg-yellow-600 hover:bg-yellow-700 text-black rounded-full shadow-lg"
                     >
                         Share Quote
