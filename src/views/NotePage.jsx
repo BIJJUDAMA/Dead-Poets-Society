@@ -23,7 +23,10 @@ import { supabase } from '@/supabase/config.js';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import ApplauseButton from '@/components/common/ApplauseButton';
+import BookmarkButton from '@/components/common/BookmarkButton';
 import SocialShareButtons from '@/components/layout/SocialShareButtons';
+import DOMPurify from 'dompurify';
+import ShareQuoteModal from '@/components/modals/ShareQuoteModal';
 import EditPoemModal from '@/components/modals/EditPoemModal';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
@@ -148,15 +151,45 @@ const NotePage = ({ initialNote }) => {
 
                     {/* Renders the poem content with whitespace preservation */}
                     <div
-                        className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap"
-                    >{note.content}</div>
+                        className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap poem-content"
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
+                    />
 
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 mt-10 border-t border-gray-700 pt-6">
-                        <ApplauseButton note={note} />
+                        <div className="flex items-center gap-6">
+                            <ApplauseButton note={note} />
+                            <BookmarkButton noteId={note.id} />
+                        </div>
                         <SocialShareButtons url={pageUrl} title={`Check out this poem: ${note.title}`} />
                     </div>
                 </div>
             </div>
+
+            {/* Floating Action Button for Text Selection */}
+            {selectionPosition && selectedText && (
+                <div
+                    className="absolute z-50 transform -translate-x-1/2"
+                    style={{ top: selectionPosition.top, left: selectionPosition.left }}
+                >
+                    <Button
+                        size="sm"
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="bg-yellow-600 hover:bg-yellow-700 text-black rounded-full shadow-lg"
+                    >
+                        Share Quote
+                    </Button>
+                </div>
+            )}
+
+            {/* Share Quote Modal */}
+            <ShareQuoteModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                selectedText={selectedText}
+                title={note.title}
+                author={note.poet_name}
+            />
+
         </motion.div>
     );
 };

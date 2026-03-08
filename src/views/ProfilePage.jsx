@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import EditProfileModal from '@/components/modals/EditProfileModal';
 import FollowListModal from '@/components/modals/FollowListModal';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
@@ -36,6 +37,11 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
     const [loading, setLoading] = useState(!initialProfile);
     const [isEditing, setIsEditing] = useState(false);
     const [followList, setFollowList] = useState({ visible: false, title: '', userIds: [] });
+
+    // State for bookmarked poems
+    const [savedPoems, setSavedPoems] = useState([]);
+    const [savedLoading, setSavedLoading] = useState(false);
+    const [hasFetchedSaved, setHasFetchedSaved] = useState(false);
 
     const isFollowing = userProfile?.following?.includes(userId);
     const isOwnProfile = user?.id === userId;
@@ -84,6 +90,36 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
             fetchProfileData();
         }
     }, [fetchProfileData, initialProfile]);
+
+    /**
+     * Fetch saved (bookmarked) poems for the current user
+     */
+    const fetchSavedPoems = async () => {
+        if (!isOwnProfile || hasFetchedSaved) return;
+
+        setSavedLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('bookmarks')
+                .select('note_id, notes(*)')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            // Extract the nested 'notes' objects into a flat array
+            const formattedSavedPoems = data
+                .map(item => item.notes)
+                .filter(note => note !== null); // Remove nulls if a note was deleted
+
+            setSavedPoems(formattedSavedPoems);
+            setHasFetchedSaved(true);
+        } catch (error) {
+            console.error("Error fetching saved poems:", error);
+        } finally {
+            setSavedLoading(false);
+        }
+    };
 
     /**
      * Follow Logic:
@@ -197,8 +233,31 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
             </div>
 
             <div className="mt-8">
-                <h2 className="text-3xl font-bold text-center mb-8">Published Poems</h2>
-                {userContent.poems.length > 0 ? <NotesGrid notes={userContent.poems} /> : <p className="text-center text-gray-500">No poems published yet.</p>}
+                <Tabs defaultValue="published" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto bg-gray-900 mb-8">
+                        <TabsTrigger value="published" className="data-[state=active]:bg-gray-800">Published Poems</TabsTrigger>
+                        {isOwnProfile && <TabsTrigger value="saved" className="data-[state=active]:bg-gray-800" onClick={fetchSavedPoems}>Saved Poems</TabsTrigger>}
+                    </TabsList>
+
+                    <TabsContent value="published">
+                        {userContent.poems.length > 0 ? <NotesGrid notes={userContent.poems} /> : <p className="text-center text-gray-500 mt-10">No poems published yet.</p>}
+                    </TabsContent>
+
+                    {isOwnProfile && (
+                        <TabsContent value="saved">
+                            {savedLoading ? (
+                                <div className="text-center py-10 text-gray-400">Loading saved poems...</div>
+                            ) : savedPoems.length > 0 ? (
+                                <NotesGrid notes={savedPoems} count={savedPoems.length} />
+                            ) : (
+                                <div className="text-center py-10">
+                                    <p className="text-gray-500 text-lg mb-4">You haven't saved any poems yet.</p>
+                                    <Button variant="outline" onClick={() => router.push('/poems')}>Explore Poems</Button>
+                                </div>
+                            )}
+                        </TabsContent>
+                    )}
+                </Tabs>
             </div>
         </motion.div>
     );
