@@ -48,6 +48,11 @@ const NotePage = ({ initialNote }) => {
     const [note, setNote] = useState(initialNote);
     const [isEditing, setIsEditing] = useState(false);
 
+    // State for Shareable Quotes functionality
+    const [selectedText, setSelectedText] = useState('');
+    const [selectionPosition, setSelectionPosition] = useState(null);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
     /**
      * Ownership Check:
      * Compares logged-in user's ID with the poem's author ID.

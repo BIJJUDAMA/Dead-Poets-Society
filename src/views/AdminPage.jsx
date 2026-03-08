@@ -25,6 +25,8 @@ import Image from 'next/image';
 import { FileText, Inbox, Users, Trash, Shield, ShieldOff, Edit, X, Eye, Check, Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import '@/css/Admin.css';
+import DOMPurify from 'dompurify';
+import RichTextEditor from '@/components/common/RichTextEditor';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,7 +80,10 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
 
             <div className="grid w-full gap-1.5">
                 <Label htmlFor="content" className="text-gray-400">Content</Label>
-                <Textarea id="content" name="content" value={formData.content} rows={8} className="bg-gray-700 border-gray-600" />
+                <RichTextEditor
+                    content={formData.content}
+                    onChange={(newContent) => setFormData({ ...formData, content: newContent })}
+                />
             </div>
 
 
@@ -346,7 +351,10 @@ const AdminPage = () => {
                     <DialogHeader><DialogTitle>{viewingItem?.title}</DialogTitle></DialogHeader>
                     <p className="text-gray-400">by {viewingItem?.poet_name}</p>
                     <div className="max-h-[60vh] overflow-y-auto mt-4 pr-2">
-                        <p className="whitespace-pre-wrap">{viewingItem?.content}</p>
+                        <div
+                            className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white poem-content whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(viewingItem?.content) }}
+                        />
                     </div>
                 </DialogContent>
             </Dialog>
