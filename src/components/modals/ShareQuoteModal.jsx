@@ -5,38 +5,34 @@ import { Button } from '@/components/ui/button';
 import { Download, Share2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
-import { motion } from 'framer-motion';
 
 const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
     const graphicRef = useRef(null);
+    const hiddenGraphicRef = useRef(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [canWebShare, setCanWebShare] = useState(false);
     const [pageUrl, setPageUrl] = useState('');
     const containerRef = useRef(null);
     const [scale, setScale] = useState(1);
 
-    // Check if the browser supports the Web Share API with files
+    // Check if the browser supports the Web Share API
     useEffect(() => {
         if (typeof window !== 'undefined') {
             setPageUrl(window.location.hostname);
         }
         if (typeof navigator !== 'undefined' && navigator.canShare) {
-            // A pseudo-check to see if file sharing is supported
             setCanWebShare(true);
         }
 
         const updateScale = () => {
             if (containerRef.current) {
                 const width = containerRef.current.offsetWidth;
-                // We use 600px as our canonical high-res width
                 setScale(width / 600);
             }
         };
 
         updateScale();
         window.addEventListener('resize', updateScale);
-        
-        // Recalculate scale after a small delay to ensure modal layout is stable
         const timer = setTimeout(updateScale, 100);
         
         return () => {
@@ -45,16 +41,14 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
         };
     }, [isOpen]);
 
-    // Helper to extract a clean excerpt if it's too long
     const excerpt = selectedText?.length > 300
         ? selectedText.substring(0, 300) + "..."
         : selectedText;
 
     const generateImage = async () => {
-        if (!graphicRef.current) return null;
+        if (!hiddenGraphicRef.current) return null;
         try {
-            // Using html-to-image with defensive filtering and font embedding bypass to stop the trim() crash
-            const dataUrl = await toPng(graphicRef.current, {
+            return await toPng(hiddenGraphicRef.current, {
                 pixelRatio: 2,
                 cacheBust: true,
                 skipFonts: false,
@@ -64,7 +58,6 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                     return tagName !== 'script' && tagName !== 'noscript' && tagName !== 'style';
                 },
             });
-            return dataUrl;
         } catch (error) {
             console.error("Error generating image:", error);
             return null;
@@ -89,9 +82,7 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
         const bstr = atob(arr[1]);
         let n = bstr.length;
         const u8arr = new Uint8Array(n);
-        while (n--) {
-            u8arr[n] = bstr.charCodeAt(n);
-        }
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
         return new Blob([u8arr], { type: mime });
     }
 
@@ -130,12 +121,11 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 </DialogHeader>
 
                 <div className="flex flex-col items-center justify-center mb-4">
-                    {/* Scale Wrapper: Ensures the 600x600 canvas fits anywhere */}
+                    {/* Scale Wrapper: Responsive UI Preview */}
                     <div 
                         ref={containerRef}
                         className="w-full aspect-square max-w-[400px] overflow-hidden relative rounded-md shadow-2xl border border-gray-800"
                     >
-                        {/* The Graphic Element (Fixed Canvas Size) - Centered version */}
                         <div
                             ref={graphicRef}
                             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); return false; }}
@@ -145,57 +135,75 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                                 height: '600px',
                                 transform: `translate(-50%, -50%) scale(${scale})`,
                                 transformOrigin: 'center center',
-                                WebkitTouchCallout: 'none',
-                                WebkitUserSelect: 'none',
-                                KhtmlUserSelect: 'none',
-                                MozUserSelect: 'none',
-                                MsUserSelect: 'none',
                                 userSelect: 'none',
                                 touchAction: 'none'
                             }}
                         >
-                            {/* Gold Quote Marks */}
                             <div className="absolute top-10 left-10 text-5xl text-yellow-600/40 font-serif">"</div>
-
-                            {/* Quote Content (Fixed Pixel Fonts) */}
-                            <p className="z-10 text-[32px] sm:text-[32px] leading-relaxed font-serif italic text-stone-100 text-center px-16 line-clamp-[6] w-full">
+                            <p className="z-10 text-[32px] leading-relaxed font-serif italic text-stone-100 text-center px-16 line-clamp-[6] w-full">
                                 {excerpt}
                             </p>
-
-                            {/* Author Info (Fixed Pixel Spacing) */}
                             <div className="z-10 mt-12 pt-6 w-[400px] border-t border-stone-800/80 flex flex-col items-center text-center">
                                 <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-400 mb-2">{title}</span>
                                 <span className="text-[16px] text-stone-500 italic font-serif">— {author}</span>
                             </div>
-
-                            {/* Footer: QR Code, Watermark, and Link (Strictly Fixed Positioning) */}
                             <div className="absolute bottom-8 w-full px-10 flex items-center justify-between">
-                                {/* QR Code and Scan Me label */}
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="bg-white p-1.5 rounded-sm shadow-md flex items-center justify-center">
                                         <QRCodeSVG
                                             value={typeof window !== 'undefined' ? window.location.href : 'https://dead-poets-society.com'}
-                                            size={500} // High resolution internally
-                                            style={{ width: 75, height: 75 }} // Consistent visual size on 600px canvas
+                                            size={500}
+                                            style={{ width: 75, height: 75 }}
                                             bgColor={"#ffffff"}
                                             fgColor={"#000000"}
                                             level={"H"}
                                             includeMargin={false}
                                         />
                                     </div>
-                                    <span className="text-[10px] text-stone-500 font-sans tracking-widest uppercase opacity-80">
-                                        Scan Me
-                                    </span>
+                                    <span className="text-[10px] text-stone-500 font-sans tracking-widest uppercase opacity-80">Scan Me</span>
                                 </div>
-
                                 <div className="flex flex-col items-end text-right">
-                                    <div className="text-stone-600 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">
-                                        Dead Poets Society
-                                    </div>
-                                    <div className="text-stone-700 text-[12px] tracking-widest font-sans mt-1 opacity-50">
-                                        {pageUrl}
-                                    </div>
+                                    <div className="text-stone-600 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
+                                    <div className="text-stone-700 text-[12px] tracking-widest font-sans mt-1 opacity-50">{pageUrl}</div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Hidden Shadow Canvas: The 1:1 master copy for clean captures */}
+                <div className="fixed left-[-9999px] top-[-9999px] pointer-events-none border-none outline-none ring-0">
+                    <div
+                        ref={hiddenGraphicRef}
+                        className="bg-gradient-to-br from-neutral-900 via-stone-900 to-black flex flex-col items-center justify-center relative overflow-hidden"
+                        style={{ width: '600px', height: '600px' }}
+                    >
+                        <div className="absolute top-10 left-10 text-5xl text-yellow-600/40 font-serif">"</div>
+                        <p className="z-10 text-[32px] leading-relaxed font-serif italic text-stone-100 text-center px-16 line-clamp-[6] w-full">
+                            {excerpt}
+                        </p>
+                        <div className="z-10 mt-12 pt-6 w-[400px] border-t border-stone-800/80 flex flex-col items-center text-center">
+                            <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-400 mb-2">{title}</span>
+                            <span className="text-[16px] text-stone-500 italic font-serif">— {author}</span>
+                        </div>
+                        <div className="absolute bottom-8 w-full px-10 flex items-center justify-between">
+                            <div className="flex flex-col items-center gap-2">
+                                <div className="bg-white p-1.5 rounded-sm shadow-md flex items-center justify-center">
+                                    <QRCodeSVG
+                                        value={typeof window !== 'undefined' ? window.location.href : 'https://dead-poets-society.com'}
+                                        size={500}
+                                        style={{ width: 75, height: 75 }}
+                                        bgColor={"#ffffff"}
+                                        fgColor={"#000000"}
+                                        level={"H"}
+                                        includeMargin={false}
+                                    />
+                                </div>
+                                <span className="text-[10px] text-stone-500 font-sans tracking-widest uppercase opacity-80">Scan Me</span>
+                            </div>
+                            <div className="flex flex-col items-end text-right">
+                                <div className="text-stone-600 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
+                                <div className="text-stone-700 text-[12px] tracking-widest font-sans mt-1 opacity-50">{pageUrl}</div>
                             </div>
                         </div>
                     </div>
