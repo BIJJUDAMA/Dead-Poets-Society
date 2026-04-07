@@ -130,15 +130,22 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
 
                         {/* Footer: QR Code, Watermark, and Link */}
                         <div className="absolute bottom-4 w-full px-6 flex items-center justify-between">
-                            {/* Option 2: QR Code inside the graphic */}
-                            <div className="bg-white p-1 rounded-sm shadow-md">
-                                <QRCodeSVG
-                                    value={typeof window !== 'undefined' ? window.location.href : 'https://dead-poets-society.com'}
-                                    size={36}
-                                    bgColor={"#ffffff"}
-                                    fgColor={"#000000"}
-                                    level={"L"}
-                                />
+                            {/* QR Code and Scan Me label */}
+                            <div className="flex flex-col items-center gap-1">
+                                <div className="bg-white p-1 rounded-sm shadow-sm flex items-center justify-center">
+                                    <QRCodeSVG
+                                        value={typeof window !== 'undefined' ? window.location.href : 'https://dead-poets-society.com'}
+                                        size={256} // High native resolution for crisp capture
+                                        style={{ width: 50, height: 50 }} // Increased visual size
+                                        bgColor={"#ffffff"}
+                                        fgColor={"#000000"}
+                                        level={"M"}
+                                        includeMargin={false}
+                                    />
+                                </div>
+                                <span className="text-[7px] sm:text-[8px] text-stone-500 font-sans tracking-tighter uppercase opacity-80">
+                                    Scan Me
+                                </span>
                             </div>
 
                             <div className="flex flex-col items-end text-right">
