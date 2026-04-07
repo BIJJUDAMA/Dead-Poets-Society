@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, Share2 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion } from 'framer-motion';
 
@@ -32,12 +32,13 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
     const generateImage = async () => {
         if (!graphicRef.current) return null;
         try {
-            const canvas = await html2canvas(graphicRef.current, {
-                scale: 2, // High resolution
-                useCORS: true,
-                backgroundColor: null, // Let the inline styles handle it
+            // Using html-to-image for better stability and modern CSS support (like mix-blend-overlay)
+            const dataUrl = await toPng(graphicRef.current, {
+                pixelRatio: 3, // High resolution
+                cacheBust: true,
+                skipFonts: false, // Ensure fonts are captured
             });
-            return canvas;
+            return dataUrl;
         } catch (error) {
             console.error("Error generating image:", error);
             return null;
@@ -46,37 +47,49 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
 
     const handleDownload = async () => {
         setIsGenerating(true);
-        const canvas = await generateImage();
-        if (canvas) {
+        const dataUrl = await generateImage();
+        if (dataUrl) {
             const link = document.createElement('a');
             link.download = `quote-${title.replace(/\s+/g, '-').toLowerCase()}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.href = dataUrl;
             link.click();
         }
         setIsGenerating(false);
     };
+    
+    const dataUrlToBlob = (dataUrl) => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
 
     const handleNativeShare = async () => {
         if (!canWebShare) return;
         setIsGenerating(true);
-        const canvas = await generateImage();
-        if (canvas) {
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
-                const file = new File([blob], 'quote.png', { type: 'image/png' });
-                try {
-                    await navigator.share({
-                        title: `Snippet from ${title}`,
-                        text: `"${excerpt}" — ${author}\n\nRead the full poem here:`,
-                        url: window.location.href, // Link injection for Option 1
-                        files: [file],
-                    });
-                } catch (error) {
-                    console.log("Error sharing natively:", error);
-                } finally {
-                    setIsGenerating(false);
-                }
-            });
+        const dataUrl = await generateImage();
+        if (dataUrl) {
+            const blob = dataUrlToBlob(dataUrl);
+            const file = new File([blob], 'quote.png', { type: 'image/png' });
+            try {
+                await navigator.share({
+                    title: `Snippet from ${title}`,
+                    text: `"${excerpt}" — ${author}\n\nRead the full poem here:`,
+                    url: window.location.href,
+                    files: [file],
+                });
+            } catch (error) {
+                console.log("Error sharing natively:", error);
+            } finally {
+                setIsGenerating(false);
+            }
+        } else {
+            setIsGenerating(false);
         }
     };
 
@@ -93,9 +106,6 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                         ref={graphicRef}
                         className="relative w-full aspect-square max-w-[400px] shadow-2xl rounded-md overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-neutral-900 via-stone-900 to-black border border-gray-700 select-none"
                     >
-                        {/* Decorative Grain Overlay */}
-                        <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
-
                         {/* Gold Quote Marks */}
                         <div className="text-4xl text-yellow-600/50 absolute top-6 left-6 font-serif">"</div>
 
