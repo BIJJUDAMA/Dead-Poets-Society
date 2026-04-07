@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, Share2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
@@ -32,11 +32,15 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
     const generateImage = async () => {
         if (!graphicRef.current) return null;
         try {
-            // Using html-to-image for better stability and modern CSS support (like mix-blend-overlay)
+            // Using html-to-image with defensive filtering to avoid TypeError: trim is undefined
             const dataUrl = await toPng(graphicRef.current, {
-                pixelRatio: 3, // High resolution
+                pixelRatio: 2, // 2x is plenty for mobile sharing and more stable
                 cacheBust: true,
-                skipFonts: false, // Ensure fonts are captured
+                skipFonts: false,
+                filter: (node) => {
+                    const tagName = node.tagName ? node.tagName.toLowerCase() : '';
+                    return tagName !== 'script' && tagName !== 'noscript' && tagName !== 'style';
+                },
             });
             return dataUrl;
         } catch (error) {
@@ -56,17 +60,17 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
         }
         setIsGenerating(false);
     };
-    
+
     const dataUrlToBlob = (dataUrl) => {
         const arr = dataUrl.split(',');
         const mime = arr[0].match(/:(.*?);/)[1];
         const bstr = atob(arr[1]);
         let n = bstr.length;
         const u8arr = new Uint8Array(n);
-        while(n--){
+        while (n--) {
             u8arr[n] = bstr.charCodeAt(n);
         }
-        return new Blob([u8arr], {type:mime});
+        return new Blob([u8arr], { type: mime });
     }
 
     const handleNativeShare = async () => {
@@ -98,6 +102,9 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
             <DialogContent className="bg-gray-900 border-gray-700 max-w-lg w-[95vw] p-4 sm:p-6 sm:max-w-md md:max-w-lg">
                 <DialogHeader>
                     <DialogTitle className="text-center">Share Quote</DialogTitle>
+                    <DialogDescription className="text-center text-gray-400 text-xs">
+                        Generate a beautiful graphic to share this poem on social media.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col items-center justify-center p-2 mb-4">
