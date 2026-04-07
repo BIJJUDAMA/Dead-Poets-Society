@@ -31,7 +31,7 @@ const ApplauseButton = ({ note }) => {
                     .select('note_id')
                     .eq('user_id', user.id)
                     .eq('note_id', note.id)
-                    .single();
+                    .maybeSingle();
 
                 if (data) {
                     setIsApplauded(true);
