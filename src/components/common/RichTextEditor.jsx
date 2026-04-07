@@ -142,7 +142,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
             StarterKit,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             Underline,
-        ],
+        ].filter((ext, index, self) => self.findIndex(e => e.name === ext.name) === index),
         content,
         editorProps: {
             attributes: {
