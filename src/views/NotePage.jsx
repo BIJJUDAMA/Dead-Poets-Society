@@ -16,7 +16,7 @@
  */
 
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/supabase/config.js';
@@ -30,13 +30,29 @@ import ShareQuoteModal from '@/components/modals/ShareQuoteModal';
 import EditPoemModal from '@/components/modals/EditPoemModal';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
-import { Edit, Trash } from 'lucide-react';
+import { Edit, Trash, Share2, Quote } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 
 const formatDate = (timestamp) => {
     if (!timestamp) return null;
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-GB');
 };
+
+/**
+ * Memoized Poem Content component to prevent re-renders of the text 
+ * when the parent's selection state changes. This is critical for 
+ * maintaining text selection stability.
+ */
+const PoemContent = memo(({ content }) => {
+    return (
+        <div
+            className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap poem-content"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+        />
+    );
+});
+PoemContent.displayName = 'PoemContent';
 
 
 const NotePage = ({ initialNote }) => {
@@ -70,34 +86,34 @@ const NotePage = ({ initialNote }) => {
 
     // Handle text selection for the Share Quote feature
     useEffect(() => {
+        let hideTimeout;
+
         const handleSelection = () => {
             const selection = window.getSelection();
             const text = selection.toString().trim();
 
             if (text.length > 5) {
-                // Get bounding rectangle of the selection to position the FAB
-                const range = selection.getRangeAt(0);
-                const rect = range.getBoundingClientRect();
-
-                setSelectionPosition({
-                    top: rect.top + window.scrollY - 40, // Trigger above the text
-                    left: rect.left + window.scrollX + (rect.width / 2)
-                });
+                if (hideTimeout) clearTimeout(hideTimeout);
+                // Simple text tracking - no coordinate math needed anymore
                 setActiveSelectionText(text);
             } else if (!isShareModalOpen) {
-                // Only clear state if selection is too short OR we aren't already looking at the modal
-                setSelectionPosition(null);
-                setActiveSelectionText('');
+                // Debounce hiding to allow for handle adjustments
+                if (hideTimeout) clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    setActiveSelectionText('');
+                }, 200);
             }
         };
 
         document.addEventListener('mouseup', handleSelection);
-        // Also handle touch events for mobile
         document.addEventListener('touchend', handleSelection);
+        document.addEventListener('selectionchange', handleSelection);
 
         return () => {
+            if (hideTimeout) clearTimeout(hideTimeout);
             document.removeEventListener('mouseup', handleSelection);
             document.removeEventListener('touchend', handleSelection);
+            document.removeEventListener('selectionchange', handleSelection);
         };
     }, [isShareModalOpen]);
 
@@ -128,7 +144,7 @@ const NotePage = ({ initialNote }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="max-w-4xl mx-auto py-8 sm:py-12 px-4"
+            className="max-w-4xl mx-auto py-8 sm:py-12 px-4" // Reverting relative for absolute positioning relative to body
         >
             {/* Modal for editing the poem */}
             {isEditing && (
@@ -187,19 +203,16 @@ const NotePage = ({ initialNote }) => {
 
                     <p className="text-base sm:text-lg text-gray-300 italic mb-8">{note.preview}</p>
 
-
-                    {/* Renders the poem content with whitespace preservation */}
-                    <div
-                        className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap poem-content"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(note.content) }}
-                    />
-
-                    {/* Hint for Shareable Quote */}
-                    <div className="mt-8 text-center text-stone-500 text-sm  opacity-80 select-none">
-                        💡 Highlight any part of this poem to create a shareable quote graphic.
+                    {/* Hint for Shareable Quote - Moved to top */}
+                    <div className="mb-8 text-center text-stone-500 text-sm opacity-80 select-none">
+                        💡 Highlight/Select any part of this poem to create a shareable quote graphic.
                     </div>
 
+                    {/* Renders the poem content with whitespace preservation - Memoized */}
+                    <PoemContent content={note.content} />
+
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-6 sm:gap-4 mt-10 border-t border-gray-700 pt-6">
+
                         <div className="flex items-center gap-6">
                             <ApplauseButton note={note} />
                             <BookmarkButton noteId={note.id} />
@@ -209,29 +222,64 @@ const NotePage = ({ initialNote }) => {
                 </div>
             </div>
 
-            {/* Floating Action Button for Text Selection */}
-            {selectionPosition && activeSelectionText && (
-                <div
-                    className="absolute z-50 transform -translate-x-1/2"
-                    style={{ top: selectionPosition.top, left: selectionPosition.left }}
-                >
-                    <Button
-                        size="sm"
-                        onMouseDown={(e) => {
-                            // Prevent the button click from clearing the text selection
-                            e.preventDefault();
+            {/* Share Quote UI - Fixed Bars */}
+            <AnimatePresence>
+                {activeSelectionText.length > 5 && !isShareModalOpen && !isEditing && (
+                    <>
+                        {/* Mobile Top Bar */}
+                        <motion.div
+                            initial={{ y: -100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -100, opacity: 0 }}
+                            className="fixed top-0 left-0 right-0 z-[100] bg-black/95 backdrop-blur-xl border-b border-white/10 px-4 py-4 sm:hidden rounded-b-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]"
+                        >
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-stone-500 text-[10px] uppercase tracking-wider mb-1">Selected Quote</p>
+                                    <p className="text-white text-sm line-clamp-1 italic font-serif">"{activeSelectionText}"</p>
+                                </div>
+                                <Button
+                                    size="sm"
+                                    onClick={() => {
+                                        setSelectedText(activeSelectionText);
+                                        setIsShareModalOpen(true);
+                                    }}
+                                    className="bg-yellow-600 hover:bg-yellow-700 text-black rounded-full px-6 flex-shrink-0 shadow-lg"
+                                >
+                                    Share
+                                </Button>
+                            </div>
+                        </motion.div>
+
+                        {/* Desktop Bottom Bar - Centered and Compact */}
+                        <motion.div
+                            initial={{ y: 100, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 100, opacity: 0 }}
+                            className="hidden sm:flex fixed bottom-10 left-0 right-0 z-[100] pointer-events-none items-center justify-center p-4"
+                        >
+                            <div className="bg-black/90 backdrop-blur-2xl border border-white/10 px-6 py-3 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.4)] flex items-center gap-6 pointer-events-auto max-w-[90vw]">
+                                <div className="border-r border-white/10 pr-6 overflow-hidden">
+                                    <p className="text-stone-500 text-[9px] uppercase tracking-[0.2em] mb-0.5 font-bold whitespace-nowrap">Share Selection</p>
+                                    <p className="text-white text-sm line-clamp-1 italic font-serif opacity-90 max-w-[300px]">"{activeSelectionText}"</p>
+                                </div>
+                                <Button
+                                    onClick={() => {
+                                        setSelectedText(activeSelectionText);
+                                        setIsShareModalOpen(true);
+                                    }}
+                                    className="bg-yellow-600 hover:bg-yellow-700 text-black rounded-full px-6 py-2 h-auto text-sm font-bold shadow-xl active:scale-95 transition-transform flex-shrink-0"
+                                >
+                                    Share Quote
+                                </Button>
+                            </div>
+                        </motion.div>
+
+                    </>
+                )}
+            </AnimatePresence>
 
 
-                            setSelectedText(activeSelectionText);
-
-                            setIsShareModalOpen(true);
-                        }}
-                        className="bg-yellow-600 hover:bg-yellow-700 text-black rounded-full shadow-lg"
-                    >
-                        Share Quote
-                    </Button>
-                </div>
-            )}
 
             {/* Share Quote Modal */}
             <ShareQuoteModal

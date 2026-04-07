@@ -104,7 +104,7 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 <DialogHeader>
                     <DialogTitle className="text-center">Share Quote</DialogTitle>
                     <DialogDescription className="text-center text-gray-400 text-xs">
-                        Generate a beautiful graphic to share this poem on social media.
+                        A beautiful graphic to share this poem on social media.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -112,9 +112,17 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                     {/* The Graphic Element */}
                     <div
                         ref={graphicRef}
-                        onContextMenu={(e) => e.preventDefault()}
+                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); return false; }}
                         className="relative w-full aspect-square max-w-[400px] shadow-2xl rounded-md overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-neutral-900 via-stone-900 to-black border border-gray-700 select-none"
-                        style={{ WebkitTouchCallout: 'none' }}
+                        style={{
+                            WebkitTouchCallout: 'none',
+                            WebkitUserSelect: 'none',
+                            KhtmlUserSelect: 'none',
+                            MozUserSelect: 'none',
+                            MsUserSelect: 'none',
+                            userSelect: 'none',
+                            touchAction: 'none'
+                        }}
                     >
                         {/* Gold Quote Marks */}
                         <div className="text-4xl text-yellow-600/50 absolute top-6 left-6 font-serif">"</div>
