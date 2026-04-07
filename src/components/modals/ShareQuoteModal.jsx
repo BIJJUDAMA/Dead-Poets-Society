@@ -112,7 +112,9 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                     {/* The Graphic Element */}
                     <div
                         ref={graphicRef}
+                        onContextMenu={(e) => e.preventDefault()}
                         className="relative w-full aspect-square max-w-[400px] shadow-2xl rounded-md overflow-hidden flex flex-col items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-neutral-900 via-stone-900 to-black border border-gray-700 select-none"
+                        style={{ WebkitTouchCallout: 'none' }}
                     >
                         {/* Gold Quote Marks */}
                         <div className="text-4xl text-yellow-600/50 absolute top-6 left-6 font-serif">"</div>
