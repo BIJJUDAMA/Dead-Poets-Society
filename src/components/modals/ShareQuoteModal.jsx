@@ -32,11 +32,12 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
     const generateImage = async () => {
         if (!graphicRef.current) return null;
         try {
-            // Using html-to-image with defensive filtering to avoid TypeError: trim is undefined
+            // Using html-to-image with defensive filtering and font embedding bypass to stop the trim() crash
             const dataUrl = await toPng(graphicRef.current, {
-                pixelRatio: 2, // 2x is plenty for mobile sharing and more stable
+                pixelRatio: 2,
                 cacheBust: true,
                 skipFonts: false,
+                fontEmbedCSS: '',
                 filter: (node) => {
                     const tagName = node.tagName ? node.tagName.toLowerCase() : '';
                     return tagName !== 'script' && tagName !== 'noscript' && tagName !== 'style';
