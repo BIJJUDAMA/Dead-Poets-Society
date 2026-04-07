@@ -140,8 +140,8 @@ const NotePage = ({ initialNote }) => {
                 />
             )}
 
-            {/* Main poem display area with background */}
-            <div className="bg-cover bg-center rounded-lg" style={{ backgroundImage: "url('/poemBackground.png')" }}>
+            {/* Main poem display area with a subtle background - removed missing poemBackground.png */}
+            <div className="bg-gray-800/10 backdrop-blur-sm rounded-lg border border-gray-700/50 shadow-inner">
                 <div className="bg-black/70 backdrop-blur-md p-4 sm:p-8 rounded-md">
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div>
