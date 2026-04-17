@@ -265,14 +265,33 @@ const AdminPage = () => {
     // Executes deletion after confirmation
     const confirmDelete = async () => {
         if (!deleteAction) return;
-        const { tableName, ids } = deleteAction;
+        const { type, ids, userId } = deleteAction;
 
-        const { error } = await supabase.from(tableName).delete().in('id', ids);
-        if (error) { console.error(`Error deleting from ${tableName}:`, error); return; }
+        if (type === 'user') {
+            const { error } = await supabase.functions.invoke('delete-user', {
+                body: { userId }
+            });
 
-        const tabToRefresh = tableName === 'notes' ? 'poems' : tableName === 'profiles' ? 'users' : '';
+            if (error) {
+                console.error('Error deleting user account:', error);
+                alert(`Failed to delete user account: ${error.message}`);
+                return;
+            }
+
+            await refreshDataForTab('users');
+            setDeleteAction(null);
+            return;
+        }
+
+        const { error } = await supabase.from(type).delete().in('id', ids);
+        if (error) {
+            console.error(`Error deleting from ${type}:`, error);
+            return;
+        }
+
+        const tabToRefresh = type === 'notes' ? 'poems' : '';
         if (tabToRefresh) refreshDataForTab(tabToRefresh);
-        if (tableName === 'notes') setSelectedPoems([]);
+        if (type === 'notes') setSelectedPoems([]);
         setDeleteAction(null);
     };
 
@@ -375,7 +394,7 @@ const AdminPage = () => {
                         <CardHeader>
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                                 <CardTitle>Manage Poems ({counts.poems})</CardTitle>
-                                {selectedPoems.length > 0 && <Button variant="destructive" onClick={() => setDeleteAction({ tableName: 'notes', ids: selectedPoems })}><Trash className="mr-2 h-4 w-4" />Delete ({selectedPoems.length})</Button>}
+                                {selectedPoems.length > 0 && <Button variant="destructive" onClick={() => setDeleteAction({ type: 'notes', ids: selectedPoems })}><Trash className="mr-2 h-4 w-4" />Delete ({selectedPoems.length})</Button>}
                             </div>
                             <Input placeholder="Search poems or poets..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-[#1f2937] mt-2" />
                         </CardHeader>
@@ -389,7 +408,7 @@ const AdminPage = () => {
                                     </div>
                                     <div className="flex space-x-2 self-end sm:self-center">
                                         <Button variant="ghost" size="icon" onClick={() => setEditingItem(note)}><Edit className="h-4 w-4" /></Button>
-                                        <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ tableName: 'notes', ids: [note.id] })}><Trash className="h-4 w-4" /></Button>
+                                        <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ type: 'notes', ids: [note.id] })}><Trash className="h-4 w-4" /></Button>
                                     </div>
                                 </div>
                             ))}
@@ -433,7 +452,7 @@ const AdminPage = () => {
                                         <div className="flex items-center gap-2 self-end sm:self-center">
                                             <Button size="sm" onClick={() => handleToggleSemiAdmin(user.id, user.role)} disabled={updatingUserId === user.id}>{updatingUserId === user.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : (user.role === 'semi-admin' ? <ShieldOff className="mr-2 h-4 w-4" /> : <Shield className="mr-2 h-4 w-4" />)}{updatingUserId === user.id ? 'Updating...' : (user.role === 'semi-admin' ? 'Demote' : 'Promote')}</Button>
                                             {updateSuccessUserId === user.id && <Check className="h-5 w-5 text-green-500" />}
-                                            <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ tableName: 'profiles', ids: [user.id] })}><Trash className="h-4 w-4" /></Button>
+                                            <Button variant="destructive" size="icon" onClick={() => setDeleteAction({ type: 'user', userId: user.id })}><Trash className="h-4 w-4" /></Button>
                                         </div>
                                     )}
                                 </div>
