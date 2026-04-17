@@ -147,13 +147,8 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
         editorProps: {
             attributes: {
                 class: 'prose prose-sm sm:prose-base prose-invert max-w-none min-h-[50vh] p-4 bg-gray-900 focus:outline-none rounded-b-md text-gray-200 border-x border-b border-gray-700',
+                'data-placeholder': placeholder,
             },
-
-            handleDOMEvents: {
-                keydown: (_view, event) => {
-                    return false;
-                }
-            }
         },
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());

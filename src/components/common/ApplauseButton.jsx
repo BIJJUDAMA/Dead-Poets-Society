@@ -26,7 +26,7 @@ const ApplauseButton = ({ note }) => {
         // Check if the current user has already applauded this note
         const checkApplause = async () => {
             if (user) {
-                const { data, error } = await supabase
+                const { data } = await supabase
                     .from('applauses')
                     .select('note_id')
                     .eq('user_id', user.id)

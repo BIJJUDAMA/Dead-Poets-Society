@@ -17,7 +17,7 @@
 
 "use client";
 import { useState, useEffect, memo } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/supabase/config.js';
 import { motion } from 'framer-motion';
@@ -56,7 +56,6 @@ PoemContent.displayName = 'PoemContent';
 
 
 const NotePage = ({ initialNote }) => {
-    const { id } = useParams();
     const router = useRouter();
     const { user } = useAuth();
 
@@ -67,7 +66,6 @@ const NotePage = ({ initialNote }) => {
     // State for Shareable Quotes functionality
     const [activeSelectionText, setActiveSelectionText] = useState(''); // Live text being highlighted
     const [selectedText, setSelectedText] = useState(''); // Text locked in for the modal
-    const [selectionPosition, setSelectionPosition] = useState(null);
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
     /**

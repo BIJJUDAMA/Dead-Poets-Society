@@ -14,7 +14,6 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { eventDb } from '@/data/eventDb';
 
 
 const EventPage = ({ eventsList }) => {

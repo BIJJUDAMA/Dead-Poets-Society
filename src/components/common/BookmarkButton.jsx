@@ -14,7 +14,7 @@ const BookmarkButton = ({ noteId, compact = false }) => {
         // Check if the current user has already bookmarked this note
         const checkBookmark = async () => {
             if (user && noteId) {
-                const { data, error } = await supabase
+                const { data } = await supabase
                     .from('bookmarks')
                     .select('id')
                     .eq('user_id', user.id)

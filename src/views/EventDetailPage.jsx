@@ -17,7 +17,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { eventDb } from '@/data/eventDb';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, MapPin, Tag } from 'lucide-react';
 import GalleryCollage from '@/components/common/GalleryCollage';
