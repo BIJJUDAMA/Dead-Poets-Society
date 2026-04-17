@@ -53,7 +53,7 @@ const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description 
     </Dialog>
 );
 
-const EditPoemForm = ({ note, onSave, onCancel }) => {
+const EditPoemForm = ({ note, onSave, onCancel, isSaving }) => {
     const [formData, setFormData] = useState(note);
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
     return (
@@ -88,8 +88,10 @@ const EditPoemForm = ({ note, onSave, onCancel }) => {
 
 
             <DialogFooter className="!mt-6">
-                <Button variant="ghost" onClick={onCancel}>Cancel</Button>
-                <Button onClick={() => onSave(formData)}>Save Changes</Button>
+                <Button variant="ghost" onClick={onCancel} disabled={isSaving}>Cancel</Button>
+                <Button onClick={() => onSave(formData)} disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
             </DialogFooter>
         </div>
     );
@@ -119,6 +121,8 @@ const AdminPage = () => {
     const [updatingUserId, setUpdatingUserId] = useState(null);
     const [updateSuccessUserId, setUpdateSuccessUserId] = useState(null);
     const [counts, setCounts] = useState({ poems: 0, users: 0, submissions: 0 });
+    const [savingPoemId, setSavingPoemId] = useState(null);
+    const [submissionActionId, setSubmissionActionId] = useState(null);
 
     /**
      * Retreives data based on the active tab (poems, users, or submissions).
@@ -296,10 +300,20 @@ const AdminPage = () => {
     };
 
     const handleUpdate = async (tableName, item) => {
+        setSavingPoemId(item.id);
         const { id, ...dataToUpdate } = item;
-        await supabase.from(tableName).update(dataToUpdate).eq('id', id);
+        const { error } = await supabase.from(tableName).update(dataToUpdate).eq('id', id);
+
+        if (error) {
+            console.error(`Error updating ${tableName}:`, error);
+            alert(`Failed to update poem: ${error.message}`);
+            setSavingPoemId(null);
+            return;
+        }
+
         setEditingItem(null);
-        refreshDataForTab('poems');
+        await refreshDataForTab('poems');
+        setSavingPoemId(null);
     };
 
     /**
@@ -310,22 +324,59 @@ const AdminPage = () => {
      */
     // Approves a poem submission: moves it to 'notes' and deletes from 'poem_submissions'
     const handleApprove = async (submission) => {
-        const { error: insertError } = await supabase.from('notes').insert([{
+        if (submissionActionId) return;
+        setSubmissionActionId(submission.id);
+
+        const { data: insertedNote, error: insertError } = await supabase.from('notes').insert([{
             title: submission.title, content: submission.content,
             preview: submission.description || '', tags: submission.tags || [],
             user_id: submission.user_id, poet_name: submission.poet_name,
-        }]);
+        }]).select('id').single();
 
-        if (!insertError) {
-            await supabase.from('poem_submissions').delete().eq('id', submission.id);
-        } else { console.error("Error approving submission:", insertError); }
-        refreshDataForTab('submissions');
-        refreshDataForTab('poems');
+        if (insertError) {
+            console.error("Error approving submission:", insertError);
+            alert(`Failed to approve submission: ${insertError.message}`);
+            setSubmissionActionId(null);
+            return;
+        }
+
+        const { error: deleteError } = await supabase.from('poem_submissions').delete().eq('id', submission.id);
+        if (deleteError) {
+            console.error("Error removing approved submission:", deleteError);
+
+            if (insertedNote?.id) {
+                const { error: rollbackError } = await supabase.from('notes').delete().eq('id', insertedNote.id);
+                if (rollbackError) {
+                    console.error("Error rolling back approved note:", rollbackError);
+                }
+            }
+
+            alert(`Failed to finalize approval: ${deleteError.message}`);
+            setSubmissionActionId(null);
+            return;
+        }
+
+        await Promise.all([
+            refreshDataForTab('submissions'),
+            refreshDataForTab('poems')
+        ]);
+        setSubmissionActionId(null);
     };
 
     const handleReject = async (id) => {
-        await supabase.from('poem_submissions').delete().eq('id', id);
-        refreshDataForTab('submissions');
+        if (submissionActionId) return;
+        setSubmissionActionId(id);
+
+        const { error } = await supabase.from('poem_submissions').delete().eq('id', id);
+        if (error) {
+            console.error("Error rejecting submission:", error);
+            alert(`Failed to reject submission: ${error.message}`);
+            setSubmissionActionId(null);
+            return;
+        }
+
+        await refreshDataForTab('submissions');
+        setSubmissionActionId(null);
     };
 
     // Toggles the semi-admin role for a user (Semi-admin's can only be made by the user whose email is given in the env file)
@@ -362,7 +413,7 @@ const AdminPage = () => {
             <Dialog open={!!editingItem} onOpenChange={(isOpen) => !isOpen && setEditingItem(null)}>
                 <DialogContent className="w-[90vw] rounded-lg sm:max-w-lg bg-gray-900 border-gray-700">
                     <DialogHeader><DialogTitle>Edit Poem</DialogTitle></DialogHeader>
-                    {editingItem && <EditPoemForm note={editingItem} onCancel={() => setEditingItem(null)} onSave={(updated) => handleUpdate('notes', updated)} />}
+                    {editingItem && <EditPoemForm note={editingItem} onCancel={() => setEditingItem(null)} onSave={(updated) => handleUpdate('notes', updated)} isSaving={savingPoemId === editingItem.id} />}
                 </DialogContent>
             </Dialog>
             <Dialog open={!!viewingItem} onOpenChange={(isOpen) => !isOpen && setViewingItem(null)}>
@@ -425,9 +476,15 @@ const AdminPage = () => {
                                 <div key={sub.id} className="p-3 border-b border-gray-700">
                                     <p><strong>{sub.title}</strong> by {sub.poet_name}</p>
                                     <div className="flex flex-wrap gap-2 mt-2">
-                                        <Button variant="outline" size="sm" onClick={() => setViewingItem(sub)}><Eye className="mr-2 h-4 w-4" />View</Button>
-                                        <Button variant="secondary" size="sm" onClick={() => handleApprove(sub)}><Check className="mr-2 h-4 w-4" />Approve</Button>
-                                        <Button variant="destructive" size="sm" onClick={() => handleReject(sub.id)}><X className="mr-2 h-4 w-4" />Reject</Button>
+                                        <Button variant="outline" size="sm" onClick={() => setViewingItem(sub)} disabled={submissionActionId === sub.id}><Eye className="mr-2 h-4 w-4" />View</Button>
+                                        <Button variant="secondary" size="sm" onClick={() => handleApprove(sub)} disabled={submissionActionId !== null}>
+                                            {submissionActionId === sub.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+                                            {submissionActionId === sub.id ? 'Approving...' : 'Approve'}
+                                        </Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleReject(sub.id)} disabled={submissionActionId !== null}>
+                                            {submissionActionId === sub.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <X className="mr-2 h-4 w-4" />}
+                                            {submissionActionId === sub.id ? 'Rejecting...' : 'Reject'}
+                                        </Button>
                                     </div>
                                 </div>
                             ))}
