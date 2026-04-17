@@ -16,7 +16,7 @@ import { supabase } from '../supabase/config';
 const AuthContext = createContext();
 
 export const useAuth = () => {
-    return useContext(AuthContext);
+    return useContext(AuthContext) || {};
 };
 
 export const AuthProvider = ({ children }) => {

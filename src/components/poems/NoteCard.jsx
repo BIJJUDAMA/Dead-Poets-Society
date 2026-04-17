@@ -15,20 +15,32 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { mockNote } from '@/lib/boneyard-fixtures';
 import BookmarkButton from '../common/BookmarkButton';
 
-const NoteCard = React.memo(({ note }) => {
+const NoteCardFrame = ({ note, animate = true }) => {
     // Animation variants for the card entrance
     const cardVariants = {
         hidden: { opacity: 0, y: 50, rotate: 5 },
         visible: { opacity: 1, y: 0, rotate: 0, transition: { type: 'spring', stiffness: 100 } }
     };
 
+    const initial = animate ? "hidden" : "visible";
+    const animateState = animate ? "visible" : "visible";
+
     return (
-        <motion.div variants={cardVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }}>
+        <motion.div 
+            variants={cardVariants} 
+            initial={initial} 
+            animate={animateState}
+            whileInView={animate ? "visible" : "visible"} 
+            viewport={{ once: true, amount: 0.5 }}
+        >
             <Link href={`/note/${note.id}`} className="block relative group h-72">
                 {/* Floating Bookmark Button */}
                 <div
+                    data-boneyard-ignore
                     className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     onClick={(e) => {
                         // Prevent the click from bubbling up to the Link component
@@ -68,6 +80,21 @@ const NoteCard = React.memo(({ note }) => {
                 </Card>
             </Link>
         </motion.div>
+    );
+};
+
+const NoteCard = React.memo(({ note, loading = false }) => {
+    const noteToRender = note || mockNote;
+
+    return (
+        <Skeleton
+            name="note-card"
+            loading={loading}
+            className="h-72"
+            fixture={<NoteCardFrame note={mockNote} animate={false} />}
+        >
+            <NoteCardFrame note={noteToRender} />
+        </Skeleton>
     );
 });
 

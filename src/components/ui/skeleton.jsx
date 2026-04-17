@@ -1,14 +1,15 @@
-import { cn } from "@/lib/utils"
+import { Skeleton as BoneyardSkeleton, configureBoneyard } from 'boneyard-js/react';
 
-function Skeleton({
-    className,
-    ...props
-}) {
-    return (
-        (<div
-            className={cn("animate-pulse rounded-md bg-muted", className)}
-            {...props} />)
-    );
-}
+configureBoneyard({
+    animate: 'shimmer',
+    color: 'rgba(255, 255, 255, 0.25)',
+    darkColor: 'rgba(255, 255, 255, 0.25)',
+    shimmerColor: 'rgba(255, 255, 255, 0.45)',
+    darkShimmerColor: 'rgba(255, 255, 255, 0.45)',
+    speed: '1.8s',
+    transition: 250,
+});
 
-export { Skeleton }
+const Skeleton = BoneyardSkeleton;
+
+export { Skeleton };

@@ -23,6 +23,7 @@
     "@tiptap/starter-kit": "^3.20.1",
     "@vercel/speed-insights": "^1.3.1",
     "autoprefixer": "^10.4.21",
+    "boneyard-js": "^1.7.7",
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

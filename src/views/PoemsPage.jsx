@@ -71,6 +71,7 @@ const PoemsPage = ({ initialNotes }) => {
             const from = isInitial ? 0 : (page + 1) * PAGE_SIZE;
             const to = from + PAGE_SIZE - 1;
 
+            console.log('Fetching notes from:', from, 'to:', to, 'Sort:', sortBy);
             let query = supabase.from('notes').select('*');
 
 
