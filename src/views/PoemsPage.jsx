@@ -30,7 +30,7 @@ import MultiSelectDropdown from '@/components/common/MultiSelectDropdown';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 12;
 
 
 const PoemsPage = ({ initialNotes }) => {

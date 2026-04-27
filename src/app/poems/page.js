@@ -15,7 +15,7 @@ export default async function Page() {
             .from('notes')
             .select('*')
             .order('created_at', { ascending: false })
-            .range(0, 7); // PAGE_SIZE is 8
+            .range(0, 11); // PAGE_SIZE is 12
 
         if (!error) {
             initialNotes = data;
