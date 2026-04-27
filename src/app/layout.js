@@ -12,6 +12,15 @@ const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'], variab
 export const metadata = {
     title: "Dead Poet's Society",
     description: "Carpe Diem. Seize the day.",
+    openGraph: {
+        title: "Dead Poet's Society",
+        description: "Carpe Diem. Seize the day.",
+        images: ['/og-defaultpng.png'],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        images: ['/og-defaultpng.png'],
+    },
 };
 
 export default function RootLayout({ children }) {
