@@ -3,6 +3,15 @@ import { supabase } from '@/supabase/config';
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+    title: "Dead Poet's Society | Amrita Vishwa Vidyapeetham",
+    description: "Welcome to the Dead Poet's Society at Amrita Vishwa Vidyapeetham. A safe haven for poets, writers, and dreamers. Carpe Diem. Seize the day.",
+    openGraph: {
+        title: "Dead Poet's Society | Amrita Vishwa Vidyapeetham",
+        description: "Welcome to the Dead Poet's Society at Amrita Vishwa Vidyapeetham. A safe haven for poets, writers, and dreamers.",
+    }
+};
+
 export default async function Page() {
     const [mostApplaudedResult, recentPoemsResult] = await Promise.all([
         supabase

@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
     const { id } = await params;
     const { data: note } = await supabase
         .from('notes')
-        .select('title, preview')
+        .select('title, preview, poet_name')
         .eq('id', id)
         .single();
 
@@ -18,9 +18,22 @@ export async function generateMetadata({ params }) {
         };
     }
 
+    const title = `${note.title} by ${note.poet_name || 'Anonymous'} | Dead Poets Society`;
+    const description = note.preview ? `"${note.preview}" - Read the full poem on Dead Poets Society.` : 'Read this poem on Dead Poets Society.';
+
     return {
-        title: `${note.title} | Dead Poets Society`,
-        description: note.preview || 'Read this poem on Dead Poets Society.',
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            type: 'article',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+        },
     };
 }
 

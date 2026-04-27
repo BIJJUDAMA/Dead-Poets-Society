@@ -10,15 +10,30 @@ const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: [
 const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'], variable: '--font-homemade-apple', display: 'swap' });
 
 export const metadata = {
+    metadataBase: new URL('https://dps.vercel.app'),
     title: "Dead Poet's Society",
     description: "Carpe Diem. Seize the day.",
+    keywords: ["poetry", "dead poets society", "amrita vishwa vidyapeetham", "college club", "poems", "literature", "open mic"],
     openGraph: {
         title: "Dead Poet's Society",
         description: "Carpe Diem. Seize the day.",
-        images: ['/og-defaultpng.png'],
+        url: '/',
+        siteName: "Dead Poet's Society",
+        images: [
+            {
+                url: '/og-defaultpng.png',
+                width: 1200,
+                height: 630,
+                alt: "Dead Poet's Society",
+            }
+        ],
+        locale: 'en_US',
+        type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
+        title: "Dead Poet's Society",
+        description: "Carpe Diem. Seize the day.",
         images: ['/og-defaultpng.png'],
     },
 };
