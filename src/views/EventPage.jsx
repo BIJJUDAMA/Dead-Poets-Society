@@ -11,14 +11,25 @@
  */
 
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin } from 'lucide-react';
 
 const EventCard = ({ event, index }) => {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 640);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     const truncatedReport = event.report
-        ? event.report.substring(0, 120) + (event.report.length > 120 ? '...' : '')
+        ? event.report.substring(0, isMobile ? 80 : 120) + (event.report.length > (isMobile ? 80 : 120) ? '...' : '')
         : 'Coming soon...';
 
     return (
@@ -86,16 +97,16 @@ const EventCard = ({ event, index }) => {
                         <div className="border-b border-stone-700/60 mb-3" />
 
                         {/* Date & Venue row */}
-                        <div className="flex items-center gap-4 mb-3">
-                            <div className="flex items-center gap-1.5 text-stone-700">
-                                <Calendar className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
-                                <span style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: '1rem' }}>
+                        <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+                            <div className="flex items-center gap-1 sm:gap-1.5 text-stone-700">
+                                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" strokeWidth={1.5} />
+                                <span style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: isMobile ? '0.75rem' : '1rem' }}>
                                     {event.displayDate}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-1.5 text-stone-700">
-                                <MapPin className="w-5 h-5 flex-shrink-0" strokeWidth={1.5} />
-                                <span style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: '1rem' }}>
+                            <div className="flex items-center gap-1 sm:gap-1.5 text-stone-700">
+                                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" strokeWidth={1.5} />
+                                <span style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: isMobile ? '0.75rem' : '1rem' }}>
                                     {event.venue}
                                 </span>
                             </div>
@@ -104,7 +115,7 @@ const EventCard = ({ event, index }) => {
                         {/* Report snippet */}
                         <p
                             className="text-stone-700 leading-snug"
-                            style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: '0.95rem' }}
+                            style={{ fontFamily: 'var(--font-homemade-apple)', fontSize: isMobile ? '0.7rem' : '0.95rem' }}
                         >
                             {truncatedReport}
                         </p>

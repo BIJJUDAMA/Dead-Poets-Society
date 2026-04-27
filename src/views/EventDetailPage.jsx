@@ -87,10 +87,14 @@ const EventDetailPage = ({ event }) => {
                         >
 
 
-                            <h2 className="text-2xl font-bold mb-4 text-gray-200">Event Report</h2>
-                            <p className="text-gray-300 text-lg leading-relaxed whitespace-pre-line mb-8">
-                                {event.report}
-                            </p>
+                            {event.report && (
+                                <>
+                                    <h2 className="text-2xl font-bold mb-4 text-gray-200">About The Event</h2>
+                                    <p className="text-gray-300 text-lg leading-relaxed whitespace-pre-line mb-8">
+                                        {event.report}
+                                    </p>
+                                </>
+                            )}
 
                             {event.gallery && event.gallery.length > 0 && (
                                 <div className="mt-8">
