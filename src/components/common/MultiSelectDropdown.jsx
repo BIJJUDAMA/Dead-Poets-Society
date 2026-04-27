@@ -142,7 +142,7 @@ const MultiSelectDropdown = ({
             {triggerButton}
             {isOpen && (
                 isDesktop ? (
-                    <div className="absolute top-full left-0 mt-2 w-full z-10">
+                    <div className="absolute top-full left-0 mt-2 w-full z-50">
                         {dropdownContent}
                     </div>
                 ) : (
