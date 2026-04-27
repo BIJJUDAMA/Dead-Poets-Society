@@ -35,10 +35,9 @@ const EventCard = ({ event, index }) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.02, y: -3 }}
-            transition={{ duration: 0.3 }}
-            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.15 }}
             className="relative w-full max-w-sm mx-auto cursor-pointer"
             style={{ aspectRatio: '460 / 640' }}
         >
