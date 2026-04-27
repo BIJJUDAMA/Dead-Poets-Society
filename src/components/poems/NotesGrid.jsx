@@ -17,7 +17,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../supabase/config.js';
 import NoteCard from './NoteCard';
-import SkeletonCard from '../common/SkeletonCard.jsx';
 
 const NotesGrid = ({ notes: passedNotes, count = 8 }) => {
     const [internalNotes, setInternalNotes] = useState([]);
@@ -53,8 +52,9 @@ const NotesGrid = ({ notes: passedNotes, count = 8 }) => {
     if (loading && !passedNotes) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {/* Render skeletons while loading */}
-                {Array.from({ length: count }).map((_, i) => <SkeletonCard key={i} />)}
+                {Array.from({ length: count }).map((_, i) => (
+                    <div key={i} className="h-72 bg-white/5 animate-pulse rounded-xl" />
+                ))}
             </div>
         )
     }

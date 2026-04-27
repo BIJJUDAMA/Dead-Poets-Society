@@ -15,10 +15,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { mockEvent } from '@/lib/boneyard-fixtures';
-
-const EventCardFrame = ({ event, index = 0, animate = true }) => {
+const EventCard = React.memo(({ event, index = 0, animate = true }) => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -45,7 +42,8 @@ const EventCardFrame = ({ event, index = 0, animate = true }) => {
             initial={animate ? "hidden" : "visible"}
             animate="visible"
             whileHover={animate ? { scale: 1.02, y: -3 } : undefined}
-            className="relative w-full h-full cursor-pointer"
+            className="relative w-full max-w-sm mx-auto cursor-pointer"
+            style={{ aspectRatio: '460 / 640' }}
         >
             <Link href={`/event/${event.slug}`} className="block w-full h-full">
                 <div className="relative w-full h-full">
@@ -129,28 +127,9 @@ const EventCardFrame = ({ event, index = 0, animate = true }) => {
             </Link>
         </motion.div>
     );
-};
-
-const EventCard = React.memo(({ event, index, loading = false }) => {
-    const eventToRender = event || mockEvent;
-
-    return (
-        <Skeleton
-            name="event-card"
-            loading={loading}
-            className="w-full max-w-sm mx-auto"
-            style={{ aspectRatio: '460 / 640' }}
-            fixture={<EventCardFrame event={mockEvent} animate={false} />}
-        >
-            <EventCardFrame event={eventToRender} index={index} />
-        </Skeleton>
-    );
 });
 
-const EventPage = ({ eventsList, loading = false }) => {
-    const displayEvents = loading && (!eventsList || eventsList.length === 0) 
-        ? Array.from({ length: 3 }) 
-        : eventsList;
+const EventPage = ({ eventsList }) => {
 
     return (
         <div className="min-h-screen bg-black text-white px-6 py-12">
@@ -163,9 +142,9 @@ const EventPage = ({ eventsList, loading = false }) => {
             </motion.h1>
 
             <div className="flex flex-wrap justify-center gap-12 max-w-7xl mx-auto">
-                {displayEvents.map((event, index) => (
+                {eventsList.map((event, index) => (
                     <div key={event?.slug || index} className="w-full sm:w-[420px]">
-                        <EventCard event={event} index={index} loading={loading || !event} />
+                        <EventCard event={event} index={index} />
                     </div>
                 ))}
             </div>

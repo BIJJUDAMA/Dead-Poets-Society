@@ -20,7 +20,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Skeleton } from '@/components/ui/skeleton';
 
 const GalleryCollage = ({ images }) => {
     // State to hold image data enhanced with orientation and aspect ratio
@@ -74,8 +73,8 @@ const GalleryCollage = ({ images }) => {
             const total = loadedImages.length;
 
             let mode = 'mixed';
-            if (portraitCount / total > 0.7) mode = 'portrait';
-            else if (landscapeCount / total > 0.7) mode = 'landscape';
+            if (portraitCount / total > 0.9) mode = 'portrait';
+            else if (landscapeCount / total > 0.9) mode = 'landscape';
 
             // Determine the layout mode based on image composition
             setLayoutMode(mode);
@@ -93,9 +92,9 @@ const GalleryCollage = ({ images }) => {
         return (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
                 {images.map((_, idx) => (
-                    <Skeleton
+                    <div
                         key={idx}
-                        className="w-full h-full rounded-lg bg-gray-800 min-h-[200px]"
+                        className="w-full h-full rounded-lg bg-gray-800 min-h-[200px] animate-pulse"
                     />
                 ))}
             </div>

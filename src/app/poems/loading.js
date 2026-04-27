@@ -1,4 +1,4 @@
-import SkeletonCard from '@/components/common/SkeletonCard';
+
 
 export default function Loading() {
     return (
@@ -14,7 +14,9 @@ export default function Loading() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)}
+                    {Array.from({ length: 8 }).map((_, index) => (
+                        <div key={index} className="h-72 bg-white/5 animate-pulse rounded-xl" />
+                    ))}
                 </div>
             </div>
         </div>

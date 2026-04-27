@@ -21,7 +21,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/supabase/config.js';
 import NotesGrid from '@/components/poems/NotesGrid';
-import SkeletonCard from '@/components/common/SkeletonCard.jsx';
+
 import { useInView } from 'react-intersection-observer';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -166,7 +166,9 @@ const PoemsPage = ({ initialNotes }) => {
                 {/* Loading State Skeletons */}
                 {loading && notes.length === 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                        {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+                        {Array.from({ length: 8 }).map((_, i) => (
+                            <div key={i} className="h-72 bg-white/5 animate-pulse rounded-xl" />
+                        ))}
                     </div>
                 ) : (
                     <NotesGrid notes={notes} />

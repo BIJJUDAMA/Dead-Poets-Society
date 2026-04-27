@@ -15,11 +15,9 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { mockNote } from '@/lib/boneyard-fixtures';
 import BookmarkButton from '../common/BookmarkButton';
 
-const NoteCardFrame = ({ note, animate = true }) => {
+const NoteCard = React.memo(({ note, animate = true }) => {
     // Animation variants for the card entrance
     const cardVariants = {
         hidden: { opacity: 0, y: 50, rotate: 5 },
@@ -80,21 +78,6 @@ const NoteCardFrame = ({ note, animate = true }) => {
                 </Card>
             </Link>
         </motion.div>
-    );
-};
-
-const NoteCard = React.memo(({ note, loading = false }) => {
-    const noteToRender = note || mockNote;
-
-    return (
-        <Skeleton
-            name="note-card"
-            loading={loading}
-            className="h-72"
-            fixture={<NoteCardFrame note={mockNote} animate={false} />}
-        >
-            <NoteCardFrame note={noteToRender} />
-        </Skeleton>
     );
 });
 
