@@ -1,7 +1,7 @@
 import HomePage from '@/views/HomePage';
 import { supabase } from '@/supabase/config';
 
-export const revalidate = 3600; // ISR: Revalidate every 1 hour
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
     const [mostApplaudedResult, recentPoemsResult] = await Promise.all([

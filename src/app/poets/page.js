@@ -1,7 +1,7 @@
 import UsersPage from '@/views/UsersPage';
 import { supabase } from '@/supabase/config';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function Page() {
     const { data: users } = await supabase
