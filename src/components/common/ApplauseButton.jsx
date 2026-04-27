@@ -23,6 +23,19 @@ const ApplauseButton = ({ note }) => {
     const [isAnimating, setIsAnimating] = useState(false);
 
     useEffect(() => {
+        // Fetch the most up-to-date total applause count directly from the database
+        const fetchApplauseCount = async () => {
+            const { data, error } = await supabase
+                .from('notes')
+                .select('applause_count')
+                .eq('id', note.id)
+                .single();
+            
+            if (data && !error) {
+                setApplauseCount(data.applause_count);
+            }
+        };
+
         // Check if the current user has already applauded this note
         const checkApplause = async () => {
             if (user) {
@@ -40,6 +53,8 @@ const ApplauseButton = ({ note }) => {
                 }
             }
         };
+
+        fetchApplauseCount();
         checkApplause();
     }, [user, note.id]);
 

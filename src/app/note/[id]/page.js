@@ -1,7 +1,7 @@
 import { supabase } from '@/supabase/config';
 import NotePage from '@/views/NotePage';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
     const { id } = await params;
