@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer';
 import ProfileGuard from '@/components/auth/ProfileGuard';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import Providers from '@/components/layout/Providers';
+
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel', weight: ['400', '500', '600', '700', '800', '900'], display: 'swap' });
 const homemadeApple = Homemade_Apple({ weight: '400', subsets: ['latin'], variable: '--font-homemade-apple', display: 'swap' });
 
@@ -42,15 +44,17 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body className={`${cinzel.variable} ${homemadeApple.variable} font-serif bg-black text-gray-200 flex flex-col min-h-screen`}>
-                <AuthProvider>
-                    <ProfileGuard />
-                    <Navbar />
-                    <main className="flex-grow">
-                        {children}
-                    </main>
-                    <Footer />
-                    <SpeedInsights />
-                </AuthProvider>
+                <Providers>
+                    <AuthProvider>
+                        <ProfileGuard />
+                        <Navbar />
+                        <main className="flex-grow">
+                            {children}
+                        </main>
+                        <Footer />
+                        <SpeedInsights />
+                    </AuthProvider>
+                </Providers>
             </body>
         </html>
     );
