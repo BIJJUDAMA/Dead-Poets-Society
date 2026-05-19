@@ -38,7 +38,8 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
             const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true }; //Resizing here
             const compressedFile = await imageCompression(file, options);
 
-            const filePath = `${user.id}/${Date.now()}-${compressedFile.name}`;
+            const sanitizedFileName = compressedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const filePath = `${user.id}/${Date.now()}-${sanitizedFileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from('pfp')
