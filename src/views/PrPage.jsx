@@ -13,9 +13,28 @@
  */
 
 "use client";
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const gridSize = 3;
+
+const GridCell = ({ row, col, gridPiece, selectedPiece, pieceSize, handleGridClick, handleDragStart }) => (
+    <div
+        className={`absolute cursor-pointer transition-all duration-200 ${!gridPiece && selectedPiece ? 'hover:bg-blue-500 hover:bg-opacity-20' : ''}`}
+        style={{ left: `${col * pieceSize.width}px`, top: `${row * pieceSize.height}px`, width: `${pieceSize.width}px`, height: `${pieceSize.height}px` }}
+        onClick={() => handleGridClick(row, col)}
+    >
+        {gridPiece && (
+            <div
+                className="w-full h-full cursor-grab"
+                style={{ backgroundImage: `url(${gridPiece.imageData})`, backgroundSize: 'cover' }}
+                onMouseDown={(e) => handleDragStart(e, gridPiece)}
+                onTouchStart={(e) => handleDragStart(e, gridPiece)}
+            />
+        )}
+    </div>
+);
 
 const PrPage = () => {
     const [puzzlePieces, setPuzzlePieces] = useState([]);
@@ -30,7 +49,6 @@ const PrPage = () => {
     const [gridDisplaySize, setGridDisplaySize] = useState({ width: 300, height: 300 });
     const [imageAspectRatio, setImageAspectRatio] = useState(1);
     const [isDesktop, setIsDesktop] = useState(false);
-    const gridSize = 3;
 
     const canvasRef = useRef(null);
     const puzzleGridRef = useRef(null);
@@ -314,7 +332,7 @@ const PrPage = () => {
         setDraggedPiece(null);
     };
 
-    const getGridPieces = () => puzzlePieces.filter(piece => piece.isInGrid);
+    const gridPieces = useMemo(() => puzzlePieces.filter(piece => piece.isInGrid), [puzzlePieces]);
 
     return (
         <motion.div
@@ -415,26 +433,18 @@ const PrPage = () => {
                                 ))}
                             </svg>
                             {Array.from({ length: gridSize }).map((_, row) =>
-                                Array.from({ length: gridSize }).map((_, col) => {
-                                    const gridPiece = getGridPieces().find(p => p.row === row && p.col === col);
-                                    return (
-                                        <div
-                                            key={`${row}-${col}`}
-                                            className={`absolute cursor-pointer transition-all duration-200 ${!gridPiece && selectedPiece ? 'hover:bg-blue-500 hover:bg-opacity-20' : ''}`}
-                                            style={{ left: `${col * pieceSize.width}px`, top: `${row * pieceSize.height}px`, width: `${pieceSize.width}px`, height: `${pieceSize.height}px` }}
-                                            onClick={() => handleGridClick(row, col)}
-                                        >
-                                            {gridPiece && (
-                                                <div
-                                                    className="w-full h-full cursor-grab"
-                                                    style={{ backgroundImage: `url(${gridPiece.imageData})`, backgroundSize: 'cover' }}
-                                                    onMouseDown={(e) => handleDragStart(e, gridPiece)}
-                                                    onTouchStart={(e) => handleDragStart(e, gridPiece)}
-                                                />
-                                            )}
-                                        </div>
-                                    );
-                                })
+                                Array.from({ length: gridSize }).map((_, col) => (
+                                    <GridCell
+                                        key={`${row}-${col}`}
+                                        row={row}
+                                        col={col}
+                                        gridPiece={gridPieces.find(p => p.row === row && p.col === col)}
+                                        selectedPiece={selectedPiece}
+                                        pieceSize={pieceSize}
+                                        handleGridClick={handleGridClick}
+                                        handleDragStart={handleDragStart}
+                                    />
+                                ))
                             )}
                         </div>
                     </CardContent>
