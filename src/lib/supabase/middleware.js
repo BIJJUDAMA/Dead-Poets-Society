@@ -32,18 +32,35 @@ export async function updateSession(request) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    request.nextUrl.pathname !== '/' &&
-    request.nextUrl.pathname !== '/poems' &&
-    request.nextUrl.pathname !== '/about' &&
-    request.nextUrl.pathname !== '/event'
-  ) {
-    // no user, potentially redirect to login if it's a protected route
-    // But for now, let's just handle the session update.
-    // Specific route protection will be added in middleware.js or here.
+  // Protected routes
+  const isProtectedRoute = 
+    request.nextUrl.pathname.startsWith('/admin') ||
+    request.nextUrl.pathname.startsWith('/profile') ||
+    request.nextUrl.pathname.startsWith('/submit') ||
+    request.nextUrl.pathname.startsWith('/setup-profile');
+
+  if (isProtectedRoute && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Admin specific protection
+  if (request.nextUrl.pathname.startsWith('/admin') && user) {
+     const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, email')
+      .eq('id', user.id)
+      .single()
+
+    const isMainAdmin = user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL || profile?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const isAdmin = isMainAdmin || profile?.role === 'semi-admin' || profile?.role === 'admin';
+
+    if (!isAdmin) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
