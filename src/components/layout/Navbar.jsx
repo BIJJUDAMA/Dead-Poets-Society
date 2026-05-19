@@ -19,6 +19,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '../../supabase/config.js';
 import { useAuth } from '../../context/AuthContext';
 import { LogOut, Menu, X, LogIn, Instagram, Github } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
     const { user, userProfile, isAdmin } = useAuth();
@@ -120,62 +121,70 @@ const Navbar = () => {
 
             {/* Mobile Navbar */}
             {/* Includes and instagram and github links */}
-            {isMenuOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-black/95 flex flex-col items-center space-y-6 py-8">
-                    <Link href="/" onClick={closeMenu} className="text-xl hover:text-yellow-300">Home</Link>
-                    <Link href="/poems" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poems</Link>
-                    <Link href="/poets" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poets</Link>
-                    <Link href="/event" onClick={closeMenu} className="text-xl hover:text-yellow-300">Events</Link>
-                    <Link href="/about" onClick={closeMenu} className="text-xl hover:text-yellow-300">About Us</Link>
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0, y: -20 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -20 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        className="md:hidden absolute top-full left-0 w-full bg-black/95 flex flex-col items-center space-y-6 py-8 overflow-hidden"
+                    >
+                        <Link href="/" onClick={closeMenu} className="text-xl hover:text-yellow-300">Home</Link>
+                        <Link href="/poems" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poems</Link>
+                        <Link href="/poets" onClick={closeMenu} className="text-xl hover:text-yellow-300">Poets</Link>
+                        <Link href="/event" onClick={closeMenu} className="text-xl hover:text-yellow-300">Events</Link>
+                        <Link href="/about" onClick={closeMenu} className="text-xl hover:text-yellow-300">About Us</Link>
 
-                    <div className="border-t border-gray-700 pt-6 w-full flex flex-col items-center space-y-6">
-                        {user ? (
-                            <>
-                                <Link href="/submit" onClick={closeMenu} className="text-xl hover:text-yellow-300">Submit Poem</Link>
-                                {isAdmin && (
-                                    <Link href="/admin" onClick={closeMenu} className="text-xl hover:text-yellow-300">Admin</Link>
-                                )}
-                                <button onClick={handleLogout} className="flex items-center gap-2 bg-red-800 px-4 py-2 rounded-md">
-                                    <LogOut size={16} /> Logout
-                                </button>
-                            </>
-                        ) : (
-                            <Link href="/login" onClick={closeMenu} className="flex items-center gap-2 bg-[#111827] px-4 py-2 rounded-md">
-                                <LogIn size={16} /> Login
-                            </Link>
-                        )}
-                    </div>
+                        <div className="border-t border-gray-700 pt-6 w-full flex flex-col items-center space-y-6">
+                            {user ? (
+                                <>
+                                    <Link href="/submit" onClick={closeMenu} className="text-xl hover:text-yellow-300">Submit Poem</Link>
+                                    {isAdmin && (
+                                        <Link href="/admin" onClick={closeMenu} className="text-xl hover:text-yellow-300">Admin</Link>
+                                    )}
+                                    <button onClick={handleLogout} className="flex items-center gap-2 bg-red-800 px-4 py-2 rounded-md">
+                                        <LogOut size={16} /> Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <Link href="/login" onClick={closeMenu} className="flex items-center gap-2 bg-[#111827] px-4 py-2 rounded-md">
+                                    <LogIn size={16} /> Login
+                                </Link>
+                            )}
+                        </div>
 
-                    <div className="flex items-center justify-center gap-6 w-full pb-4">
-                        <a
-                            href="https://www.instagram.com/dead_poets_society_poetree/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
-                        >
-                            <Instagram size={24} />
-                            <span className="text-sm font-medium">DPS</span>
-                        </a>
-                        <a
-                            href="https://www.instagram.com/srishti_amrita/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
-                        >
-                            <Instagram size={24} />
-                            <span className="text-sm font-medium">Srishti</span>
-                        </a>
-                        <a
-                            href="https://github.com/BIJJUDAMA/Dead-Poets-Society"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-300 hover:text-pink-500 transition-colors"
-                        >
-                            <Github size={24} />
-                        </a>
-                    </div>
-                </div>
-            )}
+                        <div className="flex items-center justify-center gap-6 w-full pb-4">
+                            <a
+                                href="https://www.instagram.com/dead_poets_society_poetree/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
+                            >
+                                <Instagram size={24} />
+                                <span className="text-sm font-medium">DPS</span>
+                            </a>
+                            <a
+                                href="https://www.instagram.com/srishti_amrita/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
+                            >
+                                <Instagram size={24} />
+                                <span className="text-sm font-medium">Srishti</span>
+                            </a>
+                            <a
+                                href="https://github.com/BIJJUDAMA/Dead-Poets-Society"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-300 hover:text-pink-500 transition-colors"
+                            >
+                                <Github size={24} />
+                            </a>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };
