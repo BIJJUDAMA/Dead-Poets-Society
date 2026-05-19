@@ -11,7 +11,7 @@
 
 "use client";
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from '../supabase/config';
+import { createClient } from '@/lib/supabase/client';
 
 const AuthContext = createContext();
 
@@ -20,6 +20,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    const supabase = createClient();
     // State for auth and profile data
     const [user, setUser] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
