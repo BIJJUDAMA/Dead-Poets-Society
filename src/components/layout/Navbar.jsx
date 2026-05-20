@@ -62,15 +62,15 @@ const Navbar = () => {
     return (
         <nav className="bg-black/80 backdrop-blur-sm sticky top-0 z-50 text-white shadow-lg py-2">
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-32 xl:px-64">
-                <div className="relative flex items-center justify-between h-20 md:h-24">
-                    <Link href="/" onClick={closeMenu} className="md:ml-16 ml-4">
-                        <Image src="/DPS.webp" alt="Logo" width={80} height={80} className="h-14 md:h-20 w-auto" />
+                <div className="grid grid-cols-[auto,1fr,auto] items-center h-20 md:h-24 gap-4">
+                    <Link href="/" onClick={closeMenu} className="md:ml-16 ml-2">
+                        <Image src="/DPS.webp" alt="Logo" width={72} height={72} className="h-12 md:h-16 w-auto" />
                     </Link>
 
 
                     {/* Desktop Navigation Links */}
                     {/* Doesn't include the insteagram and github links due to cramping*/}
-                    <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center space-x-10 text-xl font-medium">
+                    <div className="hidden md:flex items-center justify-center min-w-0 gap-8 text-xl font-medium">
                         <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
                         <Link href="/poems" className="hover:text-yellow-300 transition-colors">Poems</Link>
                         <Link href="/poets" className="hover:text-yellow-300 transition-colors">Poets</Link>
@@ -80,7 +80,7 @@ const Navbar = () => {
                     </div>
 
 
-                    <div className="hidden md:flex items-center">
+                    <div className="hidden md:flex items-center justify-end">
                         {user ? (
                             <div className="flex items-center space-x-3">
                                 {isAdmin && <Link href="/admin" className="text-sm hover:text-yellow-300 transition-colors">Admin</Link>}
