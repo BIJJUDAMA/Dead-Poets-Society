@@ -70,7 +70,7 @@ const Navbar = () => {
 
                     {/* Desktop Navigation Links */}
                     {/* Doesn't include the insteagram and github links due to cramping*/}
-                    <div className="hidden md:flex items-center justify-center min-w-0 gap-8 text-xl font-medium">
+                    <div className="hidden md:flex items-center justify-center min-w-0 gap-10 lg:gap-12 text-xl font-medium">
                         <Link href="/" className="hover:text-yellow-300 transition-colors">Home</Link>
                         <Link href="/poems" className="hover:text-yellow-300 transition-colors">Poems</Link>
                         <Link href="/poets" className="hover:text-yellow-300 transition-colors">Poets</Link>
@@ -82,7 +82,7 @@ const Navbar = () => {
 
                     <div className="hidden md:flex items-center justify-end">
                         {user ? (
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-4">
                                 {isAdmin && <Link href="/admin" className="text-sm hover:text-yellow-300 transition-colors">Admin</Link>}
                                 <Link href={`/profile/${user.id}`}>
                                     <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-transparent hover:border-yellow-400">
