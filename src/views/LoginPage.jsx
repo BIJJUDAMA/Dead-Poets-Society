@@ -12,7 +12,7 @@
  */
 
 "use client";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../supabase/config.js';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +25,7 @@ const LoginPage = () => {
 
     const router = useRouter();
     const { user } = useAuth();
+    const [isSigningIn, setIsSigningIn] = useState(false);
 
     /**
      * Handles the Google OAuth sign-in process.
@@ -32,10 +33,15 @@ const LoginPage = () => {
      */
     // Initiate Google OAuth login via Supabase
     const handleGoogleLogin = async () => {
+        setIsSigningIn(true);
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/`,
+            },
         });
         if (error) {
+            setIsSigningIn(false);
             console.error('Error logging in with Google:', error);
         }
     };
@@ -65,8 +71,12 @@ const LoginPage = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        <Button onClick={handleGoogleLogin} className="w-full bg-blue-600 hover:bg-blue-700">
-                            Sign In with Google
+                        <Button
+                            onClick={handleGoogleLogin}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                            disabled={isSigningIn}
+                        >
+                            {isSigningIn ? 'Redirecting...' : 'Sign In with Google'}
                         </Button>
                     </div>
                 </CardContent>

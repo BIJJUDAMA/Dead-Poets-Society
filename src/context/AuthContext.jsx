@@ -28,6 +28,14 @@ export const AuthProvider = ({ children }) => {
     const [isMainAdmin, setIsMainAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
 
+    const resolveAdminState = (profile, currentUser) => {
+        const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+        const resolvedEmail = profile?.email || currentUser?.email || currentUser?.user_metadata?.email;
+        const isMainAdminUser = Boolean(adminEmail && resolvedEmail && resolvedEmail === adminEmail);
+        const isAdminUser = isMainAdminUser || profile?.role === 'semi-admin' || profile?.role === 'admin';
+        return { isMainAdminUser, isAdminUser };
+    };
+
     const handleUser = async (currentUser) => {
         if (currentUser) {
             setUser(currentUser);
@@ -50,14 +58,14 @@ export const AuthProvider = ({ children }) => {
                     setUserProfile(profile);
                 }
                 // Determine admin roles based on email or DB role
-                const mainAdmin = profile.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-                setIsMainAdmin(mainAdmin);
-                setIsAdmin(mainAdmin || profile.role === 'semi-admin' || profile.role === 'admin');
+                const { isMainAdminUser, isAdminUser } = resolveAdminState(profile, currentUser);
+                setIsMainAdmin(isMainAdminUser);
+                setIsAdmin(isAdminUser);
             } else {
                 setUserProfile({ isNew: true });
-                const mainAdmin = currentUser.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-                setIsMainAdmin(mainAdmin);
-                setIsAdmin(mainAdmin);
+                const { isMainAdminUser, isAdminUser } = resolveAdminState(null, currentUser);
+                setIsMainAdmin(isMainAdminUser);
+                setIsAdmin(isAdminUser);
             }
         } else {
             setUser(null);
@@ -94,9 +102,9 @@ export const AuthProvider = ({ children }) => {
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
                     const newProfile = payload.new;
                     setUserProfile(newProfile);
-                    const mainAdmin = newProfile.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-                    setIsMainAdmin(mainAdmin);
-                    setIsAdmin(mainAdmin || newProfile.role === 'semi-admin' || newProfile.role === 'admin');
+                    const { isMainAdminUser, isAdminUser } = resolveAdminState(newProfile, user);
+                    setIsMainAdmin(isMainAdminUser);
+                    setIsAdmin(isAdminUser);
                 })
                 .subscribe();
         }

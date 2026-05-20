@@ -17,19 +17,19 @@ import { useAuth } from '../../context/AuthContext';
 
 // Helper component to enforce profile completion for new users
 const ProfileGuard = () => {
-    const { user, userProfile, loading } = useAuth();
+    const { user, userProfile, isAdmin, loading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
-        if (!loading && user) {
+        if (!loading && user && !isAdmin) {
             if (userProfile?.isNew || !userProfile?.display_name) {
                 if (pathname !== '/setup-profile') {
                     router.replace('/setup-profile');
                 }
             }
         }
-    }, [user, userProfile, loading, pathname, router]);
+    }, [user, userProfile, isAdmin, loading, pathname, router]);
 
     return null;
 };
