@@ -23,10 +23,9 @@ import { supabase } from '@/supabase/config.js';
 import NotesGrid from '@/components/poems/NotesGrid';
 
 import { useInView } from 'react-intersection-observer';
-import { Search } from 'lucide-react';
+import { Search, X, SlidersHorizontal, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { POEM_TAGS } from '@/lib/constants.js';
-import MultiSelectDropdown from '@/components/common/MultiSelectDropdown';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from '@/components/ui/input';
 
@@ -128,40 +127,200 @@ const PoemsPage = ({ initialNotes }) => {
 
 
 
+    const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
+    const [tagSearch, setTagSearch] = useState('');
+
+    const filteredTagsList = POEM_TAGS.filter(tag => 
+        tag.toLowerCase().includes(tagSearch.toLowerCase())
+    );
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-12 pb-20 bg-black text-white min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 relative z-30">
-                    <h1 className="text-5xl font-bold text-white text-center md:text-left">The Collection</h1>
-                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                        <div className="relative w-full sm:w-auto">
+                {/* Title & Organization Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-center mb-10"
+                >
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-b from-stone-100 via-amber-100/90 to-stone-400 mb-2 tracking-wide">
+                        Society's Collection
+                    </h1>
+                    
+                    {/* Decorative rule */}
+                    <div className="flex items-center justify-center gap-3 mt-4">
+                        <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-amber-700/60" />
+                        <span className="text-amber-500/60 text-xs">✦</span>
+                        <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-amber-700/60" />
+                    </div>
+                </motion.div>
+
+                {/* Search & Filter Toolbar */}
+                <div className="max-w-4xl mx-auto mb-10">
+                    <div className="flex flex-col md:flex-row items-stretch gap-3">
+                        {/* Hero Search Bar */}
+                        <div className="relative flex-1">
                             <Input
                                 type="text"
-                                placeholder="Search poems..."
+                                placeholder="Search verses, titles, or poet names..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 bg-[#1f2937] border-gray-700"
+                                className="pl-11 pr-10 bg-stone-900/90 hover:bg-stone-900 border-stone-800 focus:border-amber-600/70 focus:ring-amber-500/20 h-12 rounded-xl text-stone-100 placeholder:text-stone-500 text-sm sm:text-base transition-all shadow-inner w-full"
                             />
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-500/70 w-5 h-5 pointer-events-none" />
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white p-1 rounded-full hover:bg-stone-800 transition-colors"
+                                    aria-label="Clear search"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
-                        <Select onValueChange={setSortBy} defaultValue={sortBy}>
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                                <SelectValue placeholder="Sort by..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="created_at_desc">Latest</SelectItem>
-                                <SelectItem value="created_at_asc">Oldest</SelectItem>
-                                <SelectItem value="applause_count_desc">Most Applauded</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <MultiSelectDropdown
-                            options={POEM_TAGS}
-                            selectedOptions={selectedTags}
-                            onSelectionChange={setSelectedTags}
-                            title="Filter by Tag"
-                        />
+
+                        {/* Controls Row on Mobile / Inline on Desktop */}
+                        <div className="flex items-center gap-2.5">
+                            {/* Theme Filter Trigger Button */}
+                            <button
+                                onClick={() => setIsThemePickerOpen(true)}
+                                className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 h-12 rounded-xl text-sm font-medium border transition-all ${
+                                    selectedTags.length > 0
+                                        ? 'bg-amber-950/70 border-amber-600/70 text-amber-200 shadow-[0_0_15px_rgba(217,119,6,0.2)]'
+                                        : 'bg-stone-900/90 hover:bg-stone-800 border-stone-800 text-stone-300 hover:text-white'
+                                }`}
+                            >
+                                <SlidersHorizontal className="w-4 h-4 text-amber-400/90" />
+                                <span>Themes</span>
+                                {selectedTags.length > 0 && (
+                                    <span className="ml-0.5 px-2 py-0.5 text-xs rounded-full bg-amber-500 text-stone-950 font-bold">
+                                        {selectedTags.length}
+                                    </span>
+                                )}
+                            </button>
+
+                            {/* Sort Dropdown */}
+                            <div className="flex-1 md:flex-none min-w-[140px] sm:min-w-[170px]">
+                                <Select onValueChange={setSortBy} defaultValue={sortBy}>
+                                    <SelectTrigger className="w-full h-12 bg-stone-900/90 hover:bg-stone-800 border-stone-800 rounded-xl text-stone-200 text-sm font-sans focus:ring-amber-500/20">
+                                        <SelectValue placeholder="Sort by..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-stone-900 border-stone-800 text-stone-200">
+                                        <SelectItem value="created_at_desc">Latest Verses</SelectItem>
+                                        <SelectItem value="created_at_asc">Oldest Verses</SelectItem>
+                                        <SelectItem value="applause_count_desc">Most Applauded</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Active Filter Chips Tray (Visible only when tags are filtered) */}
+                    {selectedTags.length > 0 && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-3.5 flex flex-wrap items-center gap-2 pt-1"
+                        >
+                            <span className="text-xs text-stone-500 font-sans tracking-wide mr-1">Filtered by:</span>
+                            {selectedTags.map(tag => (
+                                <button
+                                    key={tag}
+                                    onClick={() => setSelectedTags(prev => prev.filter(t => t !== tag))}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-serif italic bg-amber-950/60 border border-amber-600/50 text-amber-200 hover:bg-amber-900/70 transition-colors shadow-sm group"
+                                >
+                                    <span>{tag}</span>
+                                    <X className="w-3 h-3 text-amber-400/70 group-hover:text-amber-200" />
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setSelectedTags([])}
+                                className="text-xs text-stone-400 hover:text-amber-300 underline underline-offset-4 ml-1.5 transition-colors"
+                            >
+                                Clear all
+                            </button>
+                        </motion.div>
+                    )}
                 </div>
+
+                {/* Theme Selector Modal / Bottom Sheet */}
+                {isThemePickerOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div 
+                            className="relative w-full max-w-lg bg-stone-950 border border-stone-800 rounded-2xl shadow-2xl overflow-hidden p-6 animate-in zoom-in-95 duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between pb-4 border-b border-stone-800/80 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <SlidersHorizontal className="w-4 h-4 text-amber-400" />
+                                    <h3 className="text-lg font-cinzel font-bold text-amber-100">Filter by Theme</h3>
+                                </div>
+                                <button 
+                                    onClick={() => setIsThemePickerOpen(false)}
+                                    className="p-1 text-stone-400 hover:text-white rounded-lg hover:bg-stone-900 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Tag Search Input */}
+                            <div className="relative mb-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Find a theme (e.g. Love, Hope, Nature)..."
+                                    value={tagSearch}
+                                    onChange={(e) => setTagSearch(e.target.value)}
+                                    className="pl-9 h-10 bg-stone-900 border-stone-800 text-stone-200 text-sm placeholder:text-stone-500 rounded-xl"
+                                />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500" />
+                            </div>
+
+                            {/* Tags Grid / Chips */}
+                            <div className="max-h-64 overflow-y-auto pr-1 flex flex-wrap gap-2 py-1 select-none">
+                                {filteredTagsList.map((tag) => {
+                                    const isSelected = selectedTags.includes(tag);
+                                    return (
+                                        <button
+                                            key={tag}
+                                            onClick={() => {
+                                                setSelectedTags(prev => 
+                                                    isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+                                                );
+                                            }}
+                                            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-serif italic transition-all border flex items-center gap-2 ${
+                                                isSelected
+                                                    ? 'bg-amber-950/90 text-amber-200 border-amber-600 shadow-[0_0_12px_rgba(217,119,6,0.25)] font-semibold'
+                                                    : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border-stone-800'
+                                            }`}
+                                        >
+                                            <span>{tag}</span>
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-amber-300" />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="flex items-center justify-between pt-5 mt-4 border-t border-stone-800/80">
+                                <button
+                                    onClick={() => setSelectedTags([])}
+                                    disabled={selectedTags.length === 0}
+                                    className="text-xs text-stone-400 hover:text-amber-300 disabled:opacity-40 disabled:hover:text-stone-400 transition-colors"
+                                >
+                                    Reset Selection
+                                </button>
+                                <button
+                                    onClick={() => setIsThemePickerOpen(false)}
+                                    className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold rounded-xl text-sm transition-all shadow-md active:scale-95"
+                                >
+                                    View Verses {selectedTags.length > 0 && `(${selectedTags.length})`}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Loading State Skeletons */}
                 {loading && notes.length === 0 ? (
