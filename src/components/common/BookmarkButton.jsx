@@ -77,20 +77,36 @@ const BookmarkButton = ({ noteId, compact = false }) => {
     return (
         <motion.button
             onClick={handleBookmark}
-            whileTap={{ scale: 1.2 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-            className={`transition-colors ${isBookmarked
-                ? 'text-yellow-500'
-                : 'text-gray-400 hover:text-white'
-                }`}
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.08 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            className={
+                compact
+                    ? `p-1.5 rounded-full border shadow-sm flex items-center justify-center transition-all duration-300 ${
+                        isBookmarked
+                            ? 'opacity-100 bg-[#852221] border-[#5a1413] text-[#fce7bb] shadow-[0_2px_6px_rgba(133,34,33,0.5)]'
+                            : 'opacity-0 group-hover:opacity-100 bg-[#d8c3a5]/90 hover:bg-[#e4d4bd] border-[#8c6d48]/70 text-[#422c16] hover:text-[#261709] shadow-[0_2px_5px_rgba(50,30,10,0.25)]'
+                    }`
+                    : `p-2 rounded-lg border transition-all duration-300 flex items-center gap-2 ${
+                        isBookmarked
+                            ? 'bg-[#852221]/20 border-[#852221]/60 text-yellow-500'
+                            : 'bg-stone-900/60 border-stone-700/60 text-stone-400 hover:text-stone-200 hover:border-stone-500'
+                    }`
+            }
             disabled={!user || isAnimating}
             aria-label={isBookmarked ? "Remove bookmark" : "Bookmark poem"}
-            title={!user ? "Log in to save poem" : ""}
+            title={!user ? "Log in to save poem" : isBookmarked ? "Saved to your bookmarks" : "Bookmark this poem"}
         >
             {isBookmarked ? (
-                <BookmarkCheck className={`${compact ? 'w-5 h-5' : 'w-6 h-6'} fill-yellow-500/20`} strokeWidth={2.5} />
+                <BookmarkCheck
+                    className={compact ? 'w-4 h-4 fill-current' : 'w-5 h-5 fill-yellow-500/20'}
+                    strokeWidth={2.5}
+                />
             ) : (
-                <Bookmark className={`${compact ? 'w-5 h-5' : 'w-6 h-6'}`} strokeWidth={compact ? 2 : 1.5} />
+                <Bookmark
+                    className={compact ? 'w-4 h-4' : 'w-5 h-5'}
+                    strokeWidth={compact ? 2.2 : 1.8}
+                />
             )}
         </motion.button>
     );
