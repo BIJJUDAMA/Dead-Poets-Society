@@ -73,42 +73,42 @@ const MultiSelectDropdown = ({
         <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="border border-gray-600 p-2 rounded-md min-h-[40px] w-full flex items-center justify-start flex-wrap gap-2 cursor-pointer bg-gray-900 text-white"
+            className="border border-stone-800 p-2.5 rounded-xl min-h-[44px] w-full flex items-center justify-start flex-wrap gap-2 cursor-pointer bg-stone-900/90 hover:bg-stone-900 text-stone-100 transition-colors"
         >
             {selectedOptions.length > 0 ? (
                 selectedOptions.map((option) => (
                     <div
                         key={option}
-                        className="flex items-center gap-1.5 bg-gray-700 text-gray-100 rounded-full px-2.5 py-1 text-sm font-medium"
+                        className="flex items-center gap-1.5 bg-amber-950/70 border border-amber-600/50 text-amber-200 rounded-full px-3 py-1 text-xs font-serif italic"
                     >
-                        {option}
+                        <span>{option}</span>
                         <span
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleSelect(option);
                             }}
-                            className="rounded-full hover:bg-red-500/20 p-0.5 cursor-pointer"
+                            className="rounded-full hover:bg-red-500/20 p-0.5 cursor-pointer text-amber-400 hover:text-red-400"
                         >
                             <X className="h-3 w-3" />
                         </span>
                     </div>
                 ))
             ) : (
-                <span className="text-gray-400 px-2">{title}</span>
+                <span className="text-stone-500 px-2 text-sm">{title}</span>
             )}
         </button>
     );
 
 
     const dropdownContent = (
-        <div className="flex flex-col w-full bg-gray-900 border border-gray-700 rounded-lg shadow-xl">
-            <div className="p-2">
+        <div className="flex flex-col w-full bg-stone-950 border border-stone-800 rounded-xl shadow-2xl overflow-hidden">
+            <div className="p-2 border-b border-stone-800/80">
                 <input
                     type="text"
                     placeholder="Search tags..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-lg text-stone-100 placeholder:text-stone-500 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500/40"
                 />
             </div>
             <ul className="flex flex-col p-2 max-h-60 overflow-y-auto">
@@ -117,21 +117,21 @@ const MultiSelectDropdown = ({
                         <li
                             key={option}
                             onClick={() => handleSelect(option)}
-                            className="flex items-center p-2 rounded-md hover:bg-gray-700 cursor-pointer text-white"
+                            className="flex items-center p-2 rounded-lg hover:bg-stone-900 cursor-pointer text-stone-200 font-serif italic text-sm transition-colors"
                         >
                             <div
-                                className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border-2 ${selectedOptions.includes(option)
-                                    ? 'border-yellow-500 bg-yellow-500'
-                                    : 'border-gray-500'
+                                className={`mr-2 flex h-4 w-4 items-center justify-center rounded-sm border ${selectedOptions.includes(option)
+                                    ? 'border-amber-500 bg-amber-500'
+                                    : 'border-stone-700 bg-stone-900'
                                     }`}
                             >
-                                {selectedOptions.includes(option) && <Check className="h-3 w-3 text-black" />}
+                                {selectedOptions.includes(option) && <Check className="h-3 w-3 text-stone-950" />}
                             </div>
                             <span>{option}</span>
                         </li>
                     ))
                 ) : (
-                    <li className="p-2 text-gray-400 text-center">No results found.</li>
+                    <li className="p-2 text-stone-500 text-center text-sm font-serif italic">No tags found.</li>
                 )}
             </ul>
         </div>

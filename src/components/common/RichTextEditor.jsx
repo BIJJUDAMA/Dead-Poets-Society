@@ -1,4 +1,3 @@
-"use client";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
@@ -22,13 +21,13 @@ const MenuBar = ({ editor }) => {
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-800 border-b border-gray-700 rounded-t-md">
+        <div className="flex flex-wrap items-center gap-1 p-2 bg-stone-900 border-b border-stone-800 rounded-t-xl">
             {/* Text Formatting */}
-            <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-1">
+            <div className="flex items-center space-x-1 border-r border-stone-800 pr-2 mr-1">
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleBold().run())}
-                    className={`${editor.isActive('bold') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('bold') ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Bold"
                 >
                     <Bold className="h-4 w-4" />
@@ -36,7 +35,7 @@ const MenuBar = ({ editor }) => {
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleItalic().run())}
-                    className={`${editor.isActive('italic') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('italic') ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Italic"
                 >
                     <Italic className="h-4 w-4" />
@@ -44,7 +43,7 @@ const MenuBar = ({ editor }) => {
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleUnderline().run())}
-                    className={`${editor.isActive('underline') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('underline') ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Underline"
                 >
                     <UnderlineIcon className="h-4 w-4" />
@@ -52,11 +51,11 @@ const MenuBar = ({ editor }) => {
             </div>
 
             {/* Headings */}
-            <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-1">
+            <div className="flex items-center space-x-1 border-r border-stone-800 pr-2 mr-1">
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleHeading({ level: 1 }).run())}
-                    className={`${editor.isActive('heading', { level: 1 }) ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('heading', { level: 1 }) ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Heading 1"
                 >
                     <Heading1 className="h-4 w-4" />
@@ -64,7 +63,7 @@ const MenuBar = ({ editor }) => {
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleHeading({ level: 2 }).run())}
-                    className={`${editor.isActive('heading', { level: 2 }) ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('heading', { level: 2 }) ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Heading 2"
                 >
                     <Heading2 className="h-4 w-4" />
@@ -72,11 +71,11 @@ const MenuBar = ({ editor }) => {
             </div>
 
             {/* Alignment */}
-            <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-1">
+            <div className="flex items-center space-x-1 border-r border-stone-800 pr-2 mr-1">
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().setTextAlign('left').run())}
-                    className={`${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive({ textAlign: 'left' }) ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Align Left"
                 >
                     <AlignLeft className="h-4 w-4" />
@@ -84,7 +83,7 @@ const MenuBar = ({ editor }) => {
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().setTextAlign('center').run())}
-                    className={`${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive({ textAlign: 'center' }) ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Align Center"
                 >
                     <AlignCenter className="h-4 w-4" />
@@ -92,7 +91,7 @@ const MenuBar = ({ editor }) => {
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().setTextAlign('right').run())}
-                    className={`${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive({ textAlign: 'right' }) ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Align Right"
                 >
                     <AlignRight className="h-4 w-4" />
@@ -100,11 +99,11 @@ const MenuBar = ({ editor }) => {
             </div>
 
             {/* Other Formatting */}
-            <div className="flex items-center space-x-1 border-r border-gray-600 pr-2 mr-1">
+            <div className="flex items-center space-x-1 border-r border-stone-800 pr-2 mr-1">
                 <Button
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().toggleBlockquote().run())}
-                    className={`${editor.isActive('blockquote') ? 'bg-gray-700 text-white' : 'text-gray-400 hover:text-white'} h-8 w-8`}
+                    className={`${editor.isActive('blockquote') ? 'bg-amber-950/70 text-amber-200' : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'} h-8 w-8 rounded-lg`}
                     aria-label="Blockquote"
                 >
                     <Quote className="h-4 w-4" />
@@ -117,7 +116,7 @@ const MenuBar = ({ editor }) => {
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().undo().run())}
                     disabled={!editor.can().chain().focus().undo().run()}
-                    className="text-gray-400 hover:text-white disabled:opacity-30 h-8 w-8"
+                    className="text-stone-400 hover:text-stone-200 disabled:opacity-30 h-8 w-8 rounded-lg hover:bg-stone-800"
                     aria-label="Undo"
                 >
                     <Undo className="h-4 w-4" />
@@ -126,7 +125,7 @@ const MenuBar = ({ editor }) => {
                     variant="ghost" size="icon"
                     onClick={(e) => handleToggle(e, () => editor.chain().focus().redo().run())}
                     disabled={!editor.can().chain().focus().redo().run()}
-                    className="text-gray-400 hover:text-white disabled:opacity-30 h-8 w-8"
+                    className="text-stone-400 hover:text-stone-200 disabled:opacity-30 h-8 w-8 rounded-lg hover:bg-stone-800"
                     aria-label="Redo"
                 >
                     <Redo className="h-4 w-4" />
@@ -146,7 +145,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
         content,
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose-base prose-invert max-w-none min-h-[50vh] p-4 bg-gray-900 focus:outline-none rounded-b-md text-gray-200 border-x border-b border-gray-700',
+                class: 'prose prose-sm sm:prose-base prose-invert max-w-none min-h-[40vh] p-4 bg-stone-950/80 focus:outline-none rounded-b-xl text-stone-200 border-x border-b border-stone-800 font-serif leading-relaxed',
                 'data-placeholder': placeholder,
             },
         },
@@ -163,15 +162,15 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
     }, [content, editor]);
 
     return (
-        <div className="rich-text-editor overflow-hidden flex flex-col w-full rounded-md mt-2">
+        <div className="rich-text-editor overflow-hidden flex flex-col w-full rounded-xl mt-2 border border-stone-800 shadow-inner">
             <MenuBar editor={editor} />
-            <EditorContent editor={editor} className="bg-gray-900 border-x border-b border-gray-700 rounded-b-md cursor-text" onClick={() => editor?.commands.focus()} />
+            <EditorContent editor={editor} className="bg-stone-950/80 cursor-text" onClick={() => editor?.commands.focus()} />
             <style jsx global>{`
         /* Global styles for the generic Tiptap elements to match our theme */
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
-          color: #6b7280;
+          color: #78716c;
           pointer-events: none;
           height: 0;
         }
@@ -180,11 +179,11 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
            margin-bottom: 0.5em;
         }
         .ProseMirror blockquote {
-           border-left: 3px solid #d4a843;
+           border-left: 3px solid #d97706;
            padding-left: 1rem;
            margin-left: 0;
            font-style: italic;
-           color: #d1d5db;
+           color: #fde68a;
         }
       `}</style>
         </div>
