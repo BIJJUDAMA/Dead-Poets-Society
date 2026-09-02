@@ -12,9 +12,8 @@ import { useState } from 'react';
 import { supabase } from '@/supabase/config.js';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, SlidersHorizontal, Search, Check, X } from 'lucide-react';
 import { POEM_TAGS } from '@/lib/constants.js';
-import MultiSelectDropdown from '@/components/common/MultiSelectDropdown';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,9 +28,15 @@ const PoemSubmissionForm = () => {
     const [selectedTags, setSelectedTags] = useState([]);
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
+    const [tagSearch, setTagSearch] = useState('');
 
     const isTitleValid = title.length <= 50;
     const isDescriptionValid = description.length <= 150;
+
+    const filteredTagsList = POEM_TAGS.filter(tag => 
+        tag.toLowerCase().includes(tagSearch.toLowerCase())
+    );
 
     /**
      * Handles the form submission process.
@@ -85,7 +90,7 @@ const PoemSubmissionForm = () => {
                     value={title} 
                     onChange={e => setTitle(e.target.value)} 
                     placeholder="Enter the title of your work..."
-                    className="bg-stone-900/90 hover:bg-stone-900 border-stone-800 focus:border-amber-600/70 focus:ring-amber-500/20 h-11 rounded-xl text-stone-100 placeholder:text-stone-600 shadow-inner"
+                    className="bg-stone-900/90 hover:bg-stone-900 border-stone-800 focus:border-amber-600/70 focus:ring-amber-500/20 h-11 rounded-xl text-stone-100 placeholder:text-stone-600 shadow-inner" 
                     required 
                 />
             </div>
@@ -98,7 +103,7 @@ const PoemSubmissionForm = () => {
                     value={description} 
                     onChange={e => setDescription(e.target.value)} 
                     placeholder="A brief excerpt or prelude to your verses..."
-                    className="bg-stone-900/90 hover:bg-stone-900 border-stone-800 focus:border-amber-600/70 focus:ring-amber-500/20 rounded-xl text-stone-100 placeholder:text-stone-600 shadow-inner resize-none font-serif italic"
+                    className="bg-stone-900/90 hover:bg-stone-900 border-stone-800 focus:border-amber-600/70 focus:ring-amber-500/20 rounded-xl text-stone-100 placeholder:text-stone-600 shadow-inner resize-none font-serif italic" 
                     required 
                     rows="3" 
                 />
@@ -114,15 +119,141 @@ const PoemSubmissionForm = () => {
                 />
             </div>
             <div>
-                <Label className="block text-xs font-cinzel tracking-wider text-amber-200/90 font-semibold mb-1.5">
-                    Themes & Tags
+                <Label className="block text-xs font-cinzel tracking-wider text-amber-200/90 font-semibold mb-2">
+                    Theme
                 </Label>
-                <MultiSelectDropdown
-                    options={POEM_TAGS}
-                    selectedOptions={selectedTags}
-                    onSelectionChange={setSelectedTags}
-                    title="Select Poetic Themes"
-                />
+                
+                {/* Theme Trigger Button */}
+                <div className="flex flex-col gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setIsThemePickerOpen(true)}
+                        className={`inline-flex items-center gap-2.5 px-4 h-11 rounded-xl text-sm font-medium border transition-all w-fit ${
+                            selectedTags.length > 0
+                                ? 'bg-amber-950/70 border-amber-600/70 text-amber-200 shadow-[0_0_15px_rgba(217,119,6,0.2)]'
+                                : 'bg-stone-900/90 hover:bg-stone-800 border-stone-800 text-stone-300 hover:text-white'
+                        }`}
+                    >
+                        <SlidersHorizontal className="w-4 h-4 text-amber-400/90" />
+                        <span>Select Themes</span>
+                        {selectedTags.length > 0 && (
+                            <span className="px-2 py-0.5 text-xs rounded-full bg-amber-500 text-stone-950 font-bold">
+                                {selectedTags.length}
+                            </span>
+                        )}
+                    </button>
+
+                    {/* Active Theme Badges Tray */}
+                    {selectedTags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                            {selectedTags.map(tag => (
+                                <span
+                                    key={tag}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-serif italic bg-amber-950/60 border border-amber-600/50 text-amber-200 shadow-sm"
+                                >
+                                    <span>{tag}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedTags(prev => prev.filter(t => t !== tag))}
+                                        className="text-amber-400/70 hover:text-amber-200 p-0.5 rounded-full hover:bg-amber-900/50 transition-colors"
+                                        aria-label={`Remove ${tag} theme`}
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </span>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedTags([])}
+                                className="text-xs text-stone-400 hover:text-amber-300 underline underline-offset-4 ml-1 transition-colors"
+                            >
+                                Clear all
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Theme Selector Modal */}
+                {isThemePickerOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div 
+                            className="relative w-full max-w-lg bg-stone-950 border border-stone-800 rounded-2xl shadow-2xl overflow-hidden p-6 animate-in zoom-in-95 duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between pb-4 border-b border-stone-800/80 mb-4">
+                                <div className="flex items-center gap-2">
+                                    <SlidersHorizontal className="w-4 h-4 text-amber-400" />
+                                    <h3 className="text-lg font-cinzel font-bold text-amber-100">Select Themes</h3>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsThemePickerOpen(false)}
+                                    className="p-1 text-stone-400 hover:text-white rounded-lg hover:bg-stone-900 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Tag Search Input */}
+                            <div className="relative mb-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Find a theme (e.g. Love, Hope, Nature)..."
+                                    value={tagSearch}
+                                    onChange={(e) => setTagSearch(e.target.value)}
+                                    className="pl-9 h-10 bg-stone-900 border-stone-800 text-stone-200 text-sm placeholder:text-stone-500 rounded-xl"
+                                />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-500 pointer-events-none" />
+                            </div>
+
+                            {/* Tags Grid / Chips */}
+                            <div className="max-h-64 overflow-y-auto pr-1 flex flex-wrap gap-2 py-1 select-none">
+                                {filteredTagsList.map((tag) => {
+                                    const isSelected = selectedTags.includes(tag);
+                                    return (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            onClick={() => {
+                                                setSelectedTags(prev => 
+                                                    isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+                                                );
+                                            }}
+                                            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-serif italic transition-all border flex items-center gap-2 ${
+                                                isSelected
+                                                    ? 'bg-amber-950/90 text-amber-200 border-amber-600 shadow-[0_0_12px_rgba(217,119,6,0.25)] font-semibold'
+                                                    : 'bg-stone-900/80 hover:bg-stone-800 text-stone-300 hover:text-white border-stone-800'
+                                            }`}
+                                        >
+                                            <span>{tag}</span>
+                                            {isSelected && <Check className="w-3.5 h-3.5 text-amber-300" />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="flex items-center justify-between pt-5 mt-4 border-t border-stone-800/80">
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedTags([])}
+                                    disabled={selectedTags.length === 0}
+                                    className="text-xs text-stone-400 hover:text-amber-300 disabled:opacity-40 disabled:hover:text-stone-400 transition-colors"
+                                >
+                                    Reset Selection
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsThemePickerOpen(false)}
+                                    className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold rounded-xl text-sm transition-all shadow-md active:scale-95"
+                                >
+                                    Confirm Themes {selectedTags.length > 0 && `(${selectedTags.length})`}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             <div className="pt-2">
                 <Button 
