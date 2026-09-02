@@ -133,13 +133,23 @@ const EventPage = ({ eventsList }) => {
 
     return (
         <div className="min-h-screen bg-black text-white px-6 py-12">
-            <motion.h1
+            <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-5xl font-cinzel font-bold text-center mb-16"
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="text-center mb-12 sm:mb-16"
             >
-                Society's Events
-            </motion.h1>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-b from-stone-100 via-amber-100/90 to-stone-400 mb-2 tracking-wide">
+                    Society's Events
+                </h1>
+                
+                {/* Decorative rule */}
+                <div className="flex items-center justify-center gap-3 mt-4">
+                    <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-amber-700/60" />
+                    <span className="text-amber-500/60 text-xs">✦</span>
+                    <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-amber-700/60" />
+                </div>
+            </motion.div>
 
             <div className="flex flex-wrap justify-center gap-12 max-w-7xl mx-auto">
                 {eventsList.map((event, index) => (
