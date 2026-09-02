@@ -106,3 +106,24 @@
     opacity: 0;
     will-change: transform, opacity;
 }
+
+@keyframes quillDraw {
+    0% {
+        stroke-dashoffset: 4500;
+        opacity: 0;
+    }
+    4% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+.animate-quill-draw {
+    stroke-dasharray: 4500;
+    stroke-dashoffset: 4500;
+    animation: quillDraw 6.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    will-change: stroke-dashoffset, opacity;
+}
