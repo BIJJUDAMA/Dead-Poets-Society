@@ -135,7 +135,7 @@ const MenuBar = ({ editor }) => {
     );
 };
 
-const RichTextEditor = ({ content, onChange, placeholder = "Start typing your poem..." }) => {
+const RichTextEditor = ({ content, onChange, placeholder = "Start typing your poem...", minHeight = "min-h-[40vh]", maxHeight = "" }) => {
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -145,7 +145,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
         content,
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose-base prose-invert max-w-none min-h-[40vh] p-4 bg-stone-950/80 focus:outline-none rounded-b-xl text-stone-200 border-x border-b border-stone-800 font-serif leading-relaxed',
+                class: `prose prose-sm sm:prose-base prose-invert max-w-none ${minHeight} ${maxHeight} p-4 bg-stone-950/80 focus:outline-none rounded-b-xl text-stone-200 border-x border-b border-stone-800 font-serif leading-relaxed overflow-y-auto`,
                 'data-placeholder': placeholder,
             },
         },
