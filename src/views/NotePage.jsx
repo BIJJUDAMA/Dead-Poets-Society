@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from '@/components/ui/dialog';
 import { Edit, Trash, Share2, Quote } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import { formatPoemHtml } from '@/lib/poemFormatter.js';
 
 const formatDate = (timestamp) => {
     if (!timestamp) return null;
@@ -45,10 +46,11 @@ const formatDate = (timestamp) => {
  * maintaining text selection stability.
  */
 const PoemContent = memo(({ content }) => {
+    const formattedHtml = formatPoemHtml(content);
     return (
         <div
-            className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white whitespace-pre-wrap poem-content"
-            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+            className="prose prose-sm sm:prose-base max-w-none text-gray-200 prose-headings:text-white prose-strong:text-white poem-content"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formattedHtml) }}
         />
     );
 });

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
+import { formatPoemHtml } from '@/lib/poemFormatter.js';
 
 const MenuBar = ({ editor }) => {
     if (!editor) {
@@ -142,7 +143,7 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             Underline,
         ].filter((ext, index, self) => self.findIndex(e => e.name === ext.name) === index),
-        content,
+        content: formatPoemHtml(content),
         editorProps: {
             attributes: {
                 class: `prose prose-sm sm:prose-base prose-invert max-w-none ${minHeight} ${maxHeight} p-4 bg-stone-950/80 focus:outline-none rounded-b-xl text-stone-200 border-x border-b border-stone-800 font-serif leading-relaxed overflow-y-auto`,
@@ -150,14 +151,20 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
             },
         },
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+            let html = editor.getHTML();
+            // Preserve empty paragraphs as section breaks with <br>
+            html = html.replace(/<p>\s*<\/p>/g, '<p><br></p>');
+            onChange(html);
         },
     });
 
     // Effect to update editor content if `content` prop changes externally (e.g. loading edit state)
     useEffect(() => {
-        if (editor && content !== editor.getHTML()) {
-            editor.commands.setContent(content);
+        if (editor && content !== undefined) {
+            const formatted = formatPoemHtml(content);
+            if (formatted !== editor.getHTML()) {
+                editor.commands.setContent(formatted);
+            }
         }
     }, [content, editor]);
 
@@ -175,8 +182,13 @@ const RichTextEditor = ({ content, onChange, placeholder = "Start typing your po
           height: 0;
         }
         .ProseMirror p {
-           margin-top: 0.5em;
-           margin-bottom: 0.5em;
+           margin-top: 0.35em;
+           margin-bottom: 0.35em;
+           line-height: 1.7;
+        }
+        .ProseMirror p:empty,
+        .ProseMirror p:has(> br:only-child) {
+           min-height: 1.5em;
         }
         .ProseMirror blockquote {
            border-left: 3px solid #d97706;

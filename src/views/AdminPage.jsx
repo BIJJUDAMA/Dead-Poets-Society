@@ -28,6 +28,7 @@ import '@/css/Admin.css';
 import DOMPurify from 'dompurify';
 import RichTextEditor from '@/components/common/RichTextEditor';
 import { POEM_TAGS } from '@/lib/constants.js';
+import { formatPoemHtml } from '@/lib/poemFormatter.js';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -613,8 +614,8 @@ const AdminPage = () => {
                     </DialogHeader>
                     <div className="max-h-[55vh] overflow-y-auto mt-4 pr-2 border-t border-stone-900 pt-4">
                         <div
-                            className="prose prose-sm sm:prose-base max-w-none text-stone-200 prose-headings:text-amber-100 prose-strong:text-amber-200 font-serif leading-relaxed whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(viewingItem?.content) }}
+                            className="prose prose-sm sm:prose-base max-w-none text-stone-200 prose-headings:text-amber-100 prose-strong:text-amber-200 font-serif leading-relaxed poem-content"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(formatPoemHtml(viewingItem?.content)) }}
                         />
                     </div>
                 </DialogContent>

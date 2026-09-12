@@ -127,3 +127,29 @@
     animation: quillDraw 6.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
     will-change: stroke-dashoffset, opacity;
 }
+
+/* Poem Content Formatting: Preserves Line Breaks and Stanza Gaps */
+.poem-content p {
+    margin-top: 0.35em;
+    margin-bottom: 0.35em;
+    min-height: 1.4em;
+    line-height: 1.7;
+}
+
+.poem-content p:empty,
+.poem-content p:has(> br:only-child) {
+    min-height: 1.6em;
+}
+
+.poem-content p:empty::before {
+    content: "\00a0";
+    display: inline-block;
+}
+
+.poem-content blockquote {
+    border-left: 3px solid #d97706;
+    padding-left: 1rem;
+    margin-left: 0;
+    font-style: italic;
+    color: #fde68a;
+}
