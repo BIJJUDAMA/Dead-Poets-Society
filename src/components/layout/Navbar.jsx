@@ -94,7 +94,7 @@ const Navbar = () => {
                                 </button>
                             </div>
                         ) : (
-                            <Link href="/login" className="flex items-center gap-2 bg-[#111827] px-4 py-2 rounded-md hover:bg-gray-800 transition-colors">
+                            <Link href="/login" className="flex items-center gap-2 bg-stone-900 border border-stone-700/80 hover:border-amber-600/60 px-4 py-2 rounded-xl text-stone-200 hover:text-white transition-all font-serif text-sm">
                                 <LogIn size={16} /> Login
                             </Link>
                         )}
@@ -136,7 +136,7 @@ const Navbar = () => {
                         <Link href="/event" onClick={closeMenu} className="text-xl hover:text-yellow-300">Events</Link>
                         <Link href="/about" onClick={closeMenu} className="text-xl hover:text-yellow-300">About Us</Link>
 
-                        <div className="border-t border-gray-700 pt-6 w-full flex flex-col items-center space-y-6">
+                        <div className="border-t border-stone-800 pt-6 w-full flex flex-col items-center space-y-6">
                             {user ? (
                                 <>
                                     <Link href="/submit" onClick={closeMenu} className="text-xl hover:text-yellow-300">Submit Poem</Link>
@@ -148,7 +148,7 @@ const Navbar = () => {
                                     </button>
                                 </>
                             ) : (
-                                <Link href="/login" onClick={closeMenu} className="flex items-center gap-2 bg-[#111827] px-4 py-2 rounded-md">
+                                <Link href="/login" onClick={closeMenu} className="flex items-center gap-2 bg-stone-900 border border-stone-700/80 hover:border-amber-600/60 px-5 py-2.5 rounded-xl font-serif text-stone-200 hover:text-white transition-all">
                                     <LogIn size={16} /> Login
                                 </Link>
                             )}
@@ -159,7 +159,7 @@ const Navbar = () => {
                                 href="https://www.instagram.com/dead_poets_society_poetree/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
+                                className="flex items-center gap-2 text-stone-300 hover:text-amber-400 transition-colors"
                             >
                                 <Instagram size={24} />
                                 <span className="text-sm font-medium">DPS</span>
@@ -168,7 +168,7 @@ const Navbar = () => {
                                 href="https://www.instagram.com/srishti_amrita/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-gray-300 hover:text-pink-500 transition-colors"
+                                className="flex items-center gap-2 text-stone-300 hover:text-amber-400 transition-colors"
                             >
                                 <Instagram size={24} />
                                 <span className="text-sm font-medium">Srishti</span>
@@ -177,7 +177,7 @@ const Navbar = () => {
                                 href="https://github.com/BIJJUDAMA/Dead-Poets-Society"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-gray-300 hover:text-pink-500 transition-colors"
+                                className="text-stone-300 hover:text-amber-400 transition-colors"
                             >
                                 <Github size={24} />
                             </a>

@@ -29,7 +29,7 @@ const HomePage = ({ initialMostApplauded = [], initialRecentPoems = [] }) => {
                 </div>
             </section>
 
-            <section className="py-16 px-4 bg-black-900">
+            <section className="py-16 px-4 bg-stone-950/60 border-t border-stone-900/80">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-4xl font-bold text-center mb-12 text-white font-cinzel">Recent Additions</h2>
                     <NotesGrid notes={initialRecentPoems} />
