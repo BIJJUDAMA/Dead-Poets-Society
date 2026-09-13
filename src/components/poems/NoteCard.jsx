@@ -44,10 +44,10 @@ const NoteCard = React.memo(({ note, animate = true }) => {
                         style={{ backgroundImage: "url('/postIt.png')" }}
                     />
 
-                    {/* Rustic Bookmark Button - Positioned diagonally inward on the parchment paper */}
+                    {/* Rustic Bookmark Button - Positioned inward on the parchment paper */}
                     <div
                         data-boneyard-ignore
-                        className="absolute top-7 right-7 sm:top-8 sm:right-8 z-20"
+                        className="absolute top-12 right-9 sm:top-13 sm:right-10 z-20"
                         onClick={(e) => {
                             // Prevent click from bubbling up to the Link component
                             e.preventDefault();

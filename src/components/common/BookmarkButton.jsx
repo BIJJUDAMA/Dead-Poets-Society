@@ -82,10 +82,10 @@ const BookmarkButton = ({ noteId, compact = false }) => {
             transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             className={
                 compact
-                    ? `p-1.5 rounded-full border shadow-sm flex items-center justify-center transition-all duration-300 ${
+                    ? `p-1.5 flex items-center justify-center transition-all duration-300 focus:outline-none ${
                         isBookmarked
-                            ? 'opacity-100 bg-[#852221] border-[#5a1413] text-[#fce7bb] shadow-[0_2px_6px_rgba(133,34,33,0.5)]'
-                            : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100 bg-[#d8c3a5]/90 hover:bg-[#e4d4bd] border-[#8c6d48]/70 text-[#422c16] hover:text-[#261709] shadow-[0_2px_5px_rgba(50,30,10,0.25)]'
+                            ? 'opacity-100 text-[#852221] hover:text-[#5a1413] drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]'
+                            : 'opacity-75 sm:opacity-0 sm:group-hover:opacity-90 hover:!opacity-100 text-[#4e3820] hover:text-[#24170a] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]'
                     }`
                     : `p-2 rounded-lg border transition-all duration-300 flex items-center gap-2 ${
                         isBookmarked
@@ -98,13 +98,20 @@ const BookmarkButton = ({ noteId, compact = false }) => {
             title={!user ? "Log in to save poem" : isBookmarked ? "Saved to your bookmarks" : "Bookmark this poem"}
         >
             {isBookmarked ? (
-                <BookmarkCheck
-                    className={compact ? 'w-4 h-4 fill-current' : 'w-5 h-5 fill-yellow-500/20'}
-                    strokeWidth={2.5}
-                />
+                compact ? (
+                    <Bookmark
+                        className="w-5 h-5 fill-[#852221] text-[#852221]"
+                        strokeWidth={2}
+                    />
+                ) : (
+                    <BookmarkCheck
+                        className="w-5 h-5 fill-yellow-500/20"
+                        strokeWidth={2.5}
+                    />
+                )
             ) : (
                 <Bookmark
-                    className={compact ? 'w-4 h-4' : 'w-5 h-5'}
+                    className={compact ? 'w-5 h-5' : 'w-5 h-5'}
                     strokeWidth={compact ? 2.2 : 1.8}
                 />
             )}
