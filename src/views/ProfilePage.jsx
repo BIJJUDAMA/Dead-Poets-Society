@@ -169,13 +169,15 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
     const followingCount = profileData?.following?.length || 0;
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-5xl mx-auto py-12 px-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="max-w-5xl mx-auto py-10 sm:py-14 px-4 text-white">
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                <DialogContent className="bg-gray-900 border-gray-700">
-                    <DialogHeader>
-                        <DialogTitle>Edit Your Profile</DialogTitle>
-                        <DialogDescription>
-                            Make changes to your profile here. Click save when you're done.
+                <DialogContent className="w-[94vw] sm:w-[90vw] max-w-lg bg-stone-950 border border-stone-800 text-stone-100 rounded-2xl p-5 sm:p-6 shadow-2xl">
+                    <DialogHeader className="pb-3 border-b border-stone-800/80">
+                        <DialogTitle className="font-cinzel text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-stone-100 via-amber-100/90 to-stone-400">
+                            Edit Your Profile
+                        </DialogTitle>
+                        <DialogDescription className="text-stone-400 font-serif italic text-xs sm:text-sm">
+                            Make changes to your identity here. Click save when you're done.
                         </DialogDescription>
                     </DialogHeader>
                     <EditProfileModal onClose={() => {
@@ -187,45 +189,89 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
 
             {followList.visible && <FollowListModal title={followList.title} userIds={profileData[followList.title.toLowerCase()] || []} onClose={() => setFollowList({ visible: false, title: '', userIds: [] })} />}
 
-            <div className="flex flex-col md:flex-row items-center gap-8 border-b border-gray-700 pb-8">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-800">
+            <div className="flex flex-col md:flex-row items-center gap-8 border-b border-stone-800/90 pb-8">
+                <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-stone-800 shadow-[0_0_25px_rgba(245,158,11,0.15)] flex-shrink-0">
                     <Image src={profileData.photo_url || '/defaultPfp.png'} alt={profileData.display_name} fill className="object-cover" />
                 </div>
-                <div className="text-center md:text-left">
-                    <h1 className="text-4xl font-bold font-cinzel">{profileData.display_name}</h1>
-                    <p className="text-gray-400 mt-2 max-w-lg">{profileData.bio}</p>
-                    <div className="flex items-center justify-center md:justify-start gap-4 mt-4">
-                        <div className="bg-gray-800 text-white font-medium py-2 px-4 rounded-md flex items-center">
-                            <strong className="text-white mr-2">{userContent.poems.length}</strong>
-                            <span>Poems</span>
+                <div className="text-center md:text-left flex-1">
+                    <h1 className="text-3xl sm:text-4xl font-bold font-cinzel text-transparent bg-clip-text bg-gradient-to-b from-stone-100 via-amber-100/90 to-stone-400">
+                        {profileData.display_name}
+                    </h1>
+                    {profileData.bio && (
+                        <p className="text-stone-300 font-serif italic mt-2 max-w-lg leading-relaxed text-sm sm:text-base">
+                            "{profileData.bio}"
+                        </p>
+                    )}
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-4">
+                        <div className="bg-stone-900/90 border border-stone-800 text-stone-200 font-medium py-1.5 px-3.5 rounded-xl flex items-center text-sm">
+                            <strong className="text-amber-400 font-cinzel font-bold mr-1.5">{userContent.poems.length}</strong>
+                            <span className="text-stone-400">Poems</span>
                         </div>
-                        <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Followers', userIds: profileData.followers || [] })}>
-                            <strong className="text-white mr-2">{followerCount}</strong> Followers
+                        <Button 
+                            variant="ghost" 
+                            className="bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-600/50 text-stone-200 py-1.5 px-3.5 rounded-xl h-auto text-sm transition-all" 
+                            onClick={() => setFollowList({ visible: true, title: 'Followers', userIds: profileData.followers || [] })}
+                        >
+                            <strong className="text-amber-400 font-cinzel font-bold mr-1.5">{followerCount}</strong>
+                            <span className="text-stone-400">Followers</span>
                         </Button>
-                        <Button variant="ghost" className="bg-gray-800 hover:bg-gray-700 text-white" onClick={() => setFollowList({ visible: true, title: 'Following', userIds: profileData.following || [] })}>
-                            <strong className="text-white mr-2">{followingCount}</strong> Following
+                        <Button 
+                            variant="ghost" 
+                            className="bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-600/50 text-stone-200 py-1.5 px-3.5 rounded-xl h-auto text-sm transition-all" 
+                            onClick={() => setFollowList({ visible: true, title: 'Following', userIds: profileData.following || [] })}
+                        >
+                            <strong className="text-amber-400 font-cinzel font-bold mr-1.5">{followingCount}</strong>
+                            <span className="text-stone-400">Following</span>
                         </Button>
                     </div>
+
                     {isOwnProfile && (
-                        <div className="flex gap-4 mt-4 justify-center md:justify-start">
-                            <Button onClick={() => setIsEditing(true)} className="bg-gray-700 hover:bg-gray-600">Edit Profile</Button>
+                        <div className="flex items-center gap-3 mt-5 justify-center md:justify-start">
+                            <Button 
+                                onClick={() => setIsEditing(true)} 
+                                className="bg-stone-900 hover:bg-stone-800 border border-stone-700/80 hover:border-amber-600/60 text-stone-200 hover:text-white rounded-xl px-5 h-9 text-xs sm:text-sm font-medium transition-all shadow-sm"
+                            >
+                                Edit Profile
+                            </Button>
                             <Dialog>
-                                <DialogTrigger asChild><Button variant="destructive">Delete Account</Button></DialogTrigger>
-                                <DialogContent className="bg-gray-900 border-gray-700">
-                                    <DialogHeader>
-                                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                                        <DialogDescription>This action cannot be undone. This will permanently delete your account and all associated poems.</DialogDescription>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" className="text-red-400 hover:text-red-300 hover:bg-red-950/30 rounded-xl px-3 h-9 text-xs transition-colors">
+                                        Delete Account
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="w-[92vw] sm:w-[90vw] max-w-md bg-stone-950 border border-stone-800 text-stone-100 rounded-2xl p-6 shadow-2xl">
+                                    <DialogHeader className="pb-2">
+                                        <DialogTitle className="font-cinzel text-lg font-bold text-amber-100">Are you absolutely sure?</DialogTitle>
+                                        <DialogDescription className="text-stone-400 font-serif italic text-sm mt-1">
+                                            This action cannot be undone. This will permanently delete your identity and all your published verses.
+                                        </DialogDescription>
                                     </DialogHeader>
-                                    <DialogFooter>
-                                        <DialogClose asChild><Button variant="ghost">Cancel</Button></DialogClose>
-                                        <Button variant="destructive" onClick={handleDeleteAccount}>Yes, Delete Account</Button>
+                                    <DialogFooter className="mt-4 gap-2">
+                                        <DialogClose asChild>
+                                            <Button variant="ghost" className="text-stone-400 hover:text-white rounded-xl">Cancel</Button>
+                                        </DialogClose>
+                                        <Button 
+                                            variant="destructive" 
+                                            onClick={handleDeleteAccount}
+                                            className="bg-red-950/80 hover:bg-red-900 border border-red-700/60 text-red-200 rounded-xl"
+                                        >
+                                            Yes, Delete Account
+                                        </Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
                         </div>
                     )}
+
                     {!isOwnProfile && user && (
-                        <Button onClick={handleFollow} variant={isFollowing ? 'secondary' : 'default'} className="mt-6">
+                        <Button 
+                            onClick={handleFollow} 
+                            className={`mt-5 rounded-xl px-6 h-10 text-sm font-medium transition-all ${
+                                isFollowing 
+                                    ? 'bg-stone-900/90 hover:bg-stone-800 border border-amber-600/60 text-amber-200 shadow-sm' 
+                                    : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-stone-950 font-bold shadow-md active:scale-95'
+                            }`}
+                        >
                             {isFollowing ? 'Following' : 'Follow'}
                         </Button>
                     )}
@@ -234,25 +280,49 @@ const ProfilePage = ({ initialProfile, initialPoems = [] }) => {
 
             <div className="mt-8">
                 <Tabs defaultValue="published" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto bg-gray-900 mb-8">
-                        <TabsTrigger value="published" className="data-[state=active]:bg-gray-800">Published Poems</TabsTrigger>
-                        {isOwnProfile && <TabsTrigger value="saved" className="data-[state=active]:bg-gray-800" onClick={fetchSavedPoems}>Saved Poems</TabsTrigger>}
+                    <TabsList className="grid w-full grid-cols-2 max-w-[360px] mx-auto bg-stone-900/90 border border-stone-800 rounded-xl p-1 mb-8">
+                        <TabsTrigger 
+                            value="published" 
+                            className="rounded-lg text-stone-400 data-[state=active]:bg-stone-800 data-[state=active]:text-amber-200 font-cinzel text-xs sm:text-sm tracking-wide transition-all"
+                        >
+                            Published Verses
+                        </TabsTrigger>
+                        {isOwnProfile && (
+                            <TabsTrigger 
+                                value="saved" 
+                                className="rounded-lg text-stone-400 data-[state=active]:bg-stone-800 data-[state=active]:text-amber-200 font-cinzel text-xs sm:text-sm tracking-wide transition-all" 
+                                onClick={fetchSavedPoems}
+                            >
+                                Saved Verses
+                            </TabsTrigger>
+                        )}
                     </TabsList>
 
                     <TabsContent value="published">
-                        {userContent.poems.length > 0 ? <NotesGrid notes={userContent.poems} /> : <p className="text-center text-gray-500 mt-10">No poems published yet.</p>}
+                        {userContent.poems.length > 0 ? (
+                            <NotesGrid notes={userContent.poems} />
+                        ) : (
+                            <div className="text-center py-12">
+                                <p className="text-stone-500 font-serif italic text-base">No verses published yet.</p>
+                            </div>
+                        )}
                     </TabsContent>
 
                     {isOwnProfile && (
                         <TabsContent value="saved">
                             {savedLoading ? (
-                                <div className="text-center py-10 text-gray-400">Loading saved poems...</div>
+                                <div className="text-center py-12 text-stone-400 font-serif italic">Loading saved verses...</div>
                             ) : savedPoems.length > 0 ? (
                                 <NotesGrid notes={savedPoems} count={savedPoems.length} />
                             ) : (
-                                <div className="text-center py-10">
-                                    <p className="text-gray-500 text-lg mb-4">You haven't saved any poems yet.</p>
-                                    <Button variant="outline" onClick={() => router.push('/poems')}>Explore Poems</Button>
+                                <div className="text-center py-12">
+                                    <p className="text-stone-400 font-serif italic text-base mb-4">You have not bookmarked any verses yet.</p>
+                                    <Button 
+                                        onClick={() => router.push('/poems')}
+                                        className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 text-stone-950 font-bold rounded-xl px-6 shadow-md active:scale-95"
+                                    >
+                                        Explore the Collection
+                                    </Button>
                                 </div>
                             )}
                         </TabsContent>
