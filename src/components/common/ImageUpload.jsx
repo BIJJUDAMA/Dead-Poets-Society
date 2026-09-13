@@ -80,11 +80,11 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
                     alt="Profile Preview"
                     width={128}
                     height={128}
-                    className="rounded-full object-cover border-4 border-gray-600"
+                    className="rounded-full object-cover border-4 border-stone-800 group-hover:border-amber-600/70 transition-colors shadow-lg"
                     onError={(e) => { e.target.onerror = null; e.target.src = '/defaultPfp.png'; }}
                 />
-                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Camera className="text-white" />
+                <div className="absolute inset-0 rounded-full bg-stone-950/60 backdrop-blur-[2px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="text-amber-200 w-6 h-6" />
                 </div>
             </div>
             <input
@@ -94,7 +94,7 @@ const ImageUpload = ({ onImageUploaded, initialImage = '/defaultPfp.png' }) => {
                 accept="image/png, image/jpeg"
                 onChange={handleImageChange}
             />
-            {isUploading && <p className="text-sm text-gray-400">Uploading image...</p>}
+            {isUploading && <p className="text-xs text-amber-500/80 font-serif italic animate-pulse">Uploading portrait...</p>}
         </div>
     );
 };
