@@ -93,8 +93,9 @@ const ApplauseButton = ({ note }) => {
                 whileTap={{ scale: 1.5, rotate: -15 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 10 }}
                 className={`text-2xl transition-colors ${isApplauded ? 'text-yellow-400' : 'text-gray-400 hover:text-white'}`}
-                disabled={!user || isAnimating}
+                disabled={isAnimating}
                 aria-label="Applaud poem"
+                title={!user ? "Log in to applaud this poem" : isApplauded ? "Remove applause" : "Applaud this poem"}
             >
                 👏
             </motion.button>

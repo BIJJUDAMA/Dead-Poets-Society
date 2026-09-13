@@ -85,7 +85,7 @@ const BookmarkButton = ({ noteId, compact = false }) => {
                     ? `p-1.5 rounded-full border shadow-sm flex items-center justify-center transition-all duration-300 ${
                         isBookmarked
                             ? 'opacity-100 bg-[#852221] border-[#5a1413] text-[#fce7bb] shadow-[0_2px_6px_rgba(133,34,33,0.5)]'
-                            : 'opacity-0 group-hover:opacity-100 bg-[#d8c3a5]/90 hover:bg-[#e4d4bd] border-[#8c6d48]/70 text-[#422c16] hover:text-[#261709] shadow-[0_2px_5px_rgba(50,30,10,0.25)]'
+                            : 'opacity-80 sm:opacity-0 sm:group-hover:opacity-100 bg-[#d8c3a5]/90 hover:bg-[#e4d4bd] border-[#8c6d48]/70 text-[#422c16] hover:text-[#261709] shadow-[0_2px_5px_rgba(50,30,10,0.25)]'
                     }`
                     : `p-2 rounded-lg border transition-all duration-300 flex items-center gap-2 ${
                         isBookmarked
@@ -93,7 +93,7 @@ const BookmarkButton = ({ noteId, compact = false }) => {
                             : 'bg-stone-900/60 border-stone-700/60 text-stone-400 hover:text-stone-200 hover:border-stone-500'
                     }`
             }
-            disabled={!user || isAnimating}
+            disabled={isAnimating}
             aria-label={isBookmarked ? "Remove bookmark" : "Bookmark poem"}
             title={!user ? "Log in to save poem" : isBookmarked ? "Saved to your bookmarks" : "Bookmark this poem"}
         >
