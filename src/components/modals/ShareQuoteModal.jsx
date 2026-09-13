@@ -112,11 +112,11 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-gray-900 border-gray-700 max-w-lg w-[95vw] p-4 sm:p-6 sm:max-w-md md:max-w-lg">
+            <DialogContent className="bg-stone-950 border border-stone-800 text-stone-100 max-w-lg w-[95vw] p-4 sm:p-6 sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-center">Share Quote</DialogTitle>
-                    <DialogDescription className="text-center text-gray-400 text-xs">
-                        A beautiful graphic to share this poem on social media.
+                    <DialogTitle className="text-center font-cinzel text-xl text-stone-100">Share Quote</DialogTitle>
+                    <DialogDescription className="text-center text-stone-400 font-serif italic text-xs">
+                        A beautiful graphic to share this verse with the world.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -124,12 +124,12 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                     {/* Scale Wrapper: Responsive UI Preview */}
                     <div 
                         ref={containerRef}
-                        className="w-full aspect-square max-w-[400px] overflow-hidden relative rounded-md shadow-2xl border border-gray-800"
+                        className="w-full aspect-square max-w-[400px] overflow-hidden relative rounded-xl shadow-2xl border border-stone-800/80"
                     >
                         <div
                             ref={graphicRef}
                             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); return false; }}
-                            className="bg-gradient-to-br from-neutral-900 via-stone-900 to-black select-none flex flex-col items-center justify-center absolute left-1/2 top-1/2"
+                            className="bg-gradient-to-br from-neutral-950 via-stone-900 to-black select-none flex flex-col items-center justify-center absolute left-1/2 top-1/2"
                             style={{
                                 width: '600px',
                                 height: '600px',
@@ -139,13 +139,13 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                                 touchAction: 'none'
                             }}
                         >
-                            <div className="absolute top-10 left-10 text-5xl text-yellow-600/40 font-serif">"</div>
+                            <div className="absolute top-10 left-10 text-5xl text-amber-600/40 font-serif">"</div>
                             <p className="z-10 text-[32px] leading-relaxed font-serif italic text-stone-100 text-center px-16 line-clamp-[6] w-full">
                                 {excerpt}
                             </p>
                             <div className="z-10 mt-12 pt-6 w-[400px] border-t border-stone-800/80 flex flex-col items-center text-center">
-                                <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-400 mb-2">{title}</span>
-                                <span className="text-[16px] text-stone-500 italic font-serif">— {author}</span>
+                                <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-300 mb-2">{title}</span>
+                                <span className="text-[16px] text-stone-400 italic font-serif">— {author}</span>
                             </div>
                             <div className="absolute bottom-8 w-full px-10 flex items-center justify-between">
                                 <div className="flex flex-col items-center gap-2">
@@ -163,8 +163,8 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                                     <span className="text-[10px] text-stone-500 font-sans tracking-widest uppercase opacity-80">Scan Me</span>
                                 </div>
                                 <div className="flex flex-col items-end text-right">
-                                    <div className="text-stone-600 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
-                                    <div className="text-stone-700 text-[12px] tracking-widest font-sans mt-1 opacity-50">{pageUrl}</div>
+                                    <div className="text-stone-500 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
+                                    <div className="text-stone-600 text-[12px] tracking-widest font-sans mt-1 opacity-60">{pageUrl}</div>
                                 </div>
                             </div>
                         </div>
@@ -175,16 +175,16 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 <div className="fixed left-[-9999px] top-[-9999px] pointer-events-none border-none outline-none ring-0">
                     <div
                         ref={hiddenGraphicRef}
-                        className="bg-gradient-to-br from-neutral-900 via-stone-900 to-black flex flex-col items-center justify-center relative overflow-hidden"
+                        className="bg-gradient-to-br from-neutral-950 via-stone-900 to-black flex flex-col items-center justify-center relative overflow-hidden"
                         style={{ width: '600px', height: '600px' }}
                     >
-                        <div className="absolute top-10 left-10 text-5xl text-yellow-600/40 font-serif">"</div>
+                        <div className="absolute top-10 left-10 text-5xl text-amber-600/40 font-serif">"</div>
                         <p className="z-10 text-[32px] leading-relaxed font-serif italic text-stone-100 text-center px-16 line-clamp-[6] w-full">
                             {excerpt}
                         </p>
                         <div className="z-10 mt-12 pt-6 w-[400px] border-t border-stone-800/80 flex flex-col items-center text-center">
-                            <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-400 mb-2">{title}</span>
-                            <span className="text-[16px] text-stone-500 italic font-serif">— {author}</span>
+                            <span className="text-[20px] font-bold tracking-[0.2em] uppercase text-stone-300 mb-2">{title}</span>
+                            <span className="text-[16px] text-stone-400 italic font-serif">— {author}</span>
                         </div>
                         <div className="absolute bottom-8 w-full px-10 flex items-center justify-between">
                             <div className="flex flex-col items-center gap-2">
@@ -202,8 +202,8 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                                 <span className="text-[10px] text-stone-500 font-sans tracking-widest uppercase opacity-80">Scan Me</span>
                             </div>
                             <div className="flex flex-col items-end text-right">
-                                <div className="text-stone-600 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
-                                <div className="text-stone-700 text-[12px] tracking-widest font-sans mt-1 opacity-50">{pageUrl}</div>
+                                <div className="text-stone-500 text-[16px] uppercase tracking-[0.4em] font-sans font-medium">Dead Poets Society</div>
+                                <div className="text-stone-600 text-[12px] tracking-widest font-sans mt-1 opacity-60">{pageUrl}</div>
                             </div>
                         </div>
                     </div>
@@ -212,7 +212,7 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                 <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                         onClick={handleDownload}
-                        className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-black font-semibold"
+                        className="flex-1 bg-gradient-to-r from-amber-700 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-500 text-stone-950 font-serif font-bold tracking-wide rounded-xl shadow-md transition-all py-2.5"
                         disabled={isGenerating}
                     >
                         <Download className="mr-2 h-4 w-4" />
@@ -222,8 +222,8 @@ const ShareQuoteModal = ({ isOpen, onClose, selectedText, title, author }) => {
                     {canWebShare && (
                         <Button
                             onClick={handleNativeShare}
-                            variant="secondary"
-                            className="flex-1"
+                            variant="outline"
+                            className="flex-1 bg-stone-900 hover:bg-stone-800 border-stone-700 text-stone-200 hover:text-white rounded-xl font-serif py-2.5"
                             disabled={isGenerating}
                         >
                             <Share2 className="mr-2 h-4 w-4" />
