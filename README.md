@@ -239,3 +239,4 @@ This project is licensed under the MIT License.
 - [ ] Build a **Full-Screen Distraction-Free Study Mode** that fades navigation bars and UI chrome to focus entirely on verse.
 - [ ] Provide **Print and Press Journal Export** for generating print-ready, high-resolution PDF leaflets formatted like classical literary press journals.
 - [ ] Implement **Semantic and Mood-Based Search** using PostgreSQL pg_trgm fuzzy matching or vector embeddings (pgvector) to discover poems by theme, motif, and emotional tone.
+- [ ] Add collborator feature on poems, notification acceptance. Invalidation in 72 hours
