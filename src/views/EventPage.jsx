@@ -14,7 +14,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, Feather } from 'lucide-react';
 const EventCard = React.memo(({ event, index = 0, animate = true }) => {
     const [isMobile, setIsMobile] = useState(false);
 
@@ -41,8 +41,8 @@ const EventCard = React.memo(({ event, index = 0, animate = true }) => {
             variants={cardVariants}
             initial={animate ? "hidden" : "visible"}
             animate="visible"
-            whileHover={animate ? { scale: 1.02, y: -3 } : undefined}
-            className="relative w-full max-w-sm mx-auto cursor-pointer"
+            whileHover={animate ? { scale: 1.02, y: -4, transition: { duration: 0.25, ease: "easeOut" } } : undefined}
+            className="relative w-full max-w-sm mx-auto cursor-pointer drop-shadow-[0_15px_35px_rgba(0,0,0,0.85)] hover:drop-shadow-[0_20px_45px_rgba(0,0,0,0.95)] transition-[filter] duration-300"
             style={{ aspectRatio: '460 / 640' }}
         >
             <Link href={`/event/${event.slug}`} className="block w-full h-full">
@@ -129,15 +129,18 @@ const EventCard = React.memo(({ event, index = 0, animate = true }) => {
     );
 });
 
-const EventPage = ({ eventsList }) => {
-
+const EventPage = ({ eventsList = [] }) => {
     return (
-        <div className="min-h-screen bg-black text-white px-6 py-12">
+        <div className="min-h-screen bg-black text-white px-6 py-12 relative overflow-hidden selection:bg-amber-900/40 selection:text-amber-100">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-600/5 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-yellow-600/5 blur-[140px] rounded-full pointer-events-none" />
+
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="text-center mb-12 sm:mb-16"
+                className="text-center mb-12 sm:mb-16 relative z-10"
             >
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-cinzel font-bold text-transparent bg-clip-text bg-gradient-to-b from-stone-100 via-amber-100/90 to-stone-400 mb-2 tracking-wide">
                     Society's Events
@@ -151,13 +154,19 @@ const EventPage = ({ eventsList }) => {
                 </div>
             </motion.div>
 
-            <div className="flex flex-wrap justify-center gap-12 max-w-7xl mx-auto">
-                {eventsList.map((event, index) => (
-                    <div key={event?.slug || index} className="w-full sm:w-[420px]">
-                        <EventCard event={event} index={index} />
-                    </div>
-                ))}
-            </div>
+            {eventsList && eventsList.length > 0 ? (
+                <div className="relative z-10 flex flex-wrap justify-center gap-12 max-w-7xl mx-auto">
+                    {eventsList.map((event, index) => (
+                        <div key={event?.slug || index} className="w-full sm:w-[420px]">
+                            <EventCard event={event} index={index} />
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="relative z-10 text-center py-16 px-4">
+                    <h3 className="text-xl font-cinzel text-stone-300">No Events Found</h3>
+                </div>
+            )}
         </div>
     );
 };

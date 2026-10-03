@@ -11,7 +11,7 @@
  */
 
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { supabase } from '@/supabase/config.js';
 import Image from 'next/image';
 import Link from 'next/link';

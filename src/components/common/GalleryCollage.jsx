@@ -94,7 +94,7 @@ const GalleryCollage = ({ images }) => {
                 {images.map((_, idx) => (
                     <div
                         key={idx}
-                        className="w-full h-full rounded-lg bg-gray-800 min-h-[200px] animate-pulse"
+                        className="w-full h-full rounded-xl bg-stone-900 border border-stone-800 min-h-[200px] animate-pulse"
                     />
                 ))}
             </div>
@@ -112,14 +112,14 @@ const GalleryCollage = ({ images }) => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="break-inside-avoid rounded-lg overflow-hidden relative group"
+                            className="break-inside-avoid rounded-xl border border-stone-800/80 overflow-hidden relative group shadow-md transition-all duration-300 hover:border-amber-600/50 hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)]"
                         >
                             <img
                                 src={img.src}
                                 alt={`Gallery ${idx}`}
-                                className="w-full h-auto object-cover"
+                                className="w-full h-auto object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                         </motion.div>
                     ))}
                 </AnimatePresence>
@@ -138,14 +138,14 @@ const GalleryCollage = ({ images }) => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="rounded-lg overflow-hidden relative group aspect-video"
+                            className="rounded-xl border border-stone-800/80 overflow-hidden relative group aspect-video shadow-md transition-all duration-300 hover:border-amber-600/50 hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)]"
                         >
                             <img
                                 src={img.src}
                                 alt={`Gallery ${idx}`}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                         </motion.div>
                     ))}
                 </AnimatePresence>
@@ -165,7 +165,7 @@ const GalleryCollage = ({ images }) => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
-                        className="relative rounded-lg overflow-hidden group flex-grow"
+                        className="relative rounded-xl border border-stone-800/80 overflow-hidden group flex-grow shadow-md transition-all duration-300 hover:border-amber-600/50 hover:shadow-[0_8px_25px_rgba(0,0,0,0.6)]"
                         style={{
                             // Width calculation ensures rows fill up nicely
                             width: `${img.aspectRatio * 250}px`,
@@ -181,9 +181,9 @@ const GalleryCollage = ({ images }) => {
                         <img
                             src={img.src}
                             alt={`Gallery ${idx}`}
-                            className="absolute inset-0 w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     </motion.div>
                 ))}
             </AnimatePresence>
