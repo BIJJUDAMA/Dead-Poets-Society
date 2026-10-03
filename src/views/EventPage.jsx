@@ -11,12 +11,16 @@
  */
 
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Feather } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 const EventCard = React.memo(({ event, index = 0, animate = true }) => {
     const [isMobile, setIsMobile] = useState(false);
+    const [photoLoaded, setPhotoLoaded] = useState(false);
+    const [frameLoaded, setFrameLoaded] = useState(false);
+    const photoRef = useRef(null);
+    const frameRef = useRef(null);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -26,6 +30,17 @@ const EventCard = React.memo(({ event, index = 0, animate = true }) => {
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    useEffect(() => {
+        if (photoRef.current?.complete && photoRef.current?.naturalWidth !== 0) {
+            setPhotoLoaded(true);
+        }
+        if (frameRef.current?.complete && frameRef.current?.naturalWidth !== 0) {
+            setFrameLoaded(true);
+        }
+    }, [event.mainImage]);
+
+    const isReady = photoLoaded && frameLoaded;
 
     const truncatedReport = event.report
         ? event.report.substring(0, isMobile ? 80 : 120) + (event.report.length > (isMobile ? 80 : 120) ? '...' : '')
@@ -41,11 +56,26 @@ const EventCard = React.memo(({ event, index = 0, animate = true }) => {
             variants={cardVariants}
             initial={animate ? "hidden" : "visible"}
             animate="visible"
-            whileHover={animate ? { scale: 1.02, y: -4, transition: { duration: 0.25, ease: "easeOut" } } : undefined}
+            whileHover={animate && isReady ? { scale: 1.02, y: -4, transition: { duration: 0.25, ease: "easeOut" } } : undefined}
             className="relative w-full max-w-sm mx-auto cursor-pointer drop-shadow-[0_15px_35px_rgba(0,0,0,0.85)] hover:drop-shadow-[0_20px_45px_rgba(0,0,0,0.95)] transition-[filter] duration-300"
             style={{ aspectRatio: '460 / 640' }}
         >
-            <Link href={`/event/${event.slug}`} className="block w-full h-full">
+            {/* Skeleton placeholder shown while either image is loading */}
+            {!isReady && (
+                <div className="absolute inset-0 bg-stone-900/60 border border-stone-800/80 rounded-2xl animate-pulse flex flex-col justify-between p-6 z-30 pointer-events-none">
+                    <div className="w-full h-[48%] bg-stone-800/50 rounded-xl" />
+                    <div className="space-y-3">
+                        <div className="w-2/3 h-6 bg-stone-800/50 rounded mx-auto" />
+                        <div className="w-1/2 h-4 bg-stone-800/40 rounded mx-auto" />
+                        <div className="w-full h-10 bg-stone-800/30 rounded" />
+                    </div>
+                </div>
+            )}
+
+            <Link
+                href={`/event/${event.slug}`}
+                className={`block w-full h-full transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+            >
                 <div className="relative w-full h-full">
                     {/* Photo sits at z-0, beneath the parchment frame */}
                     <div
@@ -59,22 +89,24 @@ const EventCard = React.memo(({ event, index = 0, animate = true }) => {
                         }}
                     >
                         <img
+                            ref={photoRef}
                             src={event.mainImage}
                             alt={event.name}
+                            onLoad={() => setPhotoLoaded(true)}
                             className="w-full h-full object-cover"
+                            loading="eager"
                         />
                     </div>
 
                     {/* Parchment card overlaid on top of the photo so torn edges frame it */}
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            backgroundImage: 'url(/eventcardpng.png)',
-                            backgroundSize: '100% 100%',
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center',
-                            zIndex: 10,
-                        }}
+                    <img
+                        ref={frameRef}
+                        src="/eventcardpng.png"
+                        alt=""
+                        onLoad={() => setFrameLoaded(true)}
+                        className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+                        style={{ zIndex: 10 }}
+                        loading="eager"
                     />
 
                     {/* Text content area — above parchment layer */}
