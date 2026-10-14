@@ -1,6 +1,7 @@
 "use client";
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { MapPin } from 'lucide-react';
 
 const AboutUsPage = () => {
     return (
@@ -100,9 +101,6 @@ const AboutUsPage = () => {
                         className="py-2 my-2 text-center"
                     >
                         <div className="space-y-2.5 text-stone-300 font-serif text-base sm:text-lg leading-relaxed italic">
-                            <p className="font-semibold text-amber-100 not-italic text-lg sm:text-xl tracking-wide mb-3">
-                                This is not just a website.
-                            </p>
                             <p className="text-stone-200">
                                 This is a place to remember those who came before us,
                             </p>
@@ -138,6 +136,44 @@ const AboutUsPage = () => {
                     </div>
 
                 </div>
+
+                {/* Weekly Meetings & Location Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="w-full max-w-3xl mt-12 sm:mt-16 flex flex-col items-center"
+                >
+                    <p className="text-stone-300 font-serif italic text-base sm:text-lg max-w-2xl text-center leading-relaxed mb-6 px-4 [text-wrap:balance]">
+                        Here is the pin for around where our weekly meetings happen—<br className="hidden sm:inline" />
+                        details on time and schedule are shared in the respective WhatsApp group.
+                    </p>
+
+                    {/* Map Frame matching hero image styling */}
+                    <div className="w-full rounded-2xl overflow-hidden border border-stone-800 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative bg-stone-950">
+                        <iframe
+                            title="Weekly Meeting Location"
+                            src="https://maps.google.com/maps?q=10.903394,76.903896&hl=en&z=17&output=embed"
+                            className="w-full h-64 sm:h-72 md:h-[360px] border-0 block"
+                            loading="lazy"
+                            allowFullScreen
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+                    </div>
+
+                    {/* Google Maps Text Link */}
+                    <a
+                        href="https://maps.app.goo.gl/cM7m1pz1ctV28pNg8?g_st=ac"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm sm:text-base text-amber-200/90 hover:text-amber-100 font-serif italic transition-colors duration-200 mt-4"
+                    >
+                        <MapPin className="w-4 h-4 text-amber-400" />
+                        <span>Open location in Google Maps</span>
+                        <span className="text-amber-400 text-xs">↗</span>
+                    </a>
+                </motion.div>
             </div>
         </motion.div>
     );
